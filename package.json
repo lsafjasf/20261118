@@ -1,0 +1,15 @@
+{
+  "name": "magnetic-timeline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Magnetic multi-track timeline with exact minimum-move constraint solving.",
+  "scripts": {
+    "start": "node tools/serve.js",
+    "test": "node --test",
+    "demo": "node tools/demo.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
