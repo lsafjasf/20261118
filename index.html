@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTS/PTS 序列分析器</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>DTS / PTS 序列分析器</h1>
+    <p class="sub">解析解复用层输出的时间戳序列，校验解码顺序与展示顺序</p>
+  </header>
+
+  <section class="controls">
+    <div class="sample-btns">
+      <button id="btnBFrame">载入 B 帧样例</button>
+      <button id="btnShuffled">载入打乱时间戳样例</button>
+      <button id="btnAnalyze">重新分析</button>
+    </div>
+    <textarea id="input" rows="6" spellcheck="false"
+      placeholder="每行一个包（解码顺序）：dts, pts&#10;例如：&#10;0, 0&#10;3600, 10800&#10;7200, 3600"></textarea>
+  </section>
+
+  <section id="summary" class="summary"></section>
+
+  <section class="tracks">
+    <h2>双轨视图（上：DTS 解码顺序 / 下：PTS 展示顺序）</h2>
+    <div id="trackWrap" class="track-wrap"></div>
+    <div class="legend">
+      <span><i class="dot ok"></i>正常帧</span>
+      <span><i class="dot b"></i>重排帧（B 帧特征）</span>
+      <span><i class="dot bad"></i>非法时间戳</span>
+      <span><i class="dot sel"></i>选中帧</span>
+    </div>
+  </section>
+
+  <section id="detail" class="detail">
+    <h2>帧详情</h2>
+    <p class="hint">点击轨道中的帧查看其参考帧依赖。</p>
+  </section>
+
+  <script src="analyzer.js"></script>
+  <script src="samples.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
