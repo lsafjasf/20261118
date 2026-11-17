@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本地视频重复画面分析器</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>本地视频重复画面分析器</h1>
+  <p class="subtitle">逐时刻取样 · 亮度差 / 边缘 / 局部运动联合判定 · 冻结区间证据与人工修订</p>
+</header>
+
+<main class="layout">
+  <section class="panel" id="panel-source">
+    <h2>1. 视频来源</h2>
+    <div class="row">
+      <label class="file-btn">
+        选择本地视频
+        <input type="file" id="file-input" accept="video/*" hidden>
+      </label>
+      <button id="btn-generate" class="secondary">生成带标记测试片</button>
+      <button id="btn-load-gt" class="secondary" hidden>载入测试片真值</button>
+      <input type="file" id="gt-input" accept=".json,application/json" hidden>
+    </div>
+    <div class="row meta" id="video-meta">尚未载入视频</div>
+    <video id="video" muted playsinline></video>
+  </section>
+
+  <section class="panel" id="panel-config">
+    <h2>2. 取样与阈值</h2>
+    <div class="grid">
+      <label>取样步长 (s)
+        <input type="number" id="cfg-step" value="0.1" min="0.03" max="2" step="0.05">
+      </label>
+      <label>分析宽度 (px)
+        <input type="number" id="cfg-width" value="160" min="64" max="640" step="16">
+      </label>
+      <label>最短冻结时长 (s)
+        <input type="number" id="cfg-min-dur" value="0.3" min="0.1" max="5" step="0.1">
+      </label>
+      <label>阈值预设
+        <select id="cfg-preset">
+          <option value="loose">宽松（少漏检，易误报）</option>
+          <option value="standard" selected>标准</option>
+          <option value="strict">严格（少误报，易漏检）</option>
+          <option value="custom">自定义</option>
+        </select>
+      </label>
+    </div>
+    <div class="grid" id="custom-thresholds">
+      <label>亮度差阈值
+        <input type="number" id="t-luma" value="2.5" min="0.2" max="40" step="0.1">
+      </label>
+      <label>边缘差阈值
+        <input type="number" id="t-edge" value="0.01" min="0.001" max="0.3" step="0.001">
+      </label>
+      <label>局部运动阈值
+        <input type="number" id="t-motion" value="0.02" min="0.001" max="0.5" step="0.005">
+      </label>
+      <label>低光判定亮度
+        <input type="number" id="t-lowlight" value="32" min="1" max="128" step="1">
+      </label>
+    </div>
+    <div class="row">
+      <button id="btn-analyze">开始分析</button>
+      <button id="btn-cancel" class="danger" hidden>取消</button>
+      <span id="analyze-progress" class="progress"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-results" hidden>
+    <h2>3. 时间线与指标证据</h2>
+    <canvas id="timeline" height="180"></canvas>
+    <div id="timeline-legend" class="legend"></div>
+    <div id="candidate-list" class="candidates"></div>
+  </section>
+
+  <section class="panel" id="panel-eval" hidden>
+    <h2>4. 阈值对比与真值评估</h2>
+    <div class="row">
+      <button id="btn-sweep" class="secondary">对比三种预设</button>
+      <span class="hint">基于已缓存指标重算，无需重新取样</span>
+    </div>
+    <div id="sweep-table"></div>
+  </section>
+
+  <section class="panel" id="panel-review" hidden>
+    <h2>5. 人工修订与导出</h2>
+    <div class="row">
+      <button id="btn-export-json" class="secondary">导出检测结果 JSON</button>
+      <button id="btn-export-csv" class="secondary">导出区间 CSV</button>
+      <button id="btn-export-report" class="secondary">导出 HTML 报告</button>
+      <button id="btn-export-anno" class="secondary">导出人工修订记录</button>
+      <button id="btn-import-anno" class="secondary">导入修订记录</button>
+      <input type="file" id="anno-input" accept=".json,application/json" hidden>
+    </div>
+    <div id="review-list" class="review"></div>
+  </section>
+</main>
+
+<script src="js/util.js"></script>
+<script src="js/metrics.js"></script>
+<script src="js/detect.js"></script>
+<script src="js/evaluate.js"></script>
+<script src="js/review.js"></script>
+<script src="js/generator.js"></script>
+<script src="js/app-core.js"></script>
+<script src="js/app-ui.js"></script>
+<script src="js/app-events.js"></script>
+</body>
+</html>

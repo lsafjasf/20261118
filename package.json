@@ -1,0 +1,12 @@
+{
+  "name": "video-freeze-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "本地视频重复画面/冻结区间分析器（纯前端，无需构建）",
+  "scripts": {
+    "test": "node test/run-tests.js && node test/dom-smoke.js",
+    "test:e2e": "node test/e2e/e2e.js"
+  },
+  "keywords": ["video", "freeze-detection", "canvas", "local"],
+  "license": "MIT"
+}
