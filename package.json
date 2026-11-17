@@ -1,0 +1,10 @@
+{
+  "name": "sync-timecode-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Camera, audio and editorial timeline timecode mapper",
+  "scripts": {
+    "test": "node --test",
+    "demo:csv": "node scripts/generate-demo-csv.js"
+  }
+}

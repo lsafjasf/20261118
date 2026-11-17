@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b0d0f">
+    <title>SYNC / TC · 多域时间码映射台</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="SYNC TC 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span class="brand-type">SYNC<span>/</span>TC</span>
+      </a>
+      <div class="topbar-note">摄像机 · 音频 · 剪辑时间线</div>
+      <div class="top-actions">
+        <span id="globalStatus" class="status-pill status-neutral">准备中</span>
+        <button id="exportTopButton" class="button button-ghost" type="button">
+          导出 CSV
+        </button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> FRAME-ACCURATE SYNC</p>
+          <h1>让每一帧，<br><em>对上时间。</em></h1>
+          <p class="hero-lede">
+            用多个手动同步点拟合摄像机、音频与剪辑时间线之间的偏移和漂移。
+            29.97 / 59.94 丢帧时间码按 1001/1000 实际帧率计算。
+          </p>
+        </div>
+        <div class="hero-readout" aria-label="当前映射摘要">
+          <div class="readout-cell">
+            <span>同步点</span>
+            <strong id="metricPoints">03</strong>
+            <small>MANUAL</small>
+          </div>
+          <div class="readout-cell">
+            <span>最大漂移</span>
+            <strong id="metricDrift">—</strong>
+            <small>PPM</small>
+          </div>
+          <div class="readout-cell wide">
+            <span>映射状态</span>
+            <strong id="metricStatus">计算中</strong>
+            <small id="metricTolerance">容差 1.00 帧</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel sync-panel" aria-labelledby="syncTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="step-label">01 / SOURCE CLOCKS</p>
+            <h2 id="syncTitle">时间码域与同步点</h2>
+          </div>
+          <div class="heading-actions">
+            <button id="loadDemoButton" class="button button-quiet" type="button">载入 29.97 样片</button>
+            <button id="loadConflictButton" class="button button-quiet" type="button">载入冲突样例</button>
+            <button id="addPointButton" class="button button-solid" type="button">＋ 添加同步点</button>
+          </div>
+        </div>
+
+        <div id="rateGrid" class="rate-grid"></div>
+
+        <div class="sync-toolbar">
+          <p class="field-note">时间码格式 <code>HH:MM:SS:FF</code>，丢帧使用 <code>HH:MM:SS;FF</code>。</p>
+          <label class="tolerance-field">
+            <span>冲突容差</span>
+            <input id="toleranceInput" type="number" min="0" max="120" step="0.25" value="1">
+            <span>帧</span>
+          </label>
+        </div>
+
+        <div class="table-scroll">
+          <table class="sync-table">
+            <thead>
+              <tr>
+                <th class="point-col">同步点</th>
+                <th><span class="domain-dot dot-camera"></span>摄像机时间码</th>
+                <th><span class="domain-dot dot-audio"></span>音频时间码</th>
+                <th><span class="domain-dot dot-timeline"></span>剪辑时间线</th>
+                <th class="action-col"><span class="sr-only">操作</span></th>
+              </tr>
+            </thead>
+            <tbody id="syncBody"></tbody>
+          </table>
+        </div>
+        <div id="syncError" class="inline-alert" role="alert" hidden></div>
+      </section>
+
+      <section class="analysis-grid" aria-labelledby="analysisTitle">
+        <div class="panel mapping-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="step-label">02 / AFFINE FIT</p>
+              <h2 id="analysisTitle">偏移与漂移</h2>
+            </div>
+            <span class="method-badge">LEAST SQUARES</span>
+          </div>
+          <div id="mappingCards" class="mapping-cards"></div>
+        </div>
+
+        <aside class="panel conflict-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="step-label">CONFLICT CHECK</p>
+              <h2>同步点审计</h2>
+            </div>
+            <select id="inspectionSelect" class="select-mini" aria-label="选择要审计的映射"></select>
+          </div>
+          <div id="conflictContent" class="conflict-content"></div>
+        </aside>
+      </section>
+
+      <section class="panel converter-panel" aria-labelledby="converterTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="step-label">03 / POINT CONVERSION</p>
+            <h2 id="converterTitle">任意时点换算</h2>
+          </div>
+          <span class="panel-hint">输入任一域时间码，同时得到另两域位置</span>
+        </div>
+        <div class="converter-input-row">
+          <label class="field-group source-field">
+            <span>源时间码域</span>
+            <select id="convertSource"></select>
+          </label>
+          <label class="field-group timecode-field">
+            <span>时间码</span>
+            <input id="convertTimecode" type="text" inputmode="numeric" spellcheck="false" value="00:30:00;00">
+          </label>
+          <button id="convertButton" class="button button-solid convert-button" type="button">换算</button>
+        </div>
+        <div id="convertError" class="inline-alert" role="alert" hidden></div>
+        <div id="convertResults" class="convert-results"></div>
+      </section>
+
+      <section class="panel export-panel" aria-labelledby="tableTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="step-label">04 / DELIVERABLE</p>
+            <h2 id="tableTitle">换算表</h2>
+          </div>
+          <button id="exportButton" class="button button-solid" type="button">导出换算表 CSV</button>
+        </div>
+        <div class="export-controls">
+          <label class="field-group">
+            <span>基准域</span>
+            <select id="tableSource"></select>
+          </label>
+          <label class="field-group">
+            <span>起始时间码</span>
+            <input id="tableStart" type="text" spellcheck="false" value="00:00:00;00">
+          </label>
+          <label class="field-group">
+            <span>结束时间码</span>
+            <input id="tableEnd" type="text" spellcheck="false" value="01:00:00;00">
+          </label>
+          <label class="field-group narrow-field">
+            <span>步长（秒）</span>
+            <input id="tableStep" type="number" min="0.001" step="1" value="60">
+          </label>
+          <button id="generateTableButton" class="button button-quiet" type="button">生成表格</button>
+        </div>
+        <div id="tableError" class="inline-alert" role="alert" hidden></div>
+        <div id="tableMeta" class="table-meta"></div>
+        <div class="table-scroll table-preview-scroll">
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>摄像机</th>
+                <th>音频</th>
+                <th>剪辑时间线</th>
+                <th>CAM 秒</th>
+                <th>AUD 秒</th>
+                <th>TL 秒</th>
+              </tr>
+            </thead>
+            <tbody id="tablePreviewBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>SYNC / TC · 本地计算，不上传素材或时间码数据。</p>
+      <p id="footerFormula">T(TL) = a × T(CAM) + b</p>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="timecode.js"></script>
+    <script src="mapping.js"></script>
+    <script src="demo.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
