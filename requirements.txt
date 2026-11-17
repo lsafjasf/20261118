@@ -1,0 +1,7 @@
+numpy>=1.26
+scipy>=1.11
+soundfile>=0.12
+matplotlib>=3.7
+pytest>=7.4
+# Optional live playback; the app degrades gracefully when PortAudio is absent.
+sounddevice>=0.4
