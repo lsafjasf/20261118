@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WASM 音频爆音修复演示</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 2rem; background: #0f172a; color: #e2e8f0; }
+      h1 { font-size: 1.3rem; }
+      .panel { background: #1e293b; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+      button, select, input { font-size: 0.95rem; padding: 0.45rem 0.8rem; border-radius: 6px; border: 0; }
+      button { background: #2563eb; color: #fff; cursor: pointer; }
+      button:disabled { opacity: 0.5; cursor: default; }
+      canvas { width: 100%; height: 260px; background: #0b1220; border-radius: 8px; display: block; }
+      table { border-collapse: collapse; margin-top: 0.75rem; font-variant-numeric: tabular-nums; }
+      td, th { border: 1px solid #334155; padding: 0.3rem 0.7rem; text-align: right; }
+      th { background: #334155; }
+      .muted { color: #94a3b8; font-size: 0.85rem; }
+      .row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>WebAssembly 音频爆音修复（48 kHz 单声道 PCM）</h1>
+    <div class="panel">
+      <div class="row">
+        <input id="file" type="file" accept=".wav,audio/wav" />
+        <select id="mode">
+          <option value="0">局部线性插值</option>
+          <option value="1">镜像片段修补</option>
+        </select>
+        <button id="run" disabled>修复并分析</button>
+        <button id="download" disabled>下载修复后 WAV</button>
+      </div>
+      <p class="muted">选择 WAV 文件（浏览器 WebAudio 解码为单声道 Float32 PCM），WASM 模块接收指针与长度，返回修复后 PCM 与修改区间。</p>
+    </div>
+    <div class="panel">
+      <canvas id="canvas" width="1200" height="260"></canvas>
+      <table id="metrics"></table>
+      <div id="regions" class="muted"></div>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
