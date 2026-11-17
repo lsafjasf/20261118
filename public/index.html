@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <title>WebTransport 媒体接收实验</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 24px; background: #0f141b; color: #dde6f0; }
+      h1 { font-size: 20px; }
+      fieldset { border: 1px solid #334; border-radius: 8px; margin-bottom: 12px; }
+      label { margin-right: 16px; }
+      button { padding: 6px 18px; font-size: 14px; }
+      table { border-collapse: collapse; margin-top: 8px; }
+      td, th { border: 1px solid #334; padding: 4px 10px; font-variant-numeric: tabular-nums; }
+      #video { background: #000; margin-top: 8px; }
+      .row { display: flex; gap: 24px; align-items: flex-start; }
+      #log { font-size: 12px; color: #9ab; max-height: 160px; overflow: auto; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>WebTransport 媒体接收实验（WebCodecs 解码 / 有界重排缓冲）</h1>
+    <fieldset>
+      <legend>缓冲档位（重排缓冲上限）</legend>
+      <label><input type="radio" name="tier" value="low" /> 低延迟档（80ms）</label>
+      <label><input type="radio" name="tier" value="mid" checked /> 均衡档（200ms）</label>
+      <label><input type="radio" name="tier" value="high" /> 稳定档（450ms）</label>
+    </fieldset>
+    <fieldset>
+      <legend>网络损伤（服务端施加）</legend>
+      <label>抖动上限 ms <input id="jitter" type="number" value="150" style="width:70px" /></label>
+      <label>突发延迟 ms <input id="spike" type="number" value="400" style="width:70px" /></label>
+      <label>突发概率 % <input id="spikeProb" type="number" value="5" style="width:60px" /></label>
+      <label>时长 ms <input id="duration" type="number" value="12000" style="width:80px" /></label>
+    </fieldset>
+    <button id="start">开始接收</button>
+    <span id="status">idle</span>
+    <div class="row">
+      <div>
+        <h3>视频画面</h3>
+        <canvas id="video" width="320" height="240"></canvas>
+      </div>
+      <div>
+        <h3>最近一帧时间（ms）</h3>
+        <table id="times">
+          <tr><th></th><th>发送时间</th><th>接收完成</th><th>解码完成</th><th>解码耗时</th><th>端到端</th></tr>
+          <tr><td>视频</td><td id="v-send">-</td><td id="v-recv">-</td><td id="v-dec">-</td><td id="v-decms">-</td><td id="v-e2e">-</td></tr>
+          <tr><td>音频</td><td id="a-send">-</td><td id="a-recv">-</td><td id="a-dec">-</td><td id="a-decms">-</td><td id="a-e2e">-</td></tr>
+        </table>
+        <h3>统计</h3>
+        <table id="stats">
+          <tr><th></th><th>收到</th><th>解码</th><th>过期丢弃</th><th>迟到解码</th><th>最大突发</th><th>缓冲峰值(帧)</th><th>缓冲峰值(字节)</th></tr>
+          <tr><td>视频</td><td id="v-recv-n">0</td><td id="v-dec-n">0</td><td id="v-exp">0</td><td id="v-late">0</td><td id="v-burst">0</td><td id="v-buf">0</td><td id="v-bufb">0</td></tr>
+          <tr><td>音频</td><td id="a-recv-n">0</td><td id="a-dec-n">0</td><td id="a-exp">0</td><td id="a-late">0</td><td id="a-burst">0</td><td id="a-buf">0</td><td id="a-bufb">0</td></tr>
+        </table>
+        <p>JS 堆：起始 <span id="heap0">-</span> MB / 峰值 <span id="heapMax">-</span> MB / 当前 <span id="heap1">-</span> MB</p>
+      </div>
+    </div>
+    <div id="log"></div>
+    <script type="module" src="/client.js"></script>
+  </body>
+</html>

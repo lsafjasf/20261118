@@ -1,0 +1,32 @@
+{
+  "name": "uid4-0010",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/run-tiers.js",
+    "start": "node server/index.js",
+    "capture": "node tools/capture.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261118/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261118#readme",
+  "dependencies": {
+    "@fails-components/webtransport": "^1.6.12",
+    "@fails-components/webtransport-transport-http3-quiche": "^1.6.12",
+    "puppeteer": "^25.18.1"
+  },
+  "allowScripts": {
+    "@fails-components/webtransport-transport-http3-quiche@1.6.12": true,
+    "puppeteer@25.18.1": true
+  }
+}
