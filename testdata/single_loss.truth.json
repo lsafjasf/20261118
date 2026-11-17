@@ -1,0 +1,11 @@
+{
+  "mode": "single-loss",
+  "dropped": [
+    {
+      "output_index": 256,
+      "pid": 257,
+      "kind": "video"
+    }
+  ],
+  "total_packets": 507
+}

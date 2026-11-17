@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>MPEG-TS 分析报告</title>
+<style>
+  body { font-family: "Segoe UI", "PingFang SC", sans-serif; margin: 24px;
+         background: #1e1f24; color: #e6e6e6; }
+  h1 { font-size: 20px; } h2 { font-size: 16px; margin-top: 28px; }
+  table { border-collapse: collapse; margin: 8px 0 16px; }
+  th, td { border: 1px solid #444; padding: 4px 10px; font-size: 13px;
+           text-align: right; }
+  th { background: #2c2d33; }
+  .bad { color: #ff6b6b; font-weight: 600; }
+  .ok { color: #51cf66; }
+  canvas { background: #26272d; border: 1px solid #3a3b42; display: block;
+           margin: 6px 0 4px; }
+  .legend { font-size: 12px; color: #aaa; margin-bottom: 18px; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+         margin: 0 4px 0 12px; vertical-align: middle; }
+  .mono { font-family: ui-monospace, Consolas, monospace; }
+</style>
+</head>
+<body>
+<h1>MPEG-TS 分析报告</h1>
+<div id="meta"></div>
+<h2>PID 异常统计</h2>
+<div id="stats"></div>
+<h2>逐 PID 时间线</h2>
+<div class="legend">
+  <span class="dot" style="background:#4dabf7"></span>正常包
+  <span class="dot" style="background:#ff6b6b"></span>CC 丢包
+  <span class="dot" style="background:#ffa94d"></span>PCR 回退
+  <span class="dot" style="background:#69db7c"></span>含 PCR
+</div>
+<div id="timelines"></div>
+<script>
+const REPORT = {"file": "testdata/interleave.ts", "total_packets": 508, "sync_errors": [], "pat": [{"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}, {"program": 1, "pmt_pid": 256}], "pmt": {"256": {"pcr_pid": 257, "streams": [{"stream_type": 27, "pid": 257}, {"stream_type": 15, "pid": 258}]}}, "pids": {"0": {"packet_count": 10, "cc_errors": [], "pcr_rollbacks": [], "pcr_values": [], "signalled_discontinuities": 0}, "256": {"packet_count": 10, "cc_errors": [], "pcr_rollbacks": [], "pcr_values": [], "signalled_discontinuities": 0}, "257": {"packet_count": 300, "cc_errors": [], "pcr_rollbacks": [], "pcr_values": [[2, 270000000], [12, 271080000], [22, 272160000], [32, 273240000], [42, 274320000], [54, 275400000], [64, 276480000], [74, 277560000], [82, 278640000], [92, 279720000], [104, 280800000], [114, 281880000], [124, 282960000], [134, 284040000], [144, 285120000], [156, 286200000], [164, 287280000], [174, 288360000], [184, 289440000], [194, 290520000], [206, 291600000], [216, 292680000], [226, 293760000], [236, 294840000], [244, 295920000], [256, 297000000], [266, 298080000], [276, 299160000], [286, 300240000], [296, 301320000], [308, 302400000], [318, 303480000], [326, 304560000], [336, 305640000], [346, 306720000], [358, 307800000], [368, 308880000], [378, 309960000], [388, 311040000], [398, 312120000], [408, 313200000], [418, 314280000], [428, 315360000], [438, 316440000], [448, 317520000], [460, 318600000], [470, 319680000], [480, 320760000], [488, 321840000], [498, 322920000]], "signalled_discontinuities": 0}, "258": {"packet_count": 188, "cc_errors": [], "pcr_rollbacks": [], "pcr_values": [], "signalled_discontinuities": 0}}};
+
+const hex = n => "0x" + n.toString(16).padStart(4, "0");
+
+// ---- summary header ----
+document.getElementById("meta").innerHTML =
+  `<p class="mono">文件: ${REPORT.file} &nbsp; 总包数: ${REPORT.total_packets}` +
+  (REPORT.sync_errors.length
+    ? ` &nbsp; <span class="bad">同步错误: ${REPORT.sync_errors.join(",")}</span>`
+    : "") + `</p>` +
+  REPORT.pat.map(p =>
+    `<p class="mono">PAT: program ${p.program} → PMT PID ${hex(p.pmt_pid)}</p>`
+  ).join("") +
+  Object.entries(REPORT.pmt).map(([pid, m]) =>
+    `<p class="mono">PMT ${hex(+pid)}: PCR_PID=${hex(m.pcr_pid)} ` +
+    m.streams.map(s => `${hex(s.pid)}(type 0x${s.stream_type.toString(16)})`)
+      .join(", ") + `</p>`).join("");
+
+// ---- stats table ----
+const rows = Object.entries(REPORT.pids).map(([pid, p]) => {
+  const lost = p.cc_errors.reduce((a, e) => a + e.lost_packets, 0);
+  const cls = (p.cc_errors.length || p.pcr_rollbacks.length) ? "bad" : "ok";
+  return `<tr><td>${hex(+pid)}</td><td>${p.packet_count}</td>` +
+    `<td class="${cls}">${p.cc_errors.length}</td><td class="${cls}">${lost}</td>` +
+    `<td class="${cls}">${p.pcr_rollbacks.length}</td>` +
+    `<td>${p.signalled_discontinuities}</td></tr>`;
+}).join("");
+document.getElementById("stats").innerHTML =
+  `<table><tr><th>PID</th><th>包数</th><th>CC 异常次数</th>` +
+  `<th>丢失包数</th><th>PCR 回退</th><th>已声明不连续</th></tr>${rows}</table>`;
+
+// ---- per-PID timelines ----
+const container = document.getElementById("timelines");
+const W = 1100, H = 90, PAD = 8;
+for (const [pidStr, p] of Object.entries(REPORT.pids)) {
+  const pid = +pidStr;
+  const title = document.createElement("h2");
+  title.textContent = `PID ${hex(pid)}`;
+  container.appendChild(title);
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  container.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  const total = REPORT.total_packets;
+  const x = i => PAD + (i / Math.max(total - 1, 1)) * (W - 2 * PAD);
+
+  // baseline: this PID's packets
+  ctx.fillStyle = "#4dabf7";
+  const step = Math.max(1, Math.floor(p.packet_count / 400));
+  for (let k = 0; k < p.packet_count; k += step) {
+    // approximate packet index by even spread when no explicit list
+    const idx = Math.round(k * (total - 1) / Math.max(p.packet_count - 1, 1));
+    ctx.fillRect(x(idx), H / 2 - 6, 2, 12);
+  }
+  // PCR values as green ticks scaled to time range
+  if (p.pcr_values.length) {
+    ctx.fillStyle = "#69db7c";
+    for (const [idx] of p.pcr_values) ctx.fillRect(x(idx) - 1, H - 18, 2, 10);
+  }
+  // CC loss markers
+  ctx.fillStyle = "#ff6b6b";
+  for (const e of p.cc_errors) {
+    ctx.beginPath();
+    ctx.arc(x(e.packet_index), 16, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  // PCR rollback markers
+  ctx.fillStyle = "#ffa94d";
+  for (const r of p.pcr_rollbacks) {
+    const cx = x(r.packet_index);
+    ctx.beginPath();
+    ctx.moveTo(cx, 8); ctx.lineTo(cx - 6, 22); ctx.lineTo(cx + 6, 22);
+    ctx.closePath(); ctx.fill();
+  }
+  // detail list
+  const ul = document.createElement("div");
+  ul.className = "legend mono";
+  ul.innerHTML =
+    p.cc_errors.map(e =>
+      `丢包 @#${e.packet_index}: 期望 CC=${e.expected_cc} 实际 CC=` +
+      `${e.received_cc} (丢 ${e.lost_packets} 包)`).join("　") +
+    p.pcr_rollbacks.map(r =>
+      `PCR 回退 @#${r.packet_index}: -${r.backwards_ms.toFixed(1)} ms`)
+      .join("　");
+  if (ul.innerHTML) container.appendChild(ul);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "mode": "burst-loss",
+  "dropped": [
+    {
+      "output_index": 256,
+      "pid": 257,
+      "kind": "video"
+    },
+    {
+      "output_index": 256,
+      "pid": 258,
+      "kind": "audio"
+    },
+    {
+      "output_index": 256,
+      "pid": 258,
+      "kind": "audio"
+    },
+    {
+      "output_index": 256,
+      "pid": 257,
+      "kind": "video"
+    }
+  ],
+  "total_packets": 504
+}

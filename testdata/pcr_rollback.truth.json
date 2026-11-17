@@ -1,0 +1,10 @@
+{
+  "mode": "pcr-rollback",
+  "dropped": [],
+  "total_packets": 508,
+  "pcr_rollback_at": {
+    "output_index": 256,
+    "pid": 257,
+    "backwards_ms": 2000.0
+  }
+}
