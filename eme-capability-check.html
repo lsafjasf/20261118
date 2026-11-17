@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EME 能力检查 · Encrypted Media Extensions Capability Check</title>
+<style>
+  :root {
+    --bg: #0f1420;
+    --panel: #171e2e;
+    --panel-2: #1d263a;
+    --line: #2a3550;
+    --text: #e6ebf5;
+    --muted: #9aa7c2;
+    --accent: #5b8cff;
+    --ok: #2fbf71;
+    --bad: #e5484d;
+    --warn: #e2a23b;
+    --skip: #6b7794;
+    --chip: #24304a;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1220px; margin: 0 auto; padding: 28px 20px 64px; }
+  h1 { font-size: 24px; margin: 0 0 6px; }
+  h2 { font-size: 17px; margin: 34px 0 12px; padding-left: 10px; border-left: 3px solid var(--accent); }
+  h3 { font-size: 14px; margin: 18px 0 8px; color: var(--muted); }
+  p { margin: 8px 0; }
+  code, .mono { font-family: var(--mono); font-size: 12.5px; }
+  .sub { color: var(--muted); margin: 0 0 18px; }
+  .notice {
+    background: rgba(91, 140, 255, .1);
+    border: 1px solid rgba(91, 140, 255, .35);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin: 16px 0;
+  }
+  .notice.warn { background: rgba(226, 162, 59, .1); border-color: rgba(226, 162, 59, .4); }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 12px 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  button, select, input[type="text"] {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+  }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .progress {
+    height: 8px; border-radius: 99px; background: var(--panel-2);
+    overflow: hidden; margin-top: 12px; display: none;
+  }
+  .progress.show { display: block; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .status-line { color: var(--muted); font-size: 12.5px; margin-top: 8px; min-height: 18px; }
+  .env-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .env-item {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .env-item .k { color: var(--muted); font-size: 12px; }
+  .env-item .v { font-family: var(--mono); font-size: 12.5px; word-break: break-all; }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  th, td {
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  th { background: var(--panel-2); position: sticky; top: 0; font-size: 12.5px; z-index: 1; }
+  td:first-child, th:first-child { position: sticky; left: 0; background: var(--panel); z-index: 2; min-width: 220px; }
+  th:first-child { z-index: 3; background: var(--panel-2); }
+  tr.group td { background: rgba(91,140,255,.08); font-weight: 600; color: var(--accent); }
+  .ks-head code { display: block; color: var(--muted); font-weight: 400; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 99px; padding: 2px 9px; font-size: 12px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.ok { background: rgba(47,191,113,.15); color: var(--ok); }
+  .badge.bad { background: rgba(229,72,77,.15); color: var(--bad); }
+  .badge.skip { background: rgba(107,119,148,.18); color: var(--skip); }
+  .badge.warn { background: rgba(226,162,59,.15); color: var(--warn); }
+  .err-code {
+    font-family: var(--mono); font-size: 11.5px;
+    background: var(--chip); border: 1px solid var(--line);
+    border-radius: 6px; padding: 1px 6px; color: #ff9a9d; cursor: help;
+  }
+  .cell-sub { display: block; color: var(--muted); font-size: 11.5px; margin-top: 3px; font-family: var(--mono); word-break: break-all; }
+  .muted { color: var(--muted); }
+  .tag {
+    display: inline-block; font-size: 11px; border-radius: 5px;
+    padding: 1px 7px; margin-right: 6px;
+    background: var(--chip); border: 1px solid var(--line); color: var(--muted);
+  }
+  .tag.cap { color: #7fb0ff; border-color: rgba(91,140,255,.4); }
+  .tag.set { color: var(--warn); border-color: rgba(226,162,59,.45); }
+  .tag.env { color: #b58cff; border-color: rgba(155,109,255,.45); }
+  .hidden { display: none !important; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; color: var(--muted); }
+  .kvlist { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .diff-same { opacity: .55; }
+  .footer { color: var(--muted); font-size: 12px; margin-top: 40px; border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EME 能力检查页</h1>
+  <p class="sub">Encrypted Media Extensions（<code>navigator.requestMediaKeySystemAccess</code>）多密钥系统能力矩阵 · 仅做能力查询，不请求证书、不创建密钥会话、不接触或许可任何许可证内容</p>
+
+  <div class="notice">
+    <strong>安全边界：</strong>本页只调用 <code>requestMediaKeySystemAccess()</code> 询问浏览器“某配置是否被支持”，
+    不会调用 <code>createSession()</code>、不会生成 license 请求、不会伪造或许可绕过任何 DRM。
+    所有探测均为浏览器公开的标准能力协商接口，失败时如实记录 <code>DOMException</code> 名称与错误码。
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <button id="btn-run" class="primary">开始能力检测</button>
+      <label class="muted">本次运行环境：
+        <select id="run-label">
+          <option value="普通窗口">普通窗口</option>
+          <option value="隐私窗口">隐私 / 无痕窗口</option>
+          <option value="custom">自定义标签…</option>
+        </select>
+      </label>
+      <input type="text" id="run-label-custom" class="hidden" placeholder="自定义标签" maxlength="24">
+      <span id="run-meta" class="muted mono"></span>
+    </div>
+    <div class="progress" id="progress"><i id="progress-bar"></i></div>
+    <div class="status-line" id="status">尚未运行。</div>
+  </div>
+
+  <h2>1. 运行环境与 API 可用性</h2>
+  <div class="card">
+    <div class="env-grid" id="env-grid"><span class="muted">等待检测…</span></div>
+  </div>
+
+  <h2>2. 能力矩阵：密钥系统 × 编解码器</h2>
+  <div class="card">
+    <div class="table-scroll">
+      <table id="matrix-table"><thead></thead><tbody></tbody></table>
+    </div>
+    <p class="muted" style="font-size:12px">红色单元格中的 <span class="err-code">错误名</span> 为浏览器拒绝该配置时返回的异常；悬停可查看完整 message。</p>
+  </div>
+
+  <h2>3. 稳健性等级（Robustness）</h2>
+  <div class="card">
+    <div class="table-scroll">
+      <table id="robust-table"><thead></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <h2>4. 持久状态、会话类型与设备标识</h2>
+  <div class="card">
+    <div class="table-scroll">
+      <table id="perm-table"><thead></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <h2>5. 错误码明细与图例</h2>
+  <div class="card" id="error-card"><span class="muted">等待检测…</span></div>
+
+  <h2>6. 普通窗口 vs 隐私窗口对比</h2>
+  <div class="card">
+    <div class="controls">
+      <button id="btn-export" disabled>导出本次结果（JSON 快照）</button>
+      <button id="btn-import" disabled>导入另一份快照并对比</button>
+      <input type="file" id="import-file" accept="application/json,.json" class="hidden">
+      <label class="muted"><input type="checkbox" id="toggle-same"> 显示完全相同的行</label>
+    </div>
+    <div id="diff-summary" class="status-line"></div>
+    <div class="table-scroll" style="margin-top:10px">
+      <table id="diff-table"><thead></thead><tbody></tbody></table>
+    </div>
+    <h3>差异归因规则</h3>
+    <div id="attribution"></div>
+  </div>
+
+  <h2>7. 方法说明与典型模式</h2>
+  <div class="card" id="method-doc"></div>
+
+  <div class="footer">
+    本页面为纯静态文件，可离线使用；建议通过 <code>https://</code> 或 <code>http://localhost</code> 打开（EME 依赖安全上下文）。
+    页面无法、也不会尝试“探测”用户是否处于隐私模式——请分别在两种窗口中运行同一查询后用第 6 节功能对比。
+  </div>
+</div>
+<script>
+'use strict';
+
+const APP_VERSION = '1.0.0';
+
+/* 参与查询的密钥系统。base* 为各系统最可能被接受的“基准”容器组合，
+   用于稳健性等需要同时给出音视频能力的探测。 */
+const KEY_SYSTEMS = [
+  {
+    id: 'widevine', ks: 'com.widevine.alpha', label: 'Widevine',
+    baseVideo: 'video/mp4; codecs="avc1.640028"',
+    baseAudio: 'audio/mp4; codecs="mp4a.40.2"',
+    robustLevels: ['', 'SW_SECURE_CRYPTO', 'SW_SECURE_DECODE',
+                   'HW_SECURE_CRYPTO', 'HW_SECURE_DECODE', 'HW_SECURE_ALL'],
+  },
+  {
+    id: 'playready', ks: 'com.microsoft.playready', label: 'PlayReady',
+    baseVideo: 'video/mp4; codecs="avc1.640028"',
+    baseAudio: 'audio/mp4; codecs="mp4a.40.2"',
+    robustLevels: ['', '150', '2000', '3000'],
+  },
+  {
+    id: 'fairplay', ks: 'com.apple.fps', label: 'FairPlay (FPS)',
+    baseVideo: 'video/mp4; codecs="avc1.640028"',
+    baseAudio: 'audio/mp4; codecs="mp4a.40.2"',
+    robustLevels: [''],
+  },
+  {
+    id: 'clearkey', ks: 'org.w3.clearkey', label: 'ClearKey',
+    baseVideo: 'video/webm; codecs="vp09.00.10.08"',
+    baseAudio: 'audio/webm; codecs="opus"',
+    robustLevels: [''],
+  },
+];
+
+/* 对每个密钥系统统一查询的编解码器清单；不被支持的容器/编码会返回
+   NotSupportedError，这属于正常探测结果而非脚本错误。 */
+const VIDEO_TYPES = [
+  { id: 'h264-mp4', title: 'H.264 / MP4', contentType: 'video/mp4; codecs="avc1.640028"' },
+  { id: 'hevc-mp4', title: 'HEVC(H.265) / MP4', contentType: 'video/mp4; codecs="hev1.1.6.L93.B0"' },
+  { id: 'vp9-mp4', title: 'VP9 / MP4', contentType: 'video/mp4; codecs="vp09.00.10.08"' },
+  { id: 'av1-mp4', title: 'AV1 / MP4', contentType: 'video/mp4; codecs="av01.0.04M.08"' },
+  { id: 'vp8-webm', title: 'VP8 / WebM', contentType: 'video/webm; codecs="vp8"' },
+  { id: 'vp9-webm', title: 'VP9 / WebM', contentType: 'video/webm; codecs="vp09.00.10.08"' },
+  { id: 'av1-webm', title: 'AV1 / WebM', contentType: 'video/webm; codecs="av01.0.04M.08"' },
+];
+
+const AUDIO_TYPES = [
+  { id: 'aac-mp4', title: 'AAC / MP4', contentType: 'audio/mp4; codecs="mp4a.40.2"' },
+  { id: 'opus-webm', title: 'Opus / WebM', contentType: 'audio/webm; codecs="opus"' },
+  { id: 'ac3-mp4', title: 'Dolby Digital (AC-3)', contentType: 'audio/mp4; codecs="ac-3"' },
+  { id: 'ec3-mp4', title: 'Dolby Digital+ (E-AC-3)', contentType: 'audio/mp4; codecs="ec-3"' },
+];
+
+/* 尽量覆盖各实现的 initDataType，避免因容器差异造成误判。
+   规范规定 initDataTypes 只要命中其中一个即视为该配置可支持。 */
+const COMMON_INIT_DATA_TYPES = ['keyids', 'cenc', 'webm', 'sinf'];
+
+const LEGACY_CODE_NAMES = {
+  1: 'INDEX_SIZE_ERR', 8: 'NO_MODIFICATION_ALLOWED_ERR', 9: 'NotSupportedError',
+  11: 'InvalidStateError', 12: 'SyntaxError', 15: 'InvalidAccessError',
+  17: 'TypeMismatchError', 18: 'SecurityError', 20: 'AbortError',
+  22: 'QuotaExceededError', 25: 'DataCloneError',
+};
+
+function slug(s) {
+  return String(s).replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '').toLowerCase() || 'empty';
+}
+
+function normalizeError(err) {
+  if (!err) return null;
+  const code = Number.isInteger(err.code) ? err.code : null;
+  return {
+    name: err.name || 'Error',
+    code,
+    legacyName: code != null ? (LEGACY_CODE_NAMES[code] || null) : null,
+    message: String(err && err.message || ''),
+  };
+}
+
+/* 单次能力协商：仅调用 requestMediaKeySystemAccess，
+   成功后读取 getConfiguration() 并立即 close()，不创建会话、不触碰许可证。 */
+async function probe(ksId, config) {
+  const started = performance.now();
+  try {
+    const access = await navigator.requestMediaKeySystemAccess(ksId, [config]);
+    let actual = null;
+    try { actual = typeof access.getConfiguration === 'function' ? access.getConfiguration() : null; }
+    catch (e) { actual = { getConfigurationError: normalizeError(e) }; }
+    try { if (typeof access.close === 'function') await access.close(); } catch (e) { /* 忽略关闭异常 */ }
+    return { ok: true, actual, ms: Math.round(performance.now() - started) };
+  } catch (err) {
+    return { ok: false, error: normalizeError(err), ms: Math.round(performance.now() - started) };
+  }
+}
+
+/* 为某个密钥系统生成完整检查清单，checkId 跨运行保持稳定，便于快照对比。 */
+function buildChecks(system) {
+  const checks = [];
+  checks.push({
+    id: 'base:access', group: 'base', title: '基础访问（仅密钥系统标识）',
+    config: { initDataTypes: COMMON_INIT_DATA_TYPES },
+  });
+  VIDEO_TYPES.forEach((item, idx) => {
+    checks.push({
+      id: `video#${idx}:${item.id}`, group: 'video', title: item.title,
+      config: {
+        initDataTypes: COMMON_INIT_DATA_TYPES,
+        video: { contentType: item.contentType, robustness: '' },
+      },
+    });
+  });
+  AUDIO_TYPES.forEach((item, idx) => {
+    checks.push({
+      id: `audio#${idx}:${item.id}`, group: 'audio', title: item.title,
+      config: {
+        initDataTypes: COMMON_INIT_DATA_TYPES,
+        audio: { contentType: item.contentType, robustness: '' },
+      },
+    });
+  });
+  system.robustLevels.forEach((level, idx) => {
+    checks.push({
+      id: `robust#${idx}:${slug(level)}`, group: 'robust',
+      title: level ? `robustness = "${level}"` : 'robustness = ""（空，默认）',
+      config: {
+        initDataTypes: COMMON_INIT_DATA_TYPES,
+        video: { contentType: system.baseVideo, robustness: level },
+        audio: { contentType: system.baseAudio, robustness: level },
+      },
+    });
+  });
+  checks.push({
+    id: 'persist#required-license', group: 'persist',
+    title: 'persistentState = "required" + persistent-license',
+    config: {
+      initDataTypes: COMMON_INIT_DATA_TYPES,
+      persistentState: 'required',
+      sessionTypes: ['persistent-license'],
+    },
+  });
+  checks.push({
+    id: 'persist#optional', group: 'persist',
+    title: 'persistentState = "optional"（对照项）',
+    config: { initDataTypes: COMMON_INIT_DATA_TYPES, persistentState: 'optional' },
+  });
+  checks.push({
+    id: 'distinct#required', group: 'distinct',
+    title: 'distinctiveIdentifier = "required"',
+    config: { initDataTypes: COMMON_INIT_DATA_TYPES, distinctiveIdentifier: 'required' },
+  });
+  checks.push({
+    id: 'distinct#not-allowed', group: 'distinct',
+    title: 'distinctiveIdentifier = "not-allowed"',
+    config: { initDataTypes: COMMON_INIT_DATA_TYPES, distinctiveIdentifier: 'not-allowed' },
+  });
+  return checks;
+}
+
+async function collectEnvironment() {
+  const env = [];
+  const put = (k, v, detail) => env.push({ k, v: String(v), detail: detail ? String(detail) : '' });
+
+  put('安全上下文 isSecureContext',
+      window.isSecureContext ? '是' : '否',
+      window.isSecureContext ? '' : 'EME 仅在安全上下文（https 或 localhost）中可用，此处结果可能全部失败');
+  put('EME API requestMediaKeySystemAccess',
+      typeof navigator.requestMediaKeySystemAccess === 'function' ? '可用' : '不可用',
+      typeof navigator.requestMediaKeySystemAccess === 'function' ? '' : '浏览器未启用/不支持 EME');
+  put('MediaCapabilities.decodingInfo',
+      typeof navigator.mediaCapabilities?.decodingInfo === 'function' ? '可用' : '不可用',
+      '仅作为交叉验证，不替代 EME 能力协商');
+  put('IndexedDB',
+      typeof window.indexedDB !== 'undefined' ? '对象存在' : '不可用',
+      '部分浏览器在隐私模式下会禁用或限制 IDB');
+  put('StorageManager.estimate',
+      typeof navigator.storage?.estimate === 'function' ? '可用' : '不可用', '存储配额仅作环境信号，不参与能力判定');
+  if (typeof navigator.storage?.estimate === 'function') {
+    try {
+      const est = await navigator.storage.estimate();
+      put('存储配额 quota / 用量 usage',
+          `${(est.quota / (1024 ** 3)).toFixed(2)} GiB / ${((est.usage || 0) / (1024 ** 2)).toFixed(1)} MiB`,
+          '隐私窗口可能给出更小或临时的配额，这只是提示而非判定依据');
+    } catch (e) {
+      put('存储配额读取', '失败', normalizeError(e).name);
+    }
+  }
+  const uaData = navigator.userAgentData;
+  if (uaData) {
+    const brands = (uaData.brands || []).map(b => `${b.brand}/${b.version}`).join(' ');
+    put('userAgentData', `${uaData.platform || ''}${uaData.mobile ? ' (mobile)' : ''}`, brands);
+  }
+  put('User-Agent', navigator.userAgent || '(空)');
+  put('语言 / 时区', `${navigator.language} / ${Intl.DateTimeFormat().resolvedOptions().timeZone || '未知'}`);
+  put('设备内存 / 并发',
+      `${navigator.deviceMemory ? navigator.deviceMemory + ' GiB' : '未知'} / ${navigator.hardwareConcurrency || '未知'} 核`);
+  put('页面运行标签', state.label || '未命名', new Date().toISOString());
+  return env;
+}
+
+async function mediaCapabilitiesCrossCheck(system) {
+  if (typeof navigator.mediaCapabilities?.decodingInfo !== 'function') {
+    return { ok: false, skipped: true, error: { name: 'SKIPPED', message: 'mediaCapabilities API 不可用' } };
+  }
+  try {
+    /* 该字段属于 MediaCapabilities-EMME 扩展，仅部分 Chromium 版本支持；
+       不支持时浏览器会抛 TypeError，这里按“交叉验证不可用”记录，不影响主矩阵结论。 */
+    const info = await navigator.mediaCapabilities.decodingInfo({
+      type: 'media-source',
+      video: { contentType: system.baseVideo },
+      audio: { contentType: system.baseAudio },
+      keySystemConfiguration: { keySystem: system.ks },
+    });
+    return { ok: !!info.keySystemAccess, actual: info.keySystemConfiguration || null, ms: 0 };
+  } catch (err) {
+    return { ok: false, error: normalizeError(err) };
+  }
+}
+
+const state = { running: false, run: null, checksTotal: 0, checksDone: 0, lastDiff: null, lastOther: null };
+
+async function runAll(onProgress) {
+  const run = {
+    version: APP_VERSION,
+    label: state.label || '未命名',
+    startedAt: new Date().toISOString(),
+    finishedAt: null,
+    env: await collectEnvironment(),
+    systems: {},
+  };
+  state.checksTotal = KEY_SYSTEMS.reduce((n, s) => n + buildChecks(s).length + 1, 0);
+  state.checksDone = 0;
+
+  for (const system of KEY_SYSTEMS) {
+    const checks = buildChecks(system);
+    const sysResult = { keySystem: system.ks, label: system.label, checks: {}, mc: null };
+    for (const check of checks) {
+      sysResult.checks[check.id] = await probe(system.ks, check.config);
+      state.checksDone += 1;
+      onProgress(`${system.label} · ${check.title}`, state.checksDone, state.checksTotal);
+    }
+    sysResult.mc = await mediaCapabilitiesCrossCheck(system);
+    state.checksDone += 1;
+    onProgress(`${system.label} · MediaCapabilities 交叉验证`, state.checksDone, state.checksTotal);
+    run.systems[system.id] = sysResult;
+  }
+  run.finishedAt = new Date().toISOString();
+  state.run = run;
+  return run;
+}
+
+function badgeFor(result) {
+  if (!result) return '<span class="badge skip">未测</span>';
+  if (result.skipped) return '<span class="badge skip">跳过</span>';
+  if (result.ok) return '<span class="badge ok">支持</span>';
+  const err = result.error || {};
+  const title = (err.message || '') + (err.code != null ? `（legacy code ${err.code}${err.legacyName ? ' ' + err.legacyName : ''}）` : '');
+  return `<span class="badge bad">不支持</span> <span class="err-code" title="${escapeHtml(title)}">${escapeHtml(err.name || 'Error')}${err.code != null ? ' #' + err.code : ''}</span>`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function actualSub(result, keys) {
+  const actual = result && result.ok && result.actual;
+  if (!actual) return '';
+  const bits = [];
+  (keys || []).forEach(key => {
+    if (actual[key] != null) bits.push(`${key}=${Array.isArray(actual[key]) ? actual[key].join('|') : actual[key]}`);
+  });
+  return bits.length ? `<span class="cell-sub">${bits.map(escapeHtml).join('<br>')}</span>` : '';
+}
+
+function buildHead(extraFirst) {
+  return `<tr><th>${extraFirst}</th>${KEY_SYSTEMS.map(s =>
+    `<th class="ks-head">${escapeHtml(s.label)}<code>${escapeHtml(s.ks)}</code></th>`).join('')}</tr>`;
+}
+
+function rowFor(title, cellRenderer, groupName) {
+  return `<tr${groupName ? ' class="group"' : ''}>
+    <td>${escapeHtml(title)}</td>
+    ${KEY_SYSTEMS.map(s => `<td>${cellRenderer(s)}</td>`).join('')}
+  </tr>`;
+}
+
+function cellStandard(run, sysId, checkId, actualKeys) {
+  const r = run.systems[sysId]?.checks[checkId];
+  return badgeFor(r) + actualSub(r, actualKeys);
+}
+
+function renderEnvironment(run) {
+  document.getElementById('env-grid').innerHTML = run.env.map(item => `
+    <div class="env-item">
+      <div class="k">${escapeHtml(item.k)}</div>
+      <div class="v">${escapeHtml(item.v)}</div>
+      ${item.detail ? `<div class="muted" style="font-size:11.5px;margin-top:2px">${escapeHtml(item.detail)}</div>` : ''}
+    </div>`).join('');
+}
+
+function renderMatrix(run) {
+  const table = document.getElementById('matrix-table');
+  table.querySelector('thead').innerHTML = buildHead('能力项 \\ 密钥系统');
+  const rows = [];
+  rows.push('<tr class="group"><td colspan="' + (KEY_SYSTEMS.length + 1) + '">基础访问</td></tr>');
+  rows.push(rowFor('requestMediaKeySystemAccess 基础查询',
+    s => cellStandard(run, s.id, 'base:access',
+      ['persistentState', 'distinctiveIdentifier', 'sessionTypes', 'initDataTypes'])));
+  rows.push('<tr class="group"><td colspan="' + (KEY_SYSTEMS.length + 1) + '">视频编解码器（videoCapabilities）</td></tr>');
+  VIDEO_TYPES.forEach((item, idx) => {
+    rows.push(rowFor(item.title,
+      s => cellStandard(run, s.id, `video#${idx}:${item.id}`)));
+  });
+  rows.push('<tr class="group"><td colspan="' + (KEY_SYSTEMS.length + 1) + '">音频编解码器（audioCapabilities）</td></tr>');
+  AUDIO_TYPES.forEach((item, idx) => {
+    rows.push(rowFor(item.title,
+      s => cellStandard(run, s.id, `audio#${idx}:${item.id}`)));
+  });
+  table.querySelector('tbody').innerHTML = rows.join('');
+}
+
+function renderRobust(run) {
+  const table = document.getElementById('robust-table');
+  table.querySelector('thead').innerHTML = buildHead('稳健性等级（基于各系统基准音视频组合）');
+  const maxLevels = Math.max(...KEY_SYSTEMS.map(s => s.robustLevels.length));
+  const rows = [];
+  for (let idx = 0; idx < maxLevels; idx += 1) {
+    const labels = KEY_SYSTEMS.map(s => s.robustLevels[idx]);
+    const rowTitle = labels.filter(v => v !== undefined)
+      .map(v => v ? `"${v}"` : '"" 默认').join(' / ');
+    const cells = KEY_SYSTEMS.map(s => {
+      const level = s.robustLevels[idx];
+      if (level === undefined) return '<td><span class="badge skip">不适用</span></td>';
+      const checkId = `robust#${idx}:${slug(level)}`;
+      return `<td><div class="muted mono" style="font-size:11px">${escapeHtml(level || '""')}</div>${cellStandard(run, s.id, checkId, ['persistentState', 'distinctiveIdentifier'])}</td>`;
+    }).join('');
+    rows.push(`<tr><td>第 ${idx + 1} 级：<span class="mono muted">${escapeHtml(rowTitle)}</span></td>${cells}</tr>`);
+  }
+  table.querySelector('tbody').innerHTML = rows.join('');
+}
+
+function renderPersistence(run) {
+  const table = document.getElementById('perm-table');
+  table.querySelector('thead').innerHTML = buildHead('持久化 / 设备标识能力');
+  const rows = [];
+  rows.push(rowFor('持久状态 + persistent-license 会话',
+    s => cellStandard(run, s.id, 'persist#required-license',
+      ['persistentState', 'sessionTypes'])));
+  rows.push(rowFor('persistentState = optional（对照）',
+    s => cellStandard(run, s.id, 'persist#optional', ['persistentState'])));
+  rows.push(rowFor('设备标识 distinctiveIdentifier = required',
+    s => cellStandard(run, s.id, 'distinct#required', ['distinctiveIdentifier'])));
+  rows.push(rowFor('设备标识 distinctiveIdentifier = not-allowed',
+    s => cellStandard(run, s.id, 'distinct#not-allowed', ['distinctiveIdentifier'])));
+  KEY_SYSTEMS.forEach(s => {
+    const mc = run.systems[s.id]?.mc;
+    if (mc) {
+      rows.push(`<tr><td class="muted">MediaCapabilities 交叉验证 · ${escapeHtml(s.label)}</td>
+        ${KEY_SYSTEMS.map(x => x.id === s.id
+          ? `<td>${badgeFor(mc)}${mc.actual ? `<span class="cell-sub">${escapeHtml(JSON.stringify(mc.actual))}</span>` : ''}</td>`
+          : '<td class="muted">—</td>').join('')}
+      </tr>`);
+    }
+  });
+  table.querySelector('tbody').innerHTML = rows.join('');
+}
+
+const GROUP_META = {
+  base: { label: '基础访问', kind: 'capability' },
+  video: { label: '视频编解码', kind: 'capability' },
+  audio: { label: '音频编解码', kind: 'capability' },
+  robust: { label: '稳健性等级', kind: 'capability' },
+  persist: { label: '持久状态 / 会话类型', kind: 'setting' },
+  distinct: { label: '设备标识', kind: 'setting' },
+};
+
+function statusOf(result) {
+  if (!result) return { short: '未测', ok: null, code: null, message: '' };
+  if (result.skipped) return { short: '跳过', ok: null, code: 'SKIPPED', message: result.error?.message || '' };
+  if (result.ok) return { short: '支持', ok: true, code: null, message: '' };
+  const err = result.error || {};
+  return {
+    short: '不支持', ok: false,
+    code: err.code != null ? `${err.name} #${err.code}` : err.name || 'Error',
+    message: err.message || '',
+  };
+}
+
+/* 把一次运行展开为稳定行（rowId 跨运行可对齐）。 */
+function flatten(run) {
+  const rows = [];
+  KEY_SYSTEMS.forEach(system => {
+    const checks = buildChecks(system);
+    checks.forEach(check => {
+      const result = run.systems[system.id]?.checks[check.id];
+      rows.push({
+        rowId: `${system.id}|${check.id}`,
+        system: system.label,
+        group: check.group,
+        title: check.title,
+        status: statusOf(result),
+      });
+    });
+  });
+  return rows;
+}
+
+/* 差异归因：
+   - setting：持久状态 / persistent-license / 设备标识类差异，隐私窗口或用户/策略设置可直接关闭，
+     且不改变编解码能力本身；
+   - capability：密钥系统、编解码、稳健性差异，属于平台/组件能力变化；
+   - env：浏览器版本、安全上下文、UA、存储等运行环境行差异。
+   注意：EME 规范没有“隐私模式”状态位，最终归因需结合下方环境信号与错误码人工确认。 */
+function attribute(rowId, a, b) {
+  const group = rowId.split('|')[1].split('#')[0];
+  const meta = GROUP_META[group];
+  if (meta && meta.kind === 'setting') {
+    return {
+      kind: 'setting',
+      tag: '用户设置 / 隐私限制',
+      reason: '该项由浏览器隐私策略、内容设置或企业策略控制；隐私窗口通常禁止持久化状态与设备标识，' +
+              '但不会移除编解码与密钥系统本身。',
+    };
+  }
+  if (a?.ok === true && b?.ok === false) {
+    return {
+      kind: 'capability',
+      tag: '能力缺失',
+      reason: '普通窗口可协商成功而另一窗口拒绝同一配置，且该配置与持久化/标识无关——' +
+              '若仅出现在隐私窗口，通常是浏览器在该模式下禁用了整个 CDM 组件（能力层面不可用），而非单纯数据保留设置。',
+    };
+  }
+  if (a?.ok === false && b?.ok === true) {
+    return {
+      kind: 'capability',
+      tag: '能力恢复 / 环境不一致',
+      reason: '反向差异，常见于两次运行使用了不同浏览器版本、不同设备或不同权限配置。',
+    };
+  }
+  return {
+    kind: 'capability',
+    tag: '能力差异',
+    reason: '两次协商结果不同且不属于持久化/标识项，应核对浏览器版本、CDM 组件与平台支持情况。',
+  };
+}
+
+function diffRuns(runA, runB) {
+  const mapA = new Map(flatten(runA).map(r => [r.rowId, r]));
+  const mapB = new Map(flatten(runB).map(r => [r.rowId, r]));
+  const rowIds = Array.from(new Set([...mapA.keys(), ...mapB.keys()]));
+  const rows = rowIds.map(rowId => {
+    const ra = mapA.get(rowId);
+    const rb = mapB.get(rowId);
+    const sa = ra?.status || statusOf(null);
+    const sb = rb?.status || statusOf(null);
+    const same = sa.ok === sb.ok && sa.code === sb.code;
+    const attr = same ? null : attribute(rowId,
+      { ok: sa.ok }, { ok: sb.ok });
+    return {
+      rowId,
+      system: ra?.system || rb?.system,
+      title: ra?.title || rb?.title,
+      group: ra?.group || rb?.group,
+      a: sa, b: sb, same, attr,
+    };
+  });
+  const envPairs = diffEnvironment(runA, runB);
+  return { rows, envPairs };
+}
+
+function diffEnvironment(runA, runB) {
+  const mapA = new Map(runA.env.map(e => [e.k, e.v]));
+  const mapB = new Map(runB.env.map(e => [e.k, e.v]));
+  const keys = Array.from(new Set([...mapA.keys(), ...mapB.keys()]));
+  return keys
+    .filter(k => mapA.get(k) !== mapB.get(k))
+    .map(k => ({ k, a: mapA.get(k) ?? '—', b: mapB.get(k) ?? '—' }));
+}
+
+function renderErrors(run) {
+  const card = document.getElementById('error-card');
+  const collected = [];
+  KEY_SYSTEMS.forEach(system => {
+    const sys = run.systems[system.id];
+    if (!sys) return;
+    Object.entries(sys.checks).forEach(([checkId, result]) => {
+      if (!result.ok && !result.skipped) {
+        const check = buildChecks(system).find(c => c.id === checkId);
+        collected.push({ system: system.label, title: check?.title || checkId, error: result.error });
+      }
+    });
+  });
+  const tally = new Map();
+  collected.forEach(item => {
+    const key = item.error?.name || 'Error';
+    tally.set(key, (tally.get(key) || 0) + 1);
+  });
+  const legend = `
+    <h3>常见错误码含义</h3>
+    <div class="kvlist">
+      <div><span class="err-code">NotSupportedError</span> 规范内正常结果：该密钥系统/配置组合不被支持（CDM 未安装、编解码不支持、稳健性过高或持久化被禁用都会返回它）。</div>
+      <div style="margin-top:6px"><span class="err-code">SecurityError #18</span> 安全上下文或策略阻止；<span class="err-code">InvalidStateError #11</span> 实现状态异常；<span class="err-code">AbortError #20</span> 协商被中断。</div>
+      <div style="margin-top:6px"><span class="err-code">TypeError</span> 配置参数不合法（本页面固定使用合法配置，出现时属实现差异）。</div>
+    </div>`;
+  if (!collected.length) {
+    card.innerHTML = '<span class="badge ok">全部检查通过</span>' + legend;
+    return;
+  }
+  const summary = Array.from(tally.entries())
+    .map(([name, n]) => `<span class="err-code">${escapeHtml(name)}</span> × ${n}`).join(' &nbsp; ');
+  const rows = collected.map(item => `
+    <tr>
+      <td>${escapeHtml(item.system)}</td>
+      <td>${escapeHtml(item.title)}</td>
+      <td><span class="err-code" title="${escapeHtml(item.error?.message || '')}">
+        ${escapeHtml(item.error?.name || 'Error')}${item.error?.code != null ? ' #' + item.error.code : ''}
+      </span></td>
+      <td class="muted mono" style="font-size:11.5px">${escapeHtml(item.error?.message || '')}</td>
+    </tr>`).join('');
+  card.innerHTML = `
+    <p>${summary}</p>
+    <div class="table-scroll"><table style="min-width:520px">
+      <thead><tr><th>密钥系统</th><th>检查项</th><th>错误码</th><th>message（节选）</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>${legend}`;
+}
+
+function tagHtml(attr) {
+  if (!attr) return '<span class="tag">一致</span>';
+  const cls = attr.kind === 'setting' ? 'set' : attr.kind === 'env' ? 'env' : 'cap';
+  return `<span class="tag ${cls}" title="${escapeHtml(attr.reason)}">${escapeHtml(attr.tag)}</span>`;
+}
+
+function renderDiff(runA, runB) {
+  const diff = diffRuns(runA, runB);
+  state.lastDiff = diff;
+  state.lastOther = runB;
+  document.getElementById('diff-table').querySelector('thead').innerHTML = `
+    <tr><th>归因</th><th>密钥系统</th><th>检查项</th>
+    <th>${escapeHtml(runA.label)}<div class="muted" style="font-weight:400">${escapeHtml(runA.startedAt)}</div></th>
+    <th>${escapeHtml(runB.label)}<div class="muted" style="font-weight:400">${escapeHtml(runB.startedAt)}</div></th>
+    </tr>`;
+  const showSame = document.getElementById('toggle-same').checked;
+  const visible = diff.rows.filter(r => showSame || !r.same);
+  const body = visible.map(r => `
+    <tr class="${r.same ? 'diff-same' : ''}">
+      <td>${tagHtml(r.attr)}</td>
+      <td>${escapeHtml(r.system)}</td>
+      <td>${escapeHtml(r.title)}</td>
+      <td>${statusCell(r.a)}</td>
+      <td>${statusCell(r.b)}</td>
+    </tr>`).join('');
+  document.getElementById('diff-table').querySelector('tbody').innerHTML =
+    body || '<tr><td colspan="5" class="muted">没有差异行（或已被过滤器隐藏）。</td></tr>';
+
+  const settingN = diff.rows.filter(r => r.attr?.kind === 'setting').length;
+  const capN = diff.rows.filter(r => r.attr?.kind === 'capability').length;
+  const envN = diff.envPairs.length;
+  document.getElementById('diff-summary').innerHTML =
+    `差异统计：<b class="" style="color:var(--warn)">用户设置/隐私限制 ${settingN} 行</b> ·
+     <b style="color:#7fb0ff">能力差异 ${capN} 行</b> ·
+     <b style="color:#b58cff">环境信号 ${envN} 项</b>；
+     共 ${diff.rows.length} 个检查点，${diff.rows.filter(r => r.same).length} 个结果一致。`;
+
+  document.getElementById('attribution').innerHTML = `
+    <div class="kvlist">
+      <p><span class="tag set">用户设置 / 隐私限制</span>
+      仅涉及 <code>persistentState</code>、<code>sessionTypes: persistent-license</code>、<code>distinctiveIdentifier</code>
+      的差异归为设置类：这些开关决定浏览器能否保留授权数据或使用设备标识，隐私窗口默认关闭它们，
+      通常返回 <code>NotSupportedError</code>，但同一窗口的纯播放类协商仍可成功。</p>
+      <p><span class="tag cap">能力缺失</span>
+      密钥系统基础访问、编解码、稳健性等级的差异归为能力类：例如普通窗口可用 Widevine 而隐私窗口整体拒绝，
+      说明该模式下 CDM 组件不可用（组件级能力缺失），而不是数据保留设置问题。</p>
+      <p><span class="tag env">环境信号</span>
+      UA、安全上下文、IndexedDB、存储配额等差异只用于解释背景；它们本身不直接判定 EME 能力。
+      若两份快照的浏览器版本不同，能力差异需先排除版本因素再归因。</p>
+    </div>
+    <details><summary>环境差异明细（${envN} 项）</summary>
+      <div class="table-scroll"><table style="min-width:420px">
+        <thead><tr><th>信号</th><th>${escapeHtml(runA.label)}</th><th>${escapeHtml(runB.label)}</th></tr></thead>
+        <tbody>${diff.envPairs.map(e => `
+          <tr><td>${escapeHtml(e.k)}</td><td class="mono">${escapeHtml(e.a)}</td><td class="mono">${escapeHtml(e.b)}</td></tr>`).join('')}
+      </tbody></table></div>
+    </details>`;
+  return diff;
+}
+
+function statusCell(s) {
+  if (s.ok === true) return '<span class="badge ok">支持</span>';
+  if (s.ok === false) return `<span class="badge bad">不支持</span> <span class="err-code" title="${escapeHtml(s.message)}">${escapeHtml(s.code || '')}</span>`;
+  return `<span class="badge skip">${escapeHtml(s.short)}</span>`;
+}
+
+function renderMethodDoc() {
+  document.getElementById('method-doc').innerHTML = `
+    <h3>检测方法（只做能力协商，不做许可流程）</h3>
+    <ol class="kvlist" style="font-family:inherit">
+      <li>对每个密钥系统依次调用 <code>navigator.requestMediaKeySystemAccess(ks, [config])</code>，
+          覆盖基础访问、7 种视频容器/编码、4 种音频容器/编码、各系统稳健性等级、持久化与设备标识开关。</li>
+      <li>协商成功仅读取 <code>MediaKeySystemAccess.getConfiguration()</code> 记录浏览器实际接受的配置，随即 <code>close()</code>；
+          绝不调用 <code>createMediaKeys()</code> 之后的会话/许可证接口，不生成 challenge、不联网请求许可证。</li>
+      <li>协商失败捕获 <code>DOMException</code>，记录 <code>name</code>、legacy <code>code</code> 与 <code>message</code>，原样展示，不做“重试绕过”。</li>
+    </ol>
+    <h3>普通窗口与隐私窗口怎么比</h3>
+    <ol class="kvlist" style="font-family:inherit">
+      <li>在普通窗口打开本页 → 选择标签「普通窗口」→ 运行 → 导出 JSON 快照。</li>
+      <li>在同一浏览器的隐私/无痕窗口打开本页 → 选择标签「隐私窗口」→ 运行 → 导入第 1 步快照，页面自动生成差异表与归因。</li>
+      <li>页面不尝试用指纹技巧猜测隐私模式（这类猜测不可靠且违背最小化原则）；模式身份由你在运行标签中声明。</li>
+    </ol>
+    <h3>典型浏览器模式（仅作解读参考，实际以本页测到的错误码为准）</h3>
+    <ul class="kvlist" style="font-family:inherit">
+      <li>Chrome / Edge 无痕：媒体播放能力通常保留，但 <code>persistent-license</code> 等需要持久存储的配置常被拒绝（设置类差异）；部分平台整个 CDM 在无痕下不可用（能力类差异）。</li>
+      <li>Safari 隐私浏览：FairPlay 行为受「网站设置 → 设备权限/存储」影响，持久化与标识类协商可能返回 <code>NotSupportedError</code>。</li>
+      <li>Firefox 隐私窗口：Google Widevine 按需加载策略可能导致隐私窗口中 CDM 尚未就绪而基础访问失败，属能力可用性问题而非编解码问题。</li>
+      <li>若两类窗口结果完全相同：差异为零，说明当前浏览器对 EME 不做模式区分，或相关限制由全局策略统一施加。</li>
+    </ul>
+    <h3>边界与免责</h3>
+    <p class="muted">本工具只报告浏览器“声明支持”的协商结果，不验证真实解密链路，也不评估内容提供商的许可证策略；
+    它不包含、也不会协助任何许可证伪造、CDM 逆向或加密绕过功能。</p>`;
+}
+
+function renderAll(run) {
+  renderEnvironment(run);
+  renderMatrix(run);
+  renderRobust(run);
+  renderPersistence(run);
+  renderErrors(run);
+  document.getElementById('btn-export').disabled = false;
+  document.getElementById('btn-import').disabled = false;
+}
+
+function download(filename, text) {
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function validateSnapshot(obj) {
+  if (!obj || typeof obj !== 'object' || !obj.systems || !obj.env || !obj.label) {
+    throw new Error('快照格式不正确：缺少 systems / env / label 字段');
+  }
+  if (String(obj.version || '') !== APP_VERSION) {
+    throw new Error(`快照版本不匹配：文件为 ${obj.version || '未知'}，页面为 ${APP_VERSION}`);
+  }
+  return obj;
+}
+
+function bindUi() {
+  const btnRun = document.getElementById('btn-run');
+  const btnExport = document.getElementById('btn-export');
+  const btnImport = document.getElementById('btn-import');
+  const fileInput = document.getElementById('import-file');
+  const labelSelect = document.getElementById('run-label');
+  const labelCustom = document.getElementById('run-label-custom');
+  const progress = document.getElementById('progress');
+  const bar = document.getElementById('progress-bar');
+  const statusEl = document.getElementById('status');
+
+  function currentLabel() {
+    return labelSelect.value === 'custom'
+      ? (labelCustom.value.trim() || '自定义')
+      : labelSelect.value;
+  }
+
+  labelSelect.addEventListener('change', () => {
+    labelCustom.classList.toggle('hidden', labelSelect.value !== 'custom');
+  });
+
+  btnRun.addEventListener('click', async () => {
+    if (state.running) return;
+    state.running = true;
+    state.label = currentLabel();
+    btnRun.disabled = true;
+    progress.classList.add('show');
+    document.getElementById('run-meta').textContent =
+      `${state.label} · ${new Date().toLocaleString()}`;
+    try {
+      const run = await runAll((msg, done, total) => {
+        statusEl.textContent = `[${done}/${total}] ${msg}`;
+        bar.style.width = `${(done / total) * 100}%`;
+      });
+      renderAll(run);
+      statusEl.textContent = `检测完成：${run.startedAt} → ${run.finishedAt}，可导出快照或直接导入另一份快照对比。`;
+    } catch (err) {
+      statusEl.textContent = `检测中断：${err.name || 'Error'}：${err.message || err}`;
+    } finally {
+      state.running = false;
+      btnRun.disabled = false;
+    }
+  });
+
+  btnExport.addEventListener('click', () => {
+    if (!state.run) return;
+    const name = `eme-snapshot-${slug(state.run.label)}-${state.run.startedAt.replace(/[:.]/g, '-')}.json`;
+    download(name, JSON.stringify(state.run, null, 2));
+  });
+
+  btnImport.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (!state.run) {
+      document.getElementById('diff-summary').textContent =
+        '请先在本窗口点击「开始能力检测」，再导入另一份快照进行对比。';
+      fileInput.value = '';
+      return;
+    }
+    try {
+      const other = validateSnapshot(JSON.parse(await file.text()));
+      renderDiff(state.run, other);
+      const summary = document.getElementById('diff-summary');
+      summary.textContent = `${summary.textContent} 已与「${other.label}」完成对比。`;
+    } catch (err) {
+      const summary = document.getElementById('diff-summary');
+      summary.textContent = `导入失败：${err.message || err}`;
+    } finally {
+      fileInput.value = '';
+    }
+  });
+
+  document.getElementById('toggle-same').addEventListener('change', () => {
+    if (state.run && state.lastOther) renderDiff(state.run, state.lastOther);
+  });
+
+  renderMethodDoc();
+  statusEl.textContent = `页面版本 ${APP_VERSION}。EME API：${
+    typeof navigator.requestMediaKeySystemAccess === 'function' ? '可用' : '不可用'}；安全上下文：${
+    window.isSecureContext ? '是' : '否'}。`;
+}
+
+document.addEventListener('DOMContentLoaded', bindUi);
+/* __EME_APP_SCRIPT__ */
+</script>
+</body>
+</html>
