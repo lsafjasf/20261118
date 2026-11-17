@@ -1,0 +1,13 @@
+{
+  "name": "opus-packet-inspector",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Ogg Opus packet sequence inspector: per-packet durations, loss gaps, pre-skip and timestamp anomaly localization",
+  "scripts": {
+    "test": "node test/run-tests.js && node test/smoke-ui.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
+}

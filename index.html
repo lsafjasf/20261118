@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opus 包序列检查器</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Opus 包序列检查器</h1>
+    <p>按包时间戳检查持续时间、丢包间隔与预跳样本；异常定位到包序号，不拒绝整个文件。</p>
+  </header>
+
+  <section id="drop-zone">
+    <p>拖入 <code>.opus</code> / <code>.ogg</code> 文件，或</p>
+    <label class="button">
+      选择文件
+      <input type="file" id="file-input" accept=".opus,.ogg,audio/ogg,audio/opus" hidden>
+    </label>
+  </section>
+
+  <main id="report" hidden>
+    <section id="summary">
+      <h2>流信息</h2>
+      <dl id="summary-list"></dl>
+    </section>
+
+    <section id="track-section">
+      <h2>包轨道</h2>
+      <p class="hint">色块为包（宽度∝时长），红色区域为空档，三角为异常。点击异常可试听前后各一秒。</p>
+      <canvas id="track" height="120"></canvas>
+      <div id="track-legend"></div>
+      <div id="player-bar" hidden>
+        <span id="player-label"></span>
+        <button id="player-stop">停止</button>
+      </div>
+      <audio id="audio" preload="auto"></audio>
+    </section>
+
+    <section id="anomaly-section">
+      <h2>时间异常清单 <span id="anomaly-count"></span></h2>
+      <div class="export-bar">
+        <button id="export-csv">导出 CSV</button>
+        <button id="export-json">导出 JSON</button>
+      </div>
+      <table id="anomaly-table">
+        <thead>
+          <tr><th>包序号</th><th>类型</th><th>级别</th><th>时间</th><th>说明</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="js/opus-parser.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
