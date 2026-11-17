@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>声学系统辨识实验台</title>
+    <link rel="stylesheet" href="/src/ui/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>声学系统辨识实验台</h1>
+      <p class="sub">
+        扫频激励 → 隐藏 FIR 系统 → 加噪观测；估计器仅凭 x 与 y 做正则化频域反卷积。
+        激励能量不足的频带（红底）标记为不可靠，不做放大补齐。
+      </p>
+    </header>
+
+    <section class="panel controls">
+      <div class="row">
+        <label>被测系统
+          <select id="systemSelect"></select>
+        </label>
+        <span id="systemDesc" class="desc"></span>
+      </div>
+      <div class="row">
+        <label>扫频类型
+          <select id="sweepType">
+            <option value="linear" selected>线性（平坦能量）</option>
+            <option value="log">对数（1/f 能量）</option>
+          </select>
+        </label>
+        <label>扫频起点 <input id="fStart" type="number" value="50" min="10" max="1000" step="10" /> Hz</label>
+        <label>扫频终点 <input id="fEnd" type="number" value="18000" min="2000" max="23000" step="100" /> Hz</label>
+        <label>时长 <input id="duration" type="number" value="2" min="0.5" max="8" step="0.5" /> s</label>
+      </div>
+      <div class="row">
+        <label>噪声 SNR <input id="snr" type="range" min="0" max="60" step="1" value="40" />
+          <span id="snrVal">40</span> dB</label>
+        <label>正则化 λ <input id="lambda" type="range" min="-8" max="-1" step="0.25" value="-4" />
+          <span id="lambdaVal">1e-4</span></label>
+        <label>可靠性门限 <input id="floorDb" type="range" min="-80" max="-10" step="5" value="-40" />
+          <span id="floorVal">-40</span> dB</label>
+      </div>
+      <div class="row buttons">
+        <button id="runBtn" class="primary">运行辨识</button>
+        <button id="runAllBtn">运行全部三组对比</button>
+        <button id="playExcBtn">▶ 激励</button>
+        <button id="playObsBtn">▶ 观测</button>
+        <button id="exportEstWavBtn">导出估计响应 WAV</button>
+        <button id="exportTrueWavBtn">导出真实响应 WAV</button>
+        <button id="exportReportBtn">导出误差报告</button>
+      </div>
+    </section>
+
+    <section id="metricsBar" class="panel metrics">尚未运行。</section>
+
+    <section class="grid">
+      <div class="panel"><h2>幅频响应 (dB)</h2><canvas id="magPlot"></canvas></div>
+      <div class="panel"><h2>相频响应 (°)</h2><canvas id="phasePlot"></canvas></div>
+      <div class="panel"><h2>脉冲响应</h2><canvas id="irPlot"></canvas></div>
+      <div class="panel"><h2>重建残差</h2><canvas id="resPlot"></canvas></div>
+    </section>
+
+    <section class="panel">
+      <h2>三组系统对比</h2>
+      <table id="compareTable">
+        <thead>
+          <tr>
+            <th>系统</th><th>可靠频带占比</th><th>脉冲 NMSE (dB)</th>
+            <th>复数误差 RMS</th><th>幅值误差均值 (dB)</th><th>残差电平 (dB)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
