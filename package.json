@@ -1,0 +1,13 @@
+{
+  "name": "uid4-0036",
+  "version": "1.0.0",
+  "description": "Sparse PCM storage on IndexedDB",
+  "main": "src/sparsePcmStore.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "type": "module",
+  "dependencies": {
+    "fake-indexeddb": "^6.2.8"
+  }
+}
