@@ -1,0 +1,13 @@
+{
+  "file": "reference-48k.f32.wav",
+  "sha256": "36155ac116917289d3bf6515d09894a89091e7a89840242c6879a9516b800021",
+  "sampleRate": 48000,
+  "inputRate": 44100,
+  "ratio": "160/147",
+  "frames": 288000,
+  "durationSeconds": 6,
+  "tapsPerPhase": 512,
+  "kaiserBeta": 11,
+  "alignment": "centered fractional-delay sinc, group delay compensated",
+  "format": "IEEE Float32 stereo WAV"
+}

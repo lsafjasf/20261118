@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0e0d">
+  <title>Phase Lock — 44.1 → 48 kHz Polyphase Lab</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Phase Lock home">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </span>
+        <span class="brand-stack">
+          <span class="eyebrow">RATIONAL DSP / LAB 04</span>
+          <span class="brand-name">PHASE<span>·</span>LOCK</span>
+        </span>
+      </a>
+      <div class="topbar-meta">
+        <div class="rate-flow" aria-label="44.1 kilohertz to 48 kilohertz">
+          <span>44.1</span>
+          <span class="rate-ratio">×160 / 147</span>
+          <span>48.0</span>
+          <small>kHz</small>
+        </div>
+        <div class="system-status" id="systemStatus">
+          <i></i><span>REFERENCE ONLINE</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="section-index">01 / CONVERSION CORE</p>
+          <h1>Fractional timing.<br><em>Absolute alignment.</em></h1>
+          <p class="hero-description">
+            A linear-phase polyphase interpolator that turns 44.1 kHz into
+            48 kHz without drifting the clock or pulling the stereo image.
+          </p>
+          <div class="hero-tags" aria-label="Implementation properties">
+            <span>160× interpolate</span>
+            <span>147× decimate</span>
+            <span>Float32 path</span>
+          </div>
+        </div>
+        <div class="hero-counter">
+          <div class="counter-heading">
+            <span>OUTPUT LOCK</span>
+            <span class="live-dot">LIVE</span>
+          </div>
+          <div class="counter-value" id="heroOutputCount">288 000</div>
+          <div class="counter-meta">
+            <span>samples</span>
+            <span id="heroDuration">6.000000 s</span>
+          </div>
+          <div class="lock-rule"><i></i></div>
+          <div class="counter-foot">
+            <span>CLOCK ERROR</span>
+            <strong id="heroClockError">0.000 ppm</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="metric-strip" aria-label="Conversion summary">
+        <article class="metric">
+          <span class="metric-label">SAMPLE COUNT</span>
+          <strong id="metricSamples">288 000</strong>
+          <span class="metric-note" id="metricSamplesNote">exact integer ratio</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">PEAK ERROR</span>
+          <strong id="metricPeakError">—</strong>
+          <span class="metric-note" id="metricPeakErrorNote">vs. offline reference</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">GROUP DELAY</span>
+          <strong id="metricGroupDelay">—</strong>
+          <span class="metric-note">delay-compensated output</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">STEREO SKEW</span>
+          <strong id="metricSkew">—</strong>
+          <span class="metric-note">shared polyphase phase</span>
+        </article>
+        <article class="metric">
+          <span class="metric-label">CONVERSION TIME</span>
+          <strong id="metricTime">—</strong>
+          <span class="metric-note" id="metricRealtime">—</span>
+        </article>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel spectrum-panel">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">FREQUENCY DOMAIN</p>
+              <h2>Spectrum <span>/ input vs. output</span></h2>
+            </div>
+            <div class="legend" aria-label="Chart legend">
+              <span><i class="legend-input"></i>Input · 44.1k</span>
+              <span><i class="legend-output"></i>Output · 48k</span>
+              <span><i class="legend-ref"></i>Reference</span>
+            </div>
+          </header>
+          <div class="chart-wrap spectrum-chart-wrap">
+            <canvas id="spectrumCanvas" aria-label="Input and output magnitude spectrum"></canvas>
+            <div class="chart-hover" id="spectrumHover" hidden>
+              <span id="spectrumHoverFreq">0 Hz</span>
+              <strong id="spectrumHoverDb">0.0 dB</strong>
+            </div>
+          </div>
+          <footer class="chart-footer">
+            <span>0 Hz</span>
+            <span>5 k</span>
+            <span>10 k</span>
+            <span>15 k</span>
+            <span>20 k</span>
+            <span>24 kHz</span>
+          </footer>
+          <div class="analysis-note">
+            <span class="note-icon">∿</span>
+            <p id="spectrumNote">Welch estimate · 16 384-point Hann window · 32 averages</p>
+            <span class="passband-chip">PASSBAND <b id="passbandValue">22.05 kHz</b></span>
+          </div>
+        </article>
+
+        <aside class="panel controls-panel">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">FILTER PROFILE</p>
+              <h2>Resolution <span>/ cost</span></h2>
+            </div>
+            <span class="chip chip-accent" id="tapChip">128 TAPS</span>
+          </header>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>TAPS PER PHASE</span>
+              <small>longer = sharper</small>
+            </div>
+            <div class="tap-grid" role="group" aria-label="Filter length">
+              <button class="tap-button" data-taps="32"><span>32</span><small>LOW</small></button>
+              <button class="tap-button" data-taps="64"><span>64</span><small>FAST</small></button>
+              <button class="tap-button is-active" data-taps="128"><span>128</span><small>BALANCED</small></button>
+              <button class="tap-button" data-taps="256"><span>256</span><small>STUDIO</small></button>
+            </div>
+          </div>
+
+          <div class="filter-readout">
+            <div>
+              <span>PROTOTYPE LENGTH</span>
+              <strong id="prototypeLength">20 480</strong>
+            </div>
+            <div>
+              <span>KAISER β</span>
+              <strong>9.00</strong>
+            </div>
+            <div>
+              <span>STOPBAND</span>
+              <strong id="stopbandValue">−92 dB</strong>
+            </div>
+          </div>
+
+          <button class="run-button" id="runButton">
+            <span class="run-icon" aria-hidden="true">↻</span>
+            <span class="run-label">
+              <strong>RUN CONVERSION</strong>
+              <small id="runSubtext">reference loaded · tap to recalculate</small>
+            </span>
+            <span class="run-arrow">→</span>
+          </button>
+
+          <div class="timing-card">
+            <div class="timing-heading">
+              <span>LAST RUN</span>
+              <span id="timingMFLOPS">—</span>
+            </div>
+            <div class="timing-bar"><i id="timingBar"></i></div>
+            <div class="timing-stats">
+              <div><span>WALL TIME</span><strong id="wallTime">—</strong></div>
+              <div><span>REAL-TIME</span><strong id="realtimeFactor">—</strong></div>
+              <div><span>THROUGHPUT</span><strong id="throughput">—</strong></div>
+            </div>
+          </div>
+
+          <div class="playback-row">
+            <button class="play-button" id="playButton" aria-label="Play converted output">
+              <span id="playIcon">▶</span>
+            </button>
+            <div class="playback-copy">
+              <strong>MONITOR OUTPUT</strong>
+              <span id="playbackStatus">48 kHz · stereo · 6.00 s</span>
+            </div>
+            <button class="text-button" id="exportButton">WAV ↓</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="analysis-grid">
+        <article class="panel waveform-panel">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">TIME DOMAIN</p>
+              <h2>Signal itinerary <span>/ 6 seconds</span></h2>
+            </div>
+            <div class="wave-tools">
+              <button class="ghost-button is-active" data-window="all">ALL</button>
+              <button class="ghost-button" data-window="transient">TRANSIENT</button>
+              <button class="ghost-button" data-window="head-tail">HEAD + TAIL</button>
+            </div>
+          </header>
+          <div class="chart-wrap waveform-chart-wrap">
+            <canvas id="waveformCanvas" aria-label="Input and converted waveform"></canvas>
+            <div class="transient-pin" id="transientPin">
+              <span>TRANSIENT</span>
+              <b>1.800 s</b>
+            </div>
+          </div>
+          <div class="timeline-labels">
+            <span data-time="0.00">0.00</span>
+            <span data-time="1.80">1.80</span>
+            <span data-time="3.00">3.00</span>
+            <span data-time="4.50">4.50</span>
+            <span data-time="6.00">6.00 s</span>
+          </div>
+          <div class="segment-key">
+            <span><i class="key-sine"></i>SINE</span>
+            <span><i class="key-silence"></i>SILENCE</span>
+            <span><i class="key-transient"></i>TRANSIENT</span>
+            <span class="wave-hint">L solid · R dashed</span>
+          </div>
+        </article>
+
+        <article class="panel delay-panel">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">PHASE BEHAVIOUR</p>
+              <h2>Group delay <span>/ linear phase</span></h2>
+            </div>
+            <span class="chip" id="delayChip">0.726 ms</span>
+          </header>
+          <div class="delay-value">
+            <strong id="delayValue">0.726</strong>
+            <span>ms prototype delay<small>compensated at output</small></span>
+          </div>
+          <div class="chart-wrap delay-chart-wrap">
+            <canvas id="delayCanvas" aria-label="Group delay over frequency"></canvas>
+          </div>
+          <div class="delay-axis">
+            <span>0</span><span>5 k</span><span>10 k</span><span>15 k</span><span>22.05 k</span>
+          </div>
+          <div class="delay-foot">
+            <span><i></i>DELAY-COMPENSATED</span>
+            <strong id="delayAlignment">OFFSET 0.000 SAMPLE</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel error-panel">
+        <header class="panel-header error-header">
+          <div>
+            <p class="panel-kicker">OFFLINE VERIFICATION</p>
+            <h2>Reference delta <span>/ edge + transient audit</span></h2>
+          </div>
+          <div class="reference-badge">
+            <span class="reference-light"></span>
+            <div>
+              <strong id="referenceName">reference-48k.f32.wav</strong>
+              <span id="referenceMeta">512 taps / phase · Float32 · 288 000 frames</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="error-content">
+          <div class="error-table-wrap">
+            <table class="error-table">
+              <thead>
+                <tr>
+                  <th>REGION</th>
+                  <th>PEAK L</th>
+                  <th>PEAK R</th>
+                  <th>RMS L/R</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="errorTableBody">
+                <tr>
+                  <td><strong>HEAD</strong><span>0.00–0.10 s</span></td>
+                  <td>—</td><td>—</td><td>—</td>
+                  <td><span class="status-pill">ANALYSING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TRANSIENT</strong><span>1.76–1.84 s</span></td>
+                  <td>—</td><td>—</td><td>—</td>
+                  <td><span class="status-pill">ANALYSING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>TAIL</strong><span>5.90–6.00 s</span></td>
+                  <td>—</td><td>—</td><td>—</td>
+                  <td><span class="status-pill">ANALYSING</span></td>
+                </tr>
+                <tr class="total-row">
+                  <td><strong>FULL FILE</strong><span>all 288 000 frames</span></td>
+                  <td id="totalPeakL">—</td>
+                  <td id="totalPeakR">—</td>
+                  <td id="totalRms">—</td>
+                  <td><span class="status-pill pill-lock">LOCKED</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="residual-card">
+            <div class="residual-head">
+              <div>
+                <span>ABSOLUTE ERROR · TRANSIENT WINDOW</span>
+                <strong id="residualPeak">— peak</strong>
+              </div>
+              <span class="residual-scale">LOG dBFS</span>
+            </div>
+            <div class="chart-wrap residual-chart-wrap">
+              <canvas id="errorCanvas" aria-label="Absolute error around the transient"></canvas>
+            </div>
+            <div class="residual-axis">
+              <span>−40 ms</span><span>−20</span><span>TRANSIENT</span><span>+20</span><span>+40 ms</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="audit-footer">
+          <div><span>COUNT CHECK</span><strong id="countCheck">PASS · 288 000</strong></div>
+          <div><span>DURATION ERROR</span><strong id="durationCheck">0.000 ppm</strong></div>
+          <div><span>STEREO ALIGNMENT</span><strong id="stereoCheck">PASS · 0 samples</strong></div>
+          <div><span>ENDPOINT POLICY</span><strong>Zero-padded · centered</strong></div>
+        </footer>
+      </section>
+
+      <footer class="page-footer">
+        <span>PHASE·LOCK / DSP VERIFICATION BENCH</span>
+        <span>160/147 EXACT · KAISER-WINDOWED SINC</span>
+        <span id="footerClock">SESSION READY</span>
+      </footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
