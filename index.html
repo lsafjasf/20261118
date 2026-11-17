@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>WebCodecs 视频帧队列演示</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background: #111; color: #eee; }
+    h1 { font-size: 20px; }
+    canvas { background: #000; border: 1px solid #444; display: block; margin: 12px 0; }
+    #stats { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 8px; max-width: 720px; }
+    .stat { background: #1d1d1d; border: 1px solid #333; border-radius: 8px; padding: 10px 12px; }
+    .stat .label { font-size: 12px; color: #999; }
+    .stat .value { font-size: 22px; font-variant-numeric: tabular-nums; }
+    button { font-size: 15px; padding: 8px 18px; margin-right: 8px; border-radius: 6px; border: 0; cursor: pointer; }
+    #startBtn { background: #2c7; }
+    #stopBtn { background: #c55; color: #fff; }
+    #log { font-size: 12px; color: #8ab; white-space: pre-wrap; margin-top: 12px; max-width: 720px; }
+  </style>
+</head>
+<body>
+  <h1>WebCodecs 视频帧队列（解码 90fps / 渲染 30fps，队列容量 8，丢最旧帧）</h1>
+  <canvas id="screen" width="320" height="180"></canvas>
+  <div>
+    <button id="startBtn">开始</button>
+    <button id="stopBtn">停止</button>
+  </div>
+  <div id="stats">
+    <div class="stat"><div class="label">队列长度</div><div class="value" id="queueLen">0</div></div>
+    <div class="stat"><div class="label">平均等待 (ms)</div><div class="value" id="avgWait">0.0</div></div>
+    <div class="stat"><div class="label">丢弃帧数</div><div class="value" id="dropped">0</div></div>
+    <div class="stat"><div class="label">内存中帧对象数</div><div class="value" id="live">0</div></div>
+    <div class="stat"><div class="label">已渲染帧数</div><div class="value" id="rendered">0</div></div>
+    <div class="stat"><div class="label">最大渲染间隔 (ms)</div><div class="value" id="maxGap">0</div></div>
+    <div class="stat"><div class="label">累计创建 / 关闭</div><div class="value" id="createdClosed">0 / 0</div></div>
+    <div class="stat"><div class="label">渲染空转次数</div><div class="value" id="underruns">0</div></div>
+  </div>
+  <div id="log"></div>
+  <script src="frame-queue.js"></script>
+  <script src="player.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
