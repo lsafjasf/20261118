@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0b" />
+    <title>Frame Inspector · WebCodecs</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+              <path d="M5 11V5h6M21 5h6v6M27 21v6h-6M11 27H5v-6" />
+              <path class="brand-mark__play" d="m13 11 7 5-7 5Z" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>FRAME<span>/</span>INSPECT</strong>
+            <small>WebCodecs 逐帧检查器</small>
+          </span>
+        </div>
+        <div class="topbar-actions">
+          <div id="capabilityPill" class="capability-pill">
+            <i></i><span>检测能力中</span>
+          </div>
+          <label class="primary-button file-button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 3v10m0-10L6 7m4-4 4 4M3 13v3h14v-3" />
+            </svg>
+            <span>载入视频</span>
+            <input id="fileInput" type="file" accept="video/mp4,video/webm,.mp4,.m4v,.webm" />
+          </label>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="inspector-column">
+          <article class="stage-card">
+            <div class="stage-head">
+              <div class="file-identity">
+                <span class="file-dot"></span>
+                <span id="fileName">未载入视频</span>
+                <span id="fileSize" class="muted"></span>
+              </div>
+              <div class="stage-state">
+                <span id="hdrBadge" class="mini-badge">等待文件</span>
+                <span id="vfrBadge" class="mini-badge is-hidden">VFR</span>
+              </div>
+            </div>
+
+            <div id="viewer" class="viewer">
+              <canvas id="frameCanvas" width="960" height="540"></canvas>
+              <div id="emptyState" class="empty-state">
+                <div class="empty-frame">
+                  <span class="corner corner--tl"></span>
+                  <span class="corner corner--tr"></span>
+                  <span class="corner corner--bl"></span>
+                  <span class="corner corner--br"></span>
+                  <svg viewBox="0 0 44 44" aria-hidden="true">
+                    <path d="M5 15V5h10M29 5h10v10M39 29v10H29M15 39H5V29" />
+                    <path d="m18 14 11 8-11 8Z" />
+                  </svg>
+                </div>
+                <strong>将视频拖到这里</strong>
+                <span>或点击右上角载入 MP4 / WebM</span>
+                <small>所有解码均在浏览器本地完成</small>
+              </div>
+              <div id="decodeShade" class="decode-shade">
+                <span class="spinner"></span>
+                <span id="decodeShadeText">正在解码</span>
+              </div>
+              <div class="viewer-hud viewer-hud--left">
+                <span id="hudFrame">FRAME —</span>
+              </div>
+              <div class="viewer-hud viewer-hud--right">
+                <span id="hudPts">PTS —</span>
+                <span id="hudKey" class="key-dot">—</span>
+              </div>
+            </div>
+
+            <div class="transport">
+              <div class="transport-group">
+                <button id="firstFrameButton" class="icon-button" title="第一帧" disabled>
+                  <svg viewBox="0 0 20 20"><path d="M4 4v12M15 4 7 10l8 6V4Z" /></svg>
+                </button>
+                <button id="prevKeyButton" class="icon-button" title="上一关键帧" disabled>
+                  <svg viewBox="0 0 20 20"><path d="M5 5v10M15 5 7 10l8 5V5Z" /></svg>
+                </button>
+                <button id="prevFrameButton" class="icon-button icon-button--large" title="上一帧 (←)" disabled>
+                  <svg viewBox="0 0 20 20"><path d="m13 4-6 6 6 6" /></svg>
+                </button>
+              </div>
+              <div class="transport-readout">
+                <span class="readout-label">当前帧</span>
+                <span id="transportFrame" class="readout-value">—</span>
+                <span class="readout-divider">/</span>
+                <span id="transportTotal" class="readout-total">—</span>
+              </div>
+              <div class="transport-group transport-group--right">
+                <button id="nextFrameButton" class="icon-button icon-button--large" title="下一帧 (→)" disabled>
+                  <svg viewBox="0 0 20 20"><path d="m7 4 6 6-6 6" /></svg>
+                </button>
+                <button id="nextKeyButton" class="icon-button" title="下一关键帧" disabled>
+                  <svg viewBox="0 0 20 20"><path d="M15 5v10M5 5l8 5-8 5V5Z" /></svg>
+                </button>
+                <button id="lastFrameButton" class="icon-button" title="最后一帧" disabled>
+                  <svg viewBox="0 0 20 20"><path d="M16 4v12M5 4l8 6-8 6V4Z" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="timeline-block">
+              <div class="timeline-scale">
+                <span id="timelineCurrent">00:00.000</span>
+                <span id="timelineType">逐帧定位</span>
+                <span id="timelineDuration">00:00.000</span>
+              </div>
+              <div id="timeline" class="timeline">
+                <div id="keyframeTicks" class="keyframe-ticks"></div>
+                <div id="rangeFill" class="range-fill"></div>
+                <div id="inMarker" class="selection-marker selection-marker--in is-hidden">
+                  <span>IN</span>
+                </div>
+                <div id="outMarker" class="selection-marker selection-marker--out is-hidden">
+                  <span>OUT</span>
+                </div>
+                <input id="timelineSlider" type="range" min="0" max="1000" value="0" step="1"
+                  aria-label="视频时间轴" disabled />
+              </div>
+              <div class="timeline-foot">
+                <span id="decodeRange">载入视频后显示解码起点</span>
+                <span id="timingLabel">—</span>
+              </div>
+            </div>
+
+            <div class="selection-bar">
+              <div class="selection-copy">
+                <span class="eyebrow">SELECTION</span>
+                <span id="selectionSummary">尚未标记帧范围</span>
+              </div>
+              <div class="selection-actions">
+                <button id="markInButton" class="secondary-button" disabled>
+                  <span class="button-key">I</span> 标记入点
+                </button>
+                <button id="markOutButton" class="secondary-button" disabled>
+                  <span class="button-key">O</span> 标记出点
+                </button>
+                <button id="manifestButton" class="accent-button" disabled>
+                  生成帧清单
+                  <svg viewBox="0 0 20 20"><path d="M10 3v9m0 0 4-4m-4 4L6 8M3 14v3h14v-3" /></svg>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <section class="metrics-grid">
+            <article class="metric-card metric-card--accent">
+              <span class="metric-label">FRAME INDEX</span>
+              <strong id="frameIndexValue">—</strong>
+              <small id="frameIndexSub">等待载入</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">PRESENTATION TIME</span>
+              <strong id="ptsValue">—</strong>
+              <small id="ptsSub">PTS · 微秒</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">FRAME TYPE</span>
+              <strong id="keyframeValue">—</strong>
+              <small id="keyframeSub">尚未解码</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">DECODE WINDOW</span>
+              <strong id="decodeCountValue">—</strong>
+              <small id="decodeCountSub">从关键帧起算</small>
+            </article>
+          </section>
+        </section>
+
+        <aside class="side-column">
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">RUNTIME</span>
+                <h2>浏览器能力</h2>
+              </div>
+              <span id="runtimeBadge" class="status-chip">检测中</span>
+            </div>
+            <ul id="capabilityList" class="capability-list"></ul>
+            <div id="capabilityWarning" class="inline-warning is-hidden"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">MEDIA</span>
+                <h2>轨道信息</h2>
+              </div>
+              <span class="panel-index">01</span>
+            </div>
+            <dl id="mediaMeta" class="metadata-list">
+              <div><dt>容器</dt><dd>—</dd></div>
+              <div><dt>编解码器</dt><dd>—</dd></div>
+              <div><dt>画面尺寸</dt><dd>—</dd></div>
+              <div><dt>旋转元数据</dt><dd>—</dd></div>
+              <div><dt>帧率结构</dt><dd>—</dd></div>
+              <div><dt>总帧数</dt><dd>—</dd></div>
+              <div><dt>时长</dt><dd>—</dd></div>
+            </dl>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">MANIFEST</span>
+                <h2>所选帧清单</h2>
+              </div>
+              <span class="panel-index">02</span>
+            </div>
+            <div id="manifestEmpty" class="manifest-empty">
+              标记入点与出点后，生成逐帧 PTS / 关键帧信息。
+            </div>
+            <div id="manifestPreview" class="manifest-preview is-hidden">
+              <div class="manifest-stats">
+                <span><b id="manifestFrameCount">0</b> 帧</span>
+                <span id="manifestSpan">0.000 s</span>
+                <span id="manifestKeyCount">0 关键帧</span>
+              </div>
+              <pre id="manifestText"></pre>
+              <button id="downloadManifestButton" class="download-button">
+                下载 JSON 清单
+              </button>
+            </div>
+          </section>
+
+          <section id="errorPanel" class="panel error-panel is-hidden">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">DIAGNOSTIC</span>
+                <h2>能力缺失 / 错误</h2>
+              </div>
+            </div>
+            <p id="errorMessage"></p>
+            <ul id="missingList" class="missing-list"></ul>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="statusbar">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="statusText">就绪 · 等待载入本地视频</span>
+        <span class="statusbar-spacer"></span>
+        <span>解码器：WebCodecs</span>
+        <span class="status-divider"></span>
+        <span>无 ffmpeg.wasm</span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
