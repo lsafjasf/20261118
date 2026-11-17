@@ -1,0 +1,67 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #0f1420;
+  color: #dbe2f0;
+}
+header { padding: 16px 24px 4px; }
+h1 { font-size: 20px; margin: 0; }
+.subtitle { color: #8a94ad; font-size: 13px; margin: 4px 0 0; }
+section { margin: 14px 24px; }
+h2 { font-size: 15px; color: #9fb0d0; margin: 0 0 8px; }
+
+.controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+fieldset {
+  border: 1px solid #2a3550;
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+legend { font-size: 12px; color: #8a94ad; padding: 0 6px; }
+button {
+  background: #1f6feb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+button:disabled { background: #2a3550; color: #6b7690; cursor: not-allowed; }
+
+.alert {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #5a1d1d;
+  border: 1px solid #c0392b;
+  color: #ffb4ab;
+  font-size: 13px;
+}
+.hidden { display: none !important; }
+
+canvas { background: #141b2c; border: 1px solid #2a3550; border-radius: 8px; width: 100%; }
+.chart-wrap { position: relative; }
+.tip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(10, 14, 24, 0.95);
+  border: 1px solid #3a4a70;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: pre;
+}
+
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { border: 1px solid #2a3550; padding: 6px 10px; text-align: left; }
+th { background: #1a2338; color: #9fb0d0; }
+.tag { padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.tag-net { background: #3b2a12; color: #f0b35e; }
+.tag-decode { background: #12313b; color: #5ecfe0; }
+.tag-jb { background: #2a1240; color: #c08df0; }
+.tag-render { background: #3b1224; color: #f07ea8; }
+.tag-ok { background: #14401f; color: #7ee2a0; }
+#evidence-meta { font-size: 13px; color: #9fb0d0; margin-bottom: 8px; }
