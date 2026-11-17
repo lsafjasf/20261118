@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>HLS rebuild check</title>
+</head>
+<body>
+<video id="v" controls muted width="480"></video>
+<pre id="log"></pre>
+<script src="hls.min.js"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var src = params.get("src") || "rebuilt/index.m3u8";
+  var video = document.getElementById("v");
+  var logEl = document.getElementById("log");
+  window.__result = { ended: false, errors: [] };
+
+  function log(msg) {
+    logEl.textContent += msg + "\n";
+  }
+  function snapshot() {
+    var played = [];
+    for (var i = 0; i < video.played.length; i++) {
+      played.push([+video.played.start(i).toFixed(2),
+                   +video.played.end(i).toFixed(2)]);
+    }
+    window.__result.currentTime = +video.currentTime.toFixed(3);
+    window.__result.duration = +video.duration.toFixed(3);
+    window.__result.played = played;
+  }
+
+  video.addEventListener("ended", function () {
+    window.__result.ended = true;
+    snapshot();
+    log("ended at " + video.currentTime.toFixed(2) +
+        "s / " + video.duration.toFixed(2) + "s");
+  });
+  video.addEventListener("error", function () {
+    var err = video.error;
+    window.__result.errors.push(
+      err ? ("media error " + err.code) : "unknown media error");
+    snapshot();
+  });
+  video.addEventListener("timeupdate", snapshot);
+
+  if (window.Hls && Hls.isSupported()) {
+    var hls = new Hls();
+    hls.on(Hls.Events.ERROR, function (_, data) {
+      if (data.fatal) {
+        window.__result.errors.push("hls.js fatal: " + data.details);
+        snapshot();
+      }
+    });
+    hls.loadSource(src);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+      log("manifest parsed, playing " + src);
+      video.playbackRate = 4;
+      video.play().catch(function (e) {
+        window.__result.errors.push("play() rejected: " + e.message);
+      });
+    });
+  } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = src; // native HLS (Safari)
+    video.playbackRate = 4;
+    video.play().catch(function () {});
+  } else {
+    window.__result.errors.push("no HLS support in this browser");
+  }
+})();
+</script>
+</body>
+</html>

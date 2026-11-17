@@ -1,0 +1,13 @@
+{
+  "name": "hls-playlist-doctor",
+  "version": "1.0.0",
+  "description": "HLS playlist doctor: diagnose, repair from backup, verify playback",
+  "scripts": {
+    "demo": "./run_demo.sh",
+    "verify:browser": "node browser_verify.mjs"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.65.1"
+  }
+}
