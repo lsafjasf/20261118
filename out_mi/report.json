@@ -1,0 +1,10 @@
+{
+  "source": "sample/vfr_source.mp4",
+  "output": "out_cfr30_mi.mp4",
+  "fps": 30.0,
+  "strategy": "mi",
+  "source_frames": 308,
+  "output_frames": 359,
+  "source_duration": 12.0,
+  "output_duration": 12.0
+}
