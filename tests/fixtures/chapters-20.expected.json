@@ -1,0 +1,292 @@
+{
+  "width": 320,
+  "height": 180,
+  "fps": 2,
+  "chapterCount": 20,
+  "framesPerChapter": 6,
+  "chapterDurationMs": 3000,
+  "totalDurationMs": 60000,
+  "totalFrames": 120,
+  "chapters": [
+    {
+      "uid": 1,
+      "startMs": 0,
+      "endMs": 3000,
+      "title": "Chapter 01",
+      "framePtsMs": [
+        0,
+        500,
+        1000,
+        1500,
+        2000,
+        2500
+      ]
+    },
+    {
+      "uid": 2,
+      "startMs": 3000,
+      "endMs": 6000,
+      "title": "Chapter 02",
+      "framePtsMs": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000,
+        5500
+      ]
+    },
+    {
+      "uid": 3,
+      "startMs": 6000,
+      "endMs": 9000,
+      "title": "Chapter 03",
+      "framePtsMs": [
+        6000,
+        6500,
+        7000,
+        7500,
+        8000,
+        8500
+      ]
+    },
+    {
+      "uid": 4,
+      "startMs": 9000,
+      "endMs": 12000,
+      "title": "Chapter 04",
+      "framePtsMs": [
+        9000,
+        9500,
+        10000,
+        10500,
+        11000,
+        11500
+      ]
+    },
+    {
+      "uid": 5,
+      "startMs": 12000,
+      "endMs": 15000,
+      "title": "Chapter 05",
+      "framePtsMs": [
+        12000,
+        12500,
+        13000,
+        13500,
+        14000,
+        14500
+      ]
+    },
+    {
+      "uid": 6,
+      "startMs": 15000,
+      "endMs": 18000,
+      "title": "Chapter 06",
+      "framePtsMs": [
+        15000,
+        15500,
+        16000,
+        16500,
+        17000,
+        17500
+      ]
+    },
+    {
+      "uid": 7,
+      "startMs": 18000,
+      "endMs": 21000,
+      "title": "Chapter 07",
+      "framePtsMs": [
+        18000,
+        18500,
+        19000,
+        19500,
+        20000,
+        20500
+      ]
+    },
+    {
+      "uid": 8,
+      "startMs": 21000,
+      "endMs": 24000,
+      "title": "Chapter 08",
+      "framePtsMs": [
+        21000,
+        21500,
+        22000,
+        22500,
+        23000,
+        23500
+      ]
+    },
+    {
+      "uid": 9,
+      "startMs": 24000,
+      "endMs": 27000,
+      "title": "Chapter 09",
+      "framePtsMs": [
+        24000,
+        24500,
+        25000,
+        25500,
+        26000,
+        26500
+      ]
+    },
+    {
+      "uid": 10,
+      "startMs": 27000,
+      "endMs": 30000,
+      "title": "Chapter 10",
+      "framePtsMs": [
+        27000,
+        27500,
+        28000,
+        28500,
+        29000,
+        29500
+      ]
+    },
+    {
+      "uid": 11,
+      "startMs": 30000,
+      "endMs": 33000,
+      "title": "Chapter 11",
+      "framePtsMs": [
+        30000,
+        30500,
+        31000,
+        31500,
+        32000,
+        32500
+      ]
+    },
+    {
+      "uid": 12,
+      "startMs": 33000,
+      "endMs": 36000,
+      "title": "Chapter 12",
+      "framePtsMs": [
+        33000,
+        33500,
+        34000,
+        34500,
+        35000,
+        35500
+      ]
+    },
+    {
+      "uid": 13,
+      "startMs": 36000,
+      "endMs": 39000,
+      "title": "Chapter 13",
+      "framePtsMs": [
+        36000,
+        36500,
+        37000,
+        37500,
+        38000,
+        38500
+      ]
+    },
+    {
+      "uid": 14,
+      "startMs": 39000,
+      "endMs": 42000,
+      "title": "Chapter 14",
+      "framePtsMs": [
+        39000,
+        39500,
+        40000,
+        40500,
+        41000,
+        41500
+      ]
+    },
+    {
+      "uid": 15,
+      "startMs": 42000,
+      "endMs": 45000,
+      "title": "Chapter 15",
+      "framePtsMs": [
+        42000,
+        42500,
+        43000,
+        43500,
+        44000,
+        44500
+      ]
+    },
+    {
+      "uid": 16,
+      "startMs": 45000,
+      "endMs": 48000,
+      "title": "Chapter 16",
+      "framePtsMs": [
+        45000,
+        45500,
+        46000,
+        46500,
+        47000,
+        47500
+      ]
+    },
+    {
+      "uid": 17,
+      "startMs": 48000,
+      "endMs": 51000,
+      "title": "Chapter 17",
+      "framePtsMs": [
+        48000,
+        48500,
+        49000,
+        49500,
+        50000,
+        50500
+      ]
+    },
+    {
+      "uid": 18,
+      "startMs": 51000,
+      "endMs": 54000,
+      "title": "Chapter 18",
+      "framePtsMs": [
+        51000,
+        51500,
+        52000,
+        52500,
+        53000,
+        53500
+      ]
+    },
+    {
+      "uid": 19,
+      "startMs": 54000,
+      "endMs": 57000,
+      "title": "Chapter 19",
+      "framePtsMs": [
+        54000,
+        54500,
+        55000,
+        55500,
+        56000,
+        56500
+      ]
+    },
+    {
+      "uid": 20,
+      "startMs": 57000,
+      "endMs": 60000,
+      "title": "Chapter 20",
+      "framePtsMs": [
+        57000,
+        57500,
+        58000,
+        58500,
+        59000,
+        59500
+      ]
+    }
+  ]
+}

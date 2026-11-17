@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>UI harness</title>
+    <link rel="stylesheet" href="../../src/ui/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>Chapter thumbnail wall</h1>
+      <div class="toolbar">
+        <select data-role="concurrency">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+        </select>
+        <button type="button" data-role="cancel">Cancel</button>
+        <button type="button" data-role="export" disabled>Export manifest</button>
+      </div>
+      <p class="status" data-role="status">No video loaded.</p>
+      <div class="grid" data-role="grid"></div>
+    </main>
+    <script type="module">
+      const { createWallApp } = await import('../../src/ui/app.js');
+      window.__uiApp = createWallApp(document.querySelector('.app'), {
+        getConcurrency: () =>
+          Number(document.querySelector('[data-role="concurrency"]').value)
+      });
+      window.__uiReady = true;
+    </script>
+  </body>
+</html>

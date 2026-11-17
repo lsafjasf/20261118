@@ -1,0 +1,14 @@
+{
+  "name": "chapter-thumbnail-wall",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generate a thumbnail wall from video chapter markers with bounded WebCodecs decode concurrency",
+  "scripts": {
+  "generate-fixture": "node scripts/generate-test-video.js",
+  "test": "node --test tests/node-unit.test.js tests/browser-suite.test.js tests/ffmpeg-crosscheck.test.js"
+  },
+  "devDependencies": {
+  "playwright-core": "^1.55.0"
+  }
+}

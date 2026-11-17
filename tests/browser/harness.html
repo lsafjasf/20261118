@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Thumbnail wall browser harness</title>
+  </head>
+  <body>
+    <pre id="result"></pre>
+    <script type="module">
+      // The harness imports the same production modules the UI uses and exposes
+      // them on window so the Playwright driver can invoke scenarios directly.
+      const modules = {
+        generator: await import('../../src/thumbnail-generator.js'),
+        manifest: await import('../../src/manifest.js'),
+        parser: await import('../../src/webm-parser.js'),
+        targets: await import('../../src/chapter-targets.js'),
+        registry: await import('../../src/frame-registry.js')
+      };
+      window.__harness = {
+        generateThumbnailWall: modules.generator.generateThumbnailWall,
+        buildManifest: modules.manifest.buildManifest,
+        buildExportBundle: modules.manifest.buildExportBundle,
+        parseWebm: modules.parser.parseWebm,
+        resolveChapterFrames: modules.targets.resolveChapterFrames,
+        FrameRegistry: modules.registry.FrameRegistry,
+        AbortController,
+        AbortError: modules.generator
+      };
+      window.__harnessReady = true;
+      document.getElementById('result').textContent = 'ready';
+    </script>
+  </body>
+</html>
