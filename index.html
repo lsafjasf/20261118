@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>离线响度分析器（OfflineAudioContext）</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>离线响度分析器</h1>
+  <p class="sub">基于 OfflineAudioContext 的 BS.1770 K 加权近似：短时/积分响度、真峰值、削波地图。分析不修改原文件。</p>
+
+  <section class="panel">
+    <h2>输入</h2>
+    <div class="row">
+      <label>音频文件：<input type="file" id="file-input" accept="audio/*"></label>
+      <span class="hint">或生成合成测试信号：</span>
+      <button id="gen-sine">正弦 + 静音段</button>
+      <button id="gen-impulse">瞬时脉冲</button>
+      <button id="gen-asym">左右不对称</button>
+    </div>
+    <div class="row">
+      <label>分析窗口：
+        <select id="window-select">
+          <option value="0.4" selected>瞬时 400 ms（Momentary）</option>
+          <option value="3">短时 3 s（Short-term）</option>
+          <option value="1">1 s</option>
+          <option value="5">5 s</option>
+        </select>
+      </label>
+      <label>目标响度：<input type="number" id="target-lufs" value="-16" step="0.5" min="-40" max="0"> LUFS</label>
+      <button id="export-json">导出分析结果 JSON</button>
+      <button id="export-gained" disabled>导出增益副本（新文件）</button>
+    </div>
+    <div id="status" class="status">请选择文件或生成测试信号。</div>
+  </section>
+
+  <section class="panel">
+    <h2>数值</h2>
+    <div id="m-meta" class="meta"></div>
+    <div id="m-warnings" class="warnings"></div>
+    <dl class="metrics">
+      <dt>积分响度（门控）</dt><dd id="m-integrated">—</dd>
+      <dt id="m-window-label">窗口峰值</dt><dd id="m-window-max">—</dd>
+      <dt>采样峰值</dt><dd id="m-sample-peak">—</dd>
+      <dt>真峰值（4x 过采样）</dt><dd id="m-true-peak">—</dd>
+      <dt>削波候选</dt><dd id="m-clips">—</dd>
+      <dt>达到目标所需增益</dt><dd id="m-gain">—</dd>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2>响度曲线（随窗口选择更新）</h2>
+    <canvas id="curve-canvas" class="plot"></canvas>
+  </section>
+
+  <section class="panel">
+    <h2>波形地图与削波候选点</h2>
+    <canvas id="map-canvas" class="plot"></canvas>
+  </section>
+
+  <section class="panel note">
+    <h2>采样率 / 声道数处理说明</h2>
+    <ul>
+      <li>浏览器解码会将文件重采样到解码上下文的采样率；分析一律在解码后的 <code>buffer.sampleRate</code> 上进行，K 加权系数按该采样率重新计算，真峰值使用 4 倍过采样，因此 44.1/48/96 kHz 的结果可直接比较。</li>
+      <li>单声道按单声道（权重 1）分析；立体声 L/R 权重均为 1；3–6 声道按 5.1 布局（L R C LFE Ls Rs），LFE 权重 0、环绕权重 1.41；超过 6 声道仅分析前 6 声道并给出警告。</li>
+      <li>静音段被 BS.1770 绝对门限（-70 LUFS）与相对门限（-10 LU）排除；若整段为静音，积分响度显示 -∞，增益建议显示"不适用"，绝不会给出极端增益。</li>
+      <li>"导出增益副本"始终生成新文件下载，原文件不会被覆盖。</li>
+    </ul>
+  </section>
+
+  <script src="js/dsp.js"></script>
+  <script src="js/analyzer.js"></script>
+  <script src="js/testsignals.js"></script>
+  <script src="js/wav.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
