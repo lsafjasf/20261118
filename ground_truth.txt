@@ -1,0 +1,6 @@
+# ground truth transitions (frame indices)
+hard_cut 72
+dissolve 168 191
+fade 264 311
+reject_flash 100
+reject_pan 380 399

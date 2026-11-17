@@ -1,0 +1,58 @@
+{
+  "video": "/home/hj/userfeedback/uid4-0064/test_transitions.mp4",
+  "fps": 24.0,
+  "n_frames": 480,
+  "transitions": [
+    {
+      "type": "hard_cut",
+      "start": 72,
+      "end": 72,
+      "confidence": 1.0,
+      "score": 1.0
+    },
+    {
+      "type": "gradual",
+      "start": 169,
+      "end": 192,
+      "confidence": 1.0,
+      "score": 0.832
+    },
+    {
+      "type": "gradual",
+      "start": 266,
+      "end": 312,
+      "confidence": 0.999,
+      "score": 0.936
+    }
+  ],
+  "shots": [
+    {
+      "id": 0,
+      "start": 0,
+      "end": 71,
+      "transition_in": "start",
+      "confidence": 1.0
+    },
+    {
+      "id": 1,
+      "start": 72,
+      "end": 168,
+      "transition_in": "hard_cut",
+      "confidence": 1.0
+    },
+    {
+      "id": 2,
+      "start": 193,
+      "end": 265,
+      "transition_in": "gradual",
+      "confidence": 1.0
+    },
+    {
+      "id": 3,
+      "start": 313,
+      "end": 479,
+      "transition_in": "gradual",
+      "confidence": 0.999
+    }
+  ]
+}
