@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SourceBuffer 缓冲驱逐策略模拟器</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>SourceBuffer 缓冲驱逐策略模拟器</h1>
+    <p class="subtitle">
+      前方固定安全区 · 后方按内存上限回收 · 已驱逐区间重新请求 · 视频/音频/字幕三轨对齐
+    </p>
+  </header>
+
+  <section class="panel" id="control-panel">
+    <div class="controls">
+      <button id="btn-play">暂停</button>
+      <button id="btn-step">推进 1s</button>
+      <button id="btn-backward-seek">场景① 长距离回跳</button>
+      <button id="btn-rapid-seek">场景② 快速连续拖动</button>
+      <button id="btn-reset">重置</button>
+      <label class="speed">
+        倍速
+        <select id="speed">
+          <option value="1">1×</option>
+          <option value="5" selected>5×</option>
+          <option value="20">20×</option>
+          <option value="60">60×</option>
+        </select>
+      </label>
+      <label class="seek-input">
+        拖动到
+        <input id="seek-time" type="number" min="0" max="599" step="1" value="120" />
+        秒
+        <button id="btn-seek">Seek</button>
+      </label>
+    </div>
+    <p class="hint">点击下方时间线任意位置也可模拟用户拖动；点击已驱逐（灰色）分片会触发重新请求。</p>
+  </section>
+
+  <section class="panel">
+    <h2>各时间段缓冲状态（每个分片 2 秒，共 600 秒）</h2>
+    <div id="timeline-scroll">
+      <div id="timeline"></div>
+    </div>
+    <ul class="legend">
+      <li><span class="swatch resident"></span>已驻留</li>
+      <li><span class="swatch in-flight"></span>请求中</li>
+      <li><span class="swatch evicted"></span>已驱逐（点击重新请求）</li>
+      <li><span class="swatch never"></span>从未加载</li>
+      <li><span class="swatch playhead"></span>播放头</li>
+      <li><span class="swatch safezone"></span>安全区边界</li>
+    </ul>
+  </section>
+
+  <section class="panel stats-grid" id="stats-panel">
+    <div class="stat-card">
+      <h3>播放位置</h3>
+      <p id="stat-current" class="stat-value">—</p>
+      <p id="stat-clock" class="stat-sub"></p>
+    </div>
+    <div class="stat-card">
+      <h3>驻留内存</h3>
+      <p id="stat-memory" class="stat-value">—</p>
+      <div class="bar"><div id="memory-bar"></div></div>
+    </div>
+    <div class="stat-card">
+      <h3>累计驱逐时长</h3>
+      <p id="stat-evicted" class="stat-value">—</p>
+      <p id="stat-evicted-bytes" class="stat-sub"></p>
+    </div>
+    <div class="stat-card">
+      <h3>重新请求</h3>
+      <p id="stat-refetch" class="stat-value">—</p>
+      <p id="stat-refetch-detail" class="stat-sub"></p>
+    </div>
+    <div class="stat-card">
+      <h3>请求统计</h3>
+      <p id="stat-requests" class="stat-value">—</p>
+      <p id="stat-requests-detail" class="stat-sub"></p>
+    </div>
+    <div class="stat-card">
+      <h3>三轨对齐</h3>
+      <p id="stat-avsync" class="stat-value">—</p>
+      <p id="stat-avsync-detail" class="stat-sub"></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>事件日志（最近 30 条）</h2>
+    <ol id="event-log" class="event-log"></ol>
+  </section>
+
+  <footer>
+    <p>
+      引擎与界面共用同一套 ES Module：Node 下运行
+      <code>node test/run-scenarios.js</code> 可复现全部断言。
+    </p>
+  </footer>
+
+  <script type="module" src="ui.js"></script>
+</body>
+</html>
