@@ -1,0 +1,27 @@
+{
+  "name": "uid4-0054",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261118/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261118#readme",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
