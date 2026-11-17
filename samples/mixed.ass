@@ -1,0 +1,18 @@
+[Script Info]
+Title: mixed Chinese-English sample
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK SC,42,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,0,2,40,40,36,1
+Style: Top,Noto Sans CJK SC,36,&H0000FFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,0,8,40,40,24,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:04.00,Default,,0,0,0,,你好，世界！Hello, world! 中英混排测试。
+Dialogue: 0,0:00:04.50,0:00:07.50,Default,,0,0,0,,FFmpeg 烧录前必须预检：字体、语言、样式、换行与字符覆盖范围。
+Dialogue: 0,0:00:08.00,0:00:11.00,Top,,0,0,0,,标点密度测试：！！！???、、、……——“引号”‘quote’（括号）[brackets]；；；:::
+Dialogue: 0,0:00:11.50,0:00:13.50,Default,,0,0,0,,边缘位置：这一行靠近画面底部 bottom edge。

@@ -1,0 +1,88 @@
+{
+  "video": "out/base.mp4",
+  "subtitles": "samples/longline.ass",
+  "video_size": [
+    1280,
+    720
+  ],
+  "events": 3,
+  "styles": {
+    "Default": {
+      "font": "Noto Sans CJK SC",
+      "size": 40.0,
+      "alignment": 2,
+      "margins": [
+        30,
+        30,
+        30
+      ],
+      "wrap_style": 0
+    }
+  },
+  "language_histogram": {
+    "cjk": 40,
+    "latin": 321,
+    "punctuation": 4
+  },
+  "fonts_used": [
+    "Noto Sans CJK SC"
+  ],
+  "coverage_problems": [],
+  "overflow": [],
+  "preview_collage": "out/longline_collage.png",
+  "passed": true,
+  "burned_output": "out/longline_burned.mp4",
+  "frame_comparison": [
+    {
+      "time": "00:00:03.000",
+      "predicted_box": [
+        37,
+        490,
+        1243,
+        690
+      ],
+      "diff_bbox": [
+        108,
+        464,
+        1174,
+        690
+      ],
+      "position_match": true,
+      "image": "out/compare_longline/compare_3.00s.png"
+    },
+    {
+      "time": "00:00:07.500",
+      "predicted_box": [
+        35,
+        540,
+        1245,
+        690
+      ],
+      "diff_bbox": [
+        0,
+        617,
+        1280,
+        687
+      ],
+      "position_match": true,
+      "image": "out/compare_longline/compare_7.50s.png"
+    },
+    {
+      "time": "00:00:11.500",
+      "predicted_box": [
+        233,
+        640,
+        1047,
+        690
+      ],
+      "diff_bbox": [
+        358,
+        656,
+        906,
+        690
+      ],
+      "position_match": true,
+      "image": "out/compare_longline/compare_11.50s.png"
+    }
+  ]
+}

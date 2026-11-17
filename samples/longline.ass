@@ -1,0 +1,16 @@
+[Script Info]
+Title: ultra long single line sample
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK SC,40,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,0,2,30,30,30,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:05.00,Default,,0,0,0,,这是一条 deliberately 超长的单行字幕，mixed with a very long English sentence that keeps going and going without any manual line break so the preflight wrapper must decide how to fold it within the 1280 pixel frame 并且不能溢出画面边缘。
+Dialogue: 0,0:00:06.00,0:00:09.00,Default,,0,0,0,,SupercalifragilisticexpialidociousSupercalifragilisticexpialidociousSupercalifragilisticexpialidociousSupercalifragilisticexpialidocious 是一个无法按词断开的超长 token。
+Dialogue: 0,0:00:10.00,0:00:13.00,Default,,0,0,0,,正常长度对照行 normal length control line。
