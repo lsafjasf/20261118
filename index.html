@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebCodecs 视频编码基准 · 运动序列三档码率对比</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --card-2: #1d222c;
+    --border: #2a313d;
+    --text: #e6e9ef;
+    --muted: #9aa4b2;
+    --accent: #4f8cff;
+    --good: #3fb950;
+    --warn: #d29922;
+    --bad: #f85149;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--bg); color: var(--text);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  main { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  p.sub { margin: 0 0 20px; color: var(--muted); }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px; margin-bottom: 18px;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 16px; }
+  .meta-grid div { color: var(--muted); font-size: 13px; }
+  .meta-grid b { color: var(--text); font-weight: 600; }
+  button, select {
+    background: var(--card-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 16px; font-size: 14px; cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .progress { height: 8px; background: var(--card-2); border-radius: 99px; overflow: hidden; flex: 1; min-width: 160px; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+  #log {
+    margin-top: 12px; max-height: 150px; overflow: auto;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+  }
+  #log .err { color: var(--bad); }
+  #log .ok { color: var(--good); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; background: var(--card-2); position: sticky; top: 0; }
+  tr:hover td { background: rgba(79,140,255,.07); }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; border: 1px solid var(--border); }
+  .tag.low { color: var(--bad); border-color: var(--bad); }
+  .tag.mid { color: var(--warn); border-color: var(--warn); }
+  .tag.high { color: var(--good); border-color: var(--good); }
+  #conclusion { border-left: 3px solid var(--accent); padding-left: 14px; }
+  #conclusion.warn { border-left-color: var(--warn); }
+  .canvas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .canvas-grid figure { margin: 0; }
+  .canvas-grid figcaption { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  canvas.frame {
+    width: 100%; max-width: 512px; aspect-ratio: 16 / 9;
+    background: #000; border: 1px solid var(--border); border-radius: 6px;
+    image-rendering: pixelated;
+  }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .tabs { display: flex; gap: 8px; }
+  .tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .kv { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .kv b { color: var(--text); font-weight: 600; }
+  #chart { width: 100%; max-width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .scroll-x { overflow-x: auto; }
+  label.check { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>WebCodecs 视频编码基准</h1>
+  <p class="sub">程序生成 120 帧 512×288@30fps 运动测试序列，以相同分辨率 / 帧率 / 色彩空间编码为三档目标码率，记录实际码率、编码耗时、首帧时间与逐帧 PSNR，并支持原帧 / 压缩帧 / 差异图逐帧查看。</p>
+
+  <section class="card">
+    <h2>测试参数</h2>
+    <div class="meta-grid" id="params">
+      <div>序列长度：<b id="p-frames">—</b> 帧</div>
+      <div>分辨率：<b id="p-size">—</b></div>
+      <div>帧率：<b id="p-fps">—</b> fps</div>
+      <div>编码格式：<b id="p-codec">检测中…</b></div>
+      <div>色彩空间：<b>sRGB / BT.709 固定</b></div>
+      <div>GOP：<b>30 帧</b> · 码率控制：<b>VBR</b></div>
+    </div>
+    <div class="row" style="margin-top:14px;">
+      <button class="primary" id="btn-run">开始基准测试</button>
+      <label>硬件加速：
+        <select id="sel-hw">
+          <option value="no-preference" selected>no-preference</option>
+          <option value="prefer-hardware">prefer-hardware</option>
+          <option value="prefer-software">prefer-software</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="chk-overlay" checked> 差异图叠加运动块误差标记</label>
+      <div class="progress"><i id="bar"></i></div>
+      <span class="kv" id="progress-text">未运行</span>
+    </div>
+    <div id="log"></div>
+    <p class="hint">内存峰值约 250–300 MB（三档压缩帧的解码像素均驻留内存以便逐帧查看）。建议使用 Chromium 系浏览器，并通过 <code>python3 -m http.server</code> 之类的本地服务器打开，而非 <code>file://</code>。</p>
+  </section>
+
+  <section class="card" id="card-result" hidden>
+    <h2>三档码率比较表</h2>
+    <div class="scroll-x">
+      <table id="result-table">
+        <thead>
+          <tr>
+            <th>档位</th>
+            <th>目标码率 (kbps)</th>
+            <th>实际码率 (kbps)</th>
+            <th>码率偏差</th>
+            <th>编码总耗时 (ms)</th>
+            <th>编码速度 (fps)</th>
+            <th>首帧时间 (ms)</th>
+            <th>平均 PSNR (dB)</th>
+            <th>最低 PSNR (dB)</th>
+            <th>运动区块误差块数</th>
+            <th>静态区块误差块数</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h2 style="margin-top:18px;">结论</h2>
+    <div id="conclusion"></div>
+  </section>
+
+  <section class="card" id="card-chart" hidden>
+    <h2>逐帧 PSNR 曲线</h2>
+    <canvas id="chart" width="1100" height="260"></canvas>
+    <p class="hint">竖线为 GOP 关键帧位置（每 30 帧）。运动场景在关键帧之后通常出现 PSNR 谷值。</p>
+  </section>
+
+  <section class="card" id="card-inspector" hidden>
+    <h2>逐帧查看：原帧 / 压缩帧 / 差异图</h2>
+    <div class="row" style="margin-bottom:12px;">
+      <div class="tabs" id="tier-tabs"></div>
+      <span class="kv" id="frame-info"></span>
+    </div>
+    <input type="range" id="frame-slider" min="0" max="119" value="0">
+    <div class="row" style="margin:8px 0 14px;">
+      <button id="btn-prev">← 上一帧</button>
+      <button id="btn-next">下一帧 →</button>
+      <span class="kv">帧号 <b id="frame-idx">0</b> / <span id="frame-total">119</span></span>
+    </div>
+    <div class="canvas-grid">
+      <figure>
+        <figcaption>原始 VideoFrame（程序生成，未经过任何缩放）</figcaption>
+        <canvas class="frame" id="cv-orig" width="512" height="288"></canvas>
+      </figure>
+      <figure>
+        <figcaption id="cap-comp">压缩帧（解码后）</figcaption>
+        <canvas class="frame" id="cv-comp" width="512" height="288"></canvas>
+      </figure>
+      <figure>
+        <figcaption>差异图（黑色 = 无差异，越亮差异越大，红框 = 运动区超阈值 16×16 宏块）</figcaption>
+        <canvas class="frame" id="cv-diff" width="512" height="288"></canvas>
+      </figure>
+    </div>
+    <p class="hint">差异图把每像素 RGB 绝对误差放大 4 倍并映射为热力色；所有画布均为固定 512×288，绘制采用 1:1 映射，不引入画布尺寸或色彩空间转换失真。</p>
+  </section>
+</main>
+<script>
+"use strict";
+
+/* ================= 固定测试参数 ================= */
+const W = 512, H = 288;                 // 16:9，宽高均为宏块整数倍
+const FPS = 30;
+const FRAME_COUNT = 120;                // 至少 120 帧
+const GOP = 30;
+const FRAME_DURATION_US = 1e6 / FPS;
+const BLOCK = 16;                       // 宏块边长
+const BLOCKS_X = W / BLOCK;
+const BLOCKS_Y = H / BLOCK;
+const TARGET_BITRATES = [200e3, 1e6, 4e6];   // 低 / 中 / 高，单位 bps
+const TIER_NAMES = ["低档", "中档", "高档"];
+const TIER_CLASS = ["low", "mid", "high"];
+const PSNR_MAX = 99;
+
+const $ = (id) => document.getElementById(id);
+const logEl = $("log"), barEl = $("bar"), progressText = $("progress-text");
+
+function log(msg, cls = "") {
+  const line = document.createElement("div");
+  if (cls) line.className = cls;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setProgress(pct, text) {
+  barEl.style.width = `${pct.toFixed(1)}%`;
+  if (text) progressText.textContent = text;
+}
+
+function yieldToEventLoop() {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+/* ================= 编解码器探测 ================= */
+let codecString = null;
+
+async function detectCodec() {
+  if (typeof VideoEncoder === "undefined" || !("isConfigSupported" in VideoEncoder)) {
+    throw new Error("当前浏览器不支持 WebCodecs VideoEncoder，请使用 Chromium 内核浏览器。");
+  }
+  const candidates = [
+    "avc1.640028",   // H.264 High@L4.0，兼容性最好
+    "avc1.4d4028",   // H.264 Main@L4.0
+    "vp09.00.10.08", // VP9 profile 0
+    "vp8"
+  ];
+  const hw = $("sel-hw").value;
+  for (const candidate of candidates) {
+    const config = {
+      codec: candidate, width: W, height: H, framerate: FPS,
+      latencyMode: "quality", hardwareAcceleration: hw, bitrate: 1e6
+    };
+    try {
+      const support = await VideoEncoder.isConfigSupported(config);
+      if (support && support.supported) return candidate;
+    } catch (_) { /* 继续探测下一个 */ }
+  }
+  throw new Error("没有任何候选编码器配置被当前浏览器支持。");
+}
+
+/* ================= 确定性运动场景 =================
+ * 所有帧都绘制在同一个固定尺寸 OffscreenCanvas 上（512×288，sRGB），
+ * 不做任何 resize / 色彩空间转换，因此画布本身不会引入额外失真。
+ */
+const sceneCanvas = new OffscreenCanvas(W, H);
+const sceneCtx = sceneCanvas.getContext("2d", { colorSpace: "srgb" });
+
+function drawScene(ctx, n) {
+  // 静态背景：垂直渐变 + 细密网格，给压缩器制造稳定的高频纹理
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, "#10243d");
+  grad.addColorStop(0.55, "#16324a");
+  grad.addColorStop(1, "#0a1626");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.07)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = 0; x <= W; x += 16) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+  for (let y = 0; y <= H; y += 16) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+  ctx.stroke();
+
+  // 静止的高对比棋盘区（右下角），用于量化静态区域的块效应
+  const boardX = W - 128, boardY = H - 80;
+  for (let by = 0; by < 5; by++) {
+    for (let bx = 0; bx < 8; bx++) {
+      ctx.fillStyle = (bx + by) % 2 ? "#d8dee9" : "#1c2330";
+      ctx.fillRect(boardX + bx * 16, boardY + by * 16, 16, 16);
+    }
+  }
+
+  const t = n / FPS;
+  // 运动体 1：高速水平移动的实心圆（强边缘 + 平涂）
+  const ballX = 40 + ((n * 7) % (W - 80));
+  ctx.fillStyle = "#ff5d5d";
+  ctx.beginPath();
+  ctx.arc(ballX, 92, 26, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // 运动体 2：对角弹跳的高对比条纹方块
+  const period = 36;
+  const phase = n % (period * 2);
+  const k = phase < period ? phase : period * 2 - phase;
+  const sqX = 60 + k * 11;
+  const sqY = 150 + (k / period) * 70;
+  ctx.save();
+  ctx.translate(sqX, sqY);
+  ctx.rotate(n * 0.12);
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = i % 2 ? "#ffd166" : "#20242c";
+    ctx.fillRect(i * 9 - 18, -18, 9, 36);
+  }
+  ctx.strokeStyle = "#ffffff";
+  ctx.strokeRect(-18, -18, 36, 36);
+  ctx.restore();
+
+  // 运动体 3：正弦轨迹细线三角
+  const triX = 300 + Math.sin(t * 1.8) * 130;
+  const triY = 200 + Math.cos(t * 2.3) * 40;
+  ctx.fillStyle = "#46d6a2";
+  ctx.beginPath();
+  ctx.moveTo(triX, triY - 20);
+  ctx.lineTo(triX + 22, triY + 16);
+  ctx.lineTo(triX - 22, triY + 16);
+  ctx.closePath();
+  ctx.fill();
+
+  // 运动体 4：左到右滚动的文字，提供复杂字形边缘
+  const textX = (n * 5) % (W + 160) - 80;
+  ctx.font = "bold 26px monospace";
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.fillText("WEBCODECS 0123456789", textX, 52);
+
+  // 帧号角标（每帧变化的小区域）
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillRect(8, H - 30, 150, 22);
+  ctx.fillStyle = "#9fd0ff";
+  ctx.font = "13px monospace";
+  ctx.fillText(`frame ${String(n).padStart(3, "0")} / ${FRAME_COUNT}`, 14, H - 14);
+}
+
+/* 生成一帧并捕获为 ImageData（固定画布、固定尺寸、sRGB，避免任何额外失真） */
+function renderOriginalImageData(n) {
+  drawScene(sceneCtx, n);
+  return sceneCtx.getImageData(0, 0, W, H);
+}
+
+/* 由 ImageData 在固定尺寸画布上重建 VideoFrame，全程 1:1 像素映射 */
+const frameBridge = new OffscreenCanvas(W, H);
+const frameBridgeCtx = frameBridge.getContext("2d", { colorSpace: "srgb" });
+
+function imageDataToVideoFrame(imageData, timestampUs) {
+  frameBridgeCtx.putImageData(imageData, 0, 0);
+  return new VideoFrame(frameBridge, {
+    timestamp: timestampUs,
+    duration: FRAME_DURATION_US,
+    colorSpace: { primaries: "srgb", transfer: "srgb", matrix: "rgb" }
+  });
+}
+/* ================= 质量度量 ================= */
+
+/* 逐像素 PSNR（RGB 三通道，跳过 alpha） */
+function computePSNR(a, b) {
+  const pa = a.data, pb = b.data;
+  let sumSq = 0, samples = 0;
+  for (let i = 0; i < pa.length; i += 4) {
+    const dr = pa[i] - pb[i];
+    const dg = pa[i + 1] - pb[i + 1];
+    const db = pa[i + 2] - pb[i + 2];
+    sumSq += dr * dr + dg * dg + db * db;
+    samples += 3;
+  }
+  const mse = sumSq / samples;
+  if (mse === 0) return PSNR_MAX;
+  return 10 * Math.log10((255 * 255) / mse);
+}
+
+/*
+ * 以相邻原始帧的亮度差构建运动掩码（确定性，来自源内容而非编码器），
+ * 再按 16×16 宏块统计压缩误差。返回运动/静态区域中超过阈值的误差块数。
+ */
+function computeBlockStats(prevOrig, orig, comp, motionLumaThresh = 10, blockMseThresh = 24) {
+  const po = prevOrig ? prevOrig.data : null;
+  const o = orig.data, c = comp.data;
+  let motionBad = 0, staticBad = 0, motionBlocks = 0;
+
+  for (let by = 0; by < BLOCKS_Y; by++) {
+    for (let bx = 0; bx < BLOCKS_X; bx++) {
+      let motionEnergy = 0, motionSamples = 0;
+      let mseSum = 0, mseSamples = 0;
+      const x0 = bx * BLOCK, y0 = by * BLOCK;
+      for (let y = y0; y < y0 + BLOCK; y++) {
+        for (let x = x0; x < x0 + BLOCK; x++) {
+          const idx = (y * W + x) * 4;
+          if (po) {
+            const lumaPrev = 0.299 * po[idx] + 0.587 * po[idx + 1] + 0.114 * po[idx + 2];
+            const lumaCur = 0.299 * o[idx] + 0.587 * o[idx + 1] + 0.114 * o[idx + 2];
+            motionEnergy += Math.abs(lumaCur - lumaPrev);
+            motionSamples++;
+          }
+          const dr = o[idx] - c[idx];
+          const dg = o[idx + 1] - c[idx + 1];
+          const db = o[idx + 2] - c[idx + 2];
+          mseSum += dr * dr + dg * dg + db * db;
+          mseSamples += 3;
+        }
+      }
+      const isMotion = !po || (motionEnergy / Math.max(1, motionSamples)) > motionLumaThresh;
+      const blockMse = mseSum / mseSamples;
+      if (isMotion) { motionBlocks++; if (blockMse > blockMseThresh) motionBad++; }
+      else if (blockMse > blockMseThresh) { staticBad++; }
+    }
+  }
+  return { motionBad, staticBad, motionBlocks };
+}
+
+/* 热力差异图：误差放大 4 倍，黑→蓝→青→黄→白；可叠加运动区误差块红框 */
+const heatLut = (() => {
+  const lut = new Uint8ClampedArray(256 * 3);
+  for (let e = 0; e < 256; e++) {
+    const v = e / 255;
+    lut[e * 3] = Math.round(255 * Math.min(1, Math.max(0, v * 2 - 0.4)));
+    lut[e * 3 + 1] = Math.round(255 * Math.min(1, Math.max(0, v * 2.2 - 0.7)));
+    lut[e * 3 + 2] = Math.round(255 * Math.min(1, Math.max(0, 1.4 - v * 2.6)));
+  }
+  return lut;
+})();
+
+function buildDiffImageData(orig, comp, blockBadSet) {
+  const out = new ImageData(W, H);
+  const o = orig.data, c = comp.data, d = out.data;
+  for (let i = 0; i < o.length; i += 4) {
+    const e = Math.min(255, (Math.abs(o[i] - c[i]) +
+                             Math.abs(o[i + 1] - c[i + 1]) +
+                             Math.abs(o[i + 2] - c[i + 2])) * 4 / 3);
+    const ei = Math.round(e) * 3;
+    d[i] = heatLut[ei];
+    d[i + 1] = heatLut[ei + 1];
+    d[i + 2] = heatLut[ei + 2];
+    d[i + 3] = 255;
+  }
+  if (blockBadSet) {
+    for (const key of blockBadSet) {
+      const bx = key % BLOCKS_X, by = (key - bx) / BLOCKS_X;
+      const x0 = bx * BLOCK, y0 = by * BLOCK;
+      for (let x = x0; x < x0 + BLOCK; x++) {
+        const i1 = (y0 * W + x) * 4, i2 = ((y0 + BLOCK - 1) * W + x) * 4;
+        d[i1] = d[i2] = 255; d[i1 + 1] = d[i2 + 1] = 60; d[i1 + 2] = d[i2 + 2] = 60;
+      }
+      for (let y = y0; y < y0 + BLOCK; y++) {
+        const i1 = (y * W + x0) * 4, i2 = (y * W + x0 + BLOCK - 1) * 4;
+        d[i1] = d[i2] = 255; d[i1 + 1] = d[i2 + 1] = 60; d[i1 + 2] = d[i2 + 2] = 60;
+      }
+    }
+  }
+  return out;
+}
+
+/* 找出指定帧的运动区误差宏块编号集合（供差异图红框叠加） */
+function findBadMotionBlocks(prevOrig, orig, comp, motionLumaThresh = 10, blockMseThresh = 24) {
+  const po = prevOrig ? prevOrig.data : null;
+  const o = orig.data, c = comp.data;
+  const bad = new Set();
+  for (let by = 0; by < BLOCKS_Y; by++) {
+    for (let bx = 0; bx < BLOCKS_X; bx++) {
+      let motionEnergy = 0, motionSamples = 0, mseSum = 0, mseSamples = 0;
+      const x0 = bx * BLOCK, y0 = by * BLOCK;
+      for (let y = y0; y < y0 + BLOCK; y++) {
+        for (let x = x0; x < x0 + BLOCK; x++) {
+          const idx = (y * W + x) * 4;
+          if (po) {
+            const lp = 0.299 * po[idx] + 0.587 * po[idx + 1] + 0.114 * po[idx + 2];
+            const lc = 0.299 * o[idx] + 0.587 * o[idx + 1] + 0.114 * o[idx + 2];
+            motionEnergy += Math.abs(lc - lp); motionSamples++;
+          }
+          const dr = o[idx] - c[idx], dg = o[idx + 1] - c[idx + 1], db = o[idx + 2] - c[idx + 2];
+          mseSum += dr * dr + dg * dg + db * db; mseSamples += 3;
+        }
+      }
+      const isMotion = !po || (motionEnergy / Math.max(1, motionSamples)) > motionLumaThresh;
+      if (isMotion && mseSum / mseSamples > blockMseThresh) bad.add(by * BLOCKS_X + bx);
+    }
+  }
+  return bad;
+}
+/* ================= 编码 / 解码流水线 ================= */
+
+function makeEncoderConfig(bitrate) {
+  return {
+    codec: codecString,
+    width: W,
+    height: H,
+    bitrate,
+    bitrateMode: "variable",
+    framerate: FPS,
+    latencyMode: "quality",
+    hardwareAcceleration: $("sel-hw").value,
+    avc: { format: "annexb" }
+  };
+}
+
+/* 对一档目标码率编码全部帧，返回码流 chunk 与计时数据 */
+async function encodeTier(bitrate, originals, onProgress) {
+  const chunks = [];
+  let encodedBytes = 0;
+  let firstOutputLatencyMs = null;
+  let firstFrameSubmittedAt = null;
+  let rejectEncoder;
+  const encoderFailed = new Promise((_, reject) => { rejectEncoder = reject; });
+
+  const encoder = new VideoEncoder({
+    output: (chunk) => {
+      const copy = new ArrayBuffer(chunk.byteLength);
+      new Uint8Array(copy).set(new Uint8Array(chunk.byteLength));
+      chunks.push({
+        type: chunk.type,
+        timestamp: chunk.timestamp,
+        duration: chunk.duration,
+        data: copy
+      });
+      encodedBytes += chunk.byteLength;
+      if (firstOutputLatencyMs === null) {
+        firstOutputLatencyMs = performance.now() - firstFrameSubmittedAt;
+      }
+    },
+    error: (err) => rejectEncoder(err)
+  });
+
+  encoder.configure(makeEncoderConfig(bitrate));
+
+  const start = performance.now();
+  for (let n = 0; n < FRAME_COUNT; n++) {
+    if (n === 0) firstFrameSubmittedAt = performance.now();
+    const frame = imageDataToVideoFrame(originals[n], Math.round(n * FRAME_DURATION_US));
+    const keyFrame = n % GOP === 0;
+    while (encoder.encodeQueueSize > 4) {
+      await Promise.race([
+        new Promise((resolve) => encoder.addEventListener("dequeue", resolve, { once: true })),
+        encoderFailed
+      ]);
+    }
+    encoder.encode(frame, { keyFrame });
+    frame.close();
+    if (n % 10 === 9) {
+      onProgress((n + 1) / FRAME_COUNT);
+      await Promise.race([yieldToEventLoop(), encoderFailed]);
+    }
+  }
+  await Promise.race([encoder.flush(), encoderFailed]);
+  const elapsedMs = performance.now() - start;
+  encoder.close();
+
+  chunks.sort((a, b) => a.timestamp - b.timestamp);
+  const durationSec = FRAME_COUNT / FPS;
+  return {
+    chunks,
+    encodedBytes,
+    actualBitrate: (encodedBytes * 8) / durationSec,
+    elapsedMs,
+    firstFrameMs: firstOutputLatencyMs
+  };
+}
+
+/* 解码一档码流，按时间戳顺序返回 ImageData 数组 */
+async function decodeTier(tier, onProgress) {
+  const frames = new Array(FRAME_COUNT);
+  let rejectDecoder;
+  const decoderFailed = new Promise((_, reject) => { rejectDecoder = reject; });
+  const decoder = new VideoDecoder({
+    output: (frame) => {
+      if (frame.codedWidth !== W || frame.codedHeight !== H) {
+        log(`警告：解码尺寸 ${frame.codedWidth}×${frame.codedHeight} 与源尺寸不一致`, "err");
+      }
+      const canvas = new OffscreenCanvas(W, H);
+      const ctx = canvas.getContext("2d", { colorSpace: "srgb" });
+      ctx.drawImage(frame, 0, 0, W, H);
+      const index = Math.round(frame.timestamp / FRAME_DURATION_US);
+      if (index >= 0 && index < FRAME_COUNT) frames[index] = ctx.getImageData(0, 0, W, H);
+      frame.close();
+    },
+    error: (err) => rejectDecoder(err)
+  });
+
+  decoder.configure({ codec: codecString, hardwareAcceleration: $("sel-hw").value });
+
+  for (let i = 0; i < tier.chunks.length; i++) {
+    const chunk = tier.chunks[i];
+    while (decoder.decodeQueueSize > 4) {
+      await Promise.race([
+        new Promise((resolve) => decoder.addEventListener("dequeue", resolve, { once: true })),
+        decoderFailed
+      ]);
+    }
+    decoder.decode(new EncodedVideoChunk({
+      type: chunk.type,
+      timestamp: chunk.timestamp,
+      duration: chunk.duration,
+      data: chunk.data
+    }));
+    if (i % 10 === 9) {
+      onProgress((i + 1) / tier.chunks.length);
+      await Promise.race([yieldToEventLoop(), decoderFailed]);
+    }
+  }
+  await Promise.race([decoder.flush(), decoderFailed]);
+  decoder.close();
+
+  for (let i = 0; i < FRAME_COUNT; i++) {
+    if (!frames[i]) throw new Error("解码结果缺帧，请检查编码器输出。");
+  }
+  return frames;
+}
+
+/* 计算一档全部帧的 PSNR 与宏块误差 */
+function analyzeTier(originals, decoded) {
+  const psnr = new Array(FRAME_COUNT);
+  const motionBad = new Array(FRAME_COUNT);
+  const staticBad = new Array(FRAME_COUNT);
+  let psnrSum = 0, psnrMin = Infinity;
+  let motionBadTotal = 0, staticBadTotal = 0;
+
+  for (let n = 0; n < FRAME_COUNT; n++) {
+    const prev = n > 0 ? originals[n - 1] : null;
+    const stats = computeBlockStats(prev, originals[n], decoded[n]);
+    const value = computePSNR(originals[n], decoded[n]);
+    psnr[n] = value;
+    motionBad[n] = stats.motionBad;
+    staticBad[n] = stats.staticBad;
+    psnrSum += value;
+    if (value < psnrMin) psnrMin = value;
+    motionBadTotal += stats.motionBad;
+    staticBadTotal += stats.staticBad;
+  }
+  return {
+    psnr,
+    motionBad,
+    staticBad,
+    psnrAvg: psnrSum / FRAME_COUNT,
+    psnrMin,
+    motionBadTotal,
+    staticBadTotal
+  };
+}
+/* ================= 主测试流程 ================= */
+const state = {
+  running: false,
+  originals: null,
+  tiers: null,
+  selectedTier: 0,
+  selectedFrame: 0
+};
+
+async function runBenchmark() {
+  if (state.running) return;
+  state.running = true;
+  const btn = $("btn-run");
+  btn.disabled = true;
+  logEl.innerHTML = "";
+
+  try {
+    log("开始检测编码器支持情况…");
+    codecString = await detectCodec();
+    $("p-codec").textContent = codecString;
+    log(`选定编码器：${codecString}`, "ok");
+
+    log(`生成 ${FRAME_COUNT} 帧确定性运动测试序列（${W}×${H} @ ${FPS}fps）…`);
+    const originals = new Array(FRAME_COUNT);
+    for (let n = 0; n < FRAME_COUNT; n++) {
+      originals[n] = renderOriginalImageData(n);
+      if (n % 20 === 19) {
+        setProgress(((n + 1) / FRAME_COUNT) * 20, `生成帧 ${n + 1}/${FRAME_COUNT}`);
+        await yieldToEventLoop();
+      }
+    }
+    state.originals = originals;
+    log("测试序列生成完毕，全程使用固定尺寸 OffscreenCanvas，无缩放 / 无色彩空间切换。", "ok");
+
+    const tiers = [];
+    for (let t = 0; t < TARGET_BITRATES.length; t++) {
+      const target = TARGET_BITRATES[t];
+      log(`【${TIER_NAMES[t]}】目标码率 ${(target / 1e3).toFixed(0)} kbps：开始编码…`);
+      const enc = await encodeTier(target, originals, (p) => {
+        setProgress(20 + (t * 2 + p) * (80 / 6),
+          `${TIER_NAMES[t]} 编码 ${(p * 100).toFixed(0)}%`);
+      });
+      log(`【${TIER_NAMES[t]}】编码完成：实际 ${(enc.actualBitrate / 1e3).toFixed(1)} kbps，` +
+          `耗时 ${enc.elapsedMs.toFixed(1)} ms，首帧 ${enc.firstFrameMs.toFixed(1)} ms`);
+
+      log(`【${TIER_NAMES[t]}】解码并逐帧比对…`);
+      const decoded = await decodeTier(enc, (p) => {
+        setProgress(20 + (t * 2 + 1 + p) * (80 / 6),
+          `${TIER_NAMES[t]} 解码 ${(p * 100).toFixed(0)}%`);
+      });
+      const analysis = analyzeTier(originals, decoded);
+      tiers.push({ target, ...enc, decoded, ...analysis });
+      log(`【${TIER_NAMES[t]}】平均 PSNR ${analysis.psnrAvg.toFixed(2)} dB，` +
+          `最低 ${analysis.psnrMin.toFixed(2)} dB，运动区误差块 ${analysis.motionBadTotal} 个`, "ok");
+    }
+    state.tiers = tiers;
+    setProgress(100, "全部完成");
+    renderResults();
+    renderChart();
+    buildInspector();
+    renderFrame();
+    log("基准测试全部完成。", "ok");
+  } catch (err) {
+    console.error(err);
+    log(`测试失败：${err.message || err}`, "err");
+    setProgress(0, "失败");
+  } finally {
+    state.running = false;
+    btn.disabled = false;
+  }
+}
+
+function fmt(n, digits = 1) {
+  return Number.isFinite(n) ? n.toFixed(digits) : "—";
+}
+
+function renderResults() {
+  $("card-result").hidden = false;
+  const tbody = $("result-table").querySelector("tbody");
+  tbody.innerHTML = "";
+
+  state.tiers.forEach((tier, idx) => {
+    const deviation = (tier.actualBitrate - tier.target) / tier.target * 100;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span class="tag ${TIER_CLASS[idx]}">${TIER_NAMES[idx]}</span></td>
+      <td>${(tier.target / 1e3).toFixed(0)}</td>
+      <td>${fmt(tier.actualBitrate / 1e3)}</td>
+      <td>${deviation >= 0 ? "+" : ""}${fmt(deviation)}%</td>
+      <td>${fmt(tier.elapsedMs)}</td>
+      <td>${fmt(FRAME_COUNT / tier.elapsedMs * 1000)}</td>
+      <td>${fmt(tier.firstFrameMs)}</td>
+      <td>${fmt(tier.psnrAvg, 2)}</td>
+      <td>${fmt(tier.psnrMin, 2)}</td>
+      <td>${tier.motionBadTotal}</td>
+      <td>${tier.staticBadTotal}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const worst = state.tiers.reduce((a, b) =>
+    a.motionBadTotal >= b.motionBadTotal ? a : b);
+  const worstIdx = state.tiers.indexOf(worst);
+  const best = state.tiers.reduce((a, b) => a.psnrAvg >= b.psnrAvg ? a : b);
+  const bestIdx = state.tiers.indexOf(best);
+
+  const conclusion = $("conclusion");
+  conclusion.classList.add("warn");
+  const high = state.tiers[2];
+  const ratio = high.motionBadTotal === 0
+    ? "数十倍"
+    : `${(worst.motionBadTotal / Math.max(1, high.motionBadTotal)).toFixed(1)} 倍`;
+  const lines = [
+    `运动区域块状误差最多的是 <b>${TIER_NAMES[worstIdx]}</b>（目标 ${(worst.target / 1e3).toFixed(0)} kbps）：` +
+      `120 帧累计运动区超阈值 16×16 宏块 <b>${worst.motionBadTotal}</b> 个，` +
+      `静态区域 <b>${worst.staticBadTotal}</b> 个；平均 PSNR 仅 ${fmt(worst.psnrAvg, 2)} dB。`,
+    `画质最好的是 <b>${TIER_NAMES[bestIdx]}</b>，平均 PSNR ${fmt(best.psnrAvg, 2)} dB、` +
+      `最低 ${fmt(best.psnrMin, 2)} dB，运动区误差块 ${best.motionBadTotal} 个。`,
+    `低档运动区误差块约为高档的 <b>${ratio}</b>：在快速移动的圆球、条纹方块和滚动文字边缘，` +
+      `码率不足迫使编码器使用大块量化，表现为宏块化、边缘振铃与色彩溢出；` +
+      `提高码率后运动边缘明显干净，残余误差集中在细网格与棋盘等高频静态纹理上。`
+  ];
+  conclusion.innerHTML = lines.map((line) => `<p style="margin:6px 0;">${line}</p>`).join("");
+}
+/* ================= PSNR 曲线 ================= */
+function renderChart() {
+  $("card-chart").hidden = false;
+  const canvas = $("chart");
+  const ctx = canvas.getContext("2d");
+  const padL = 48, padR = 16, padT = 16, padB = 30;
+  const cw = canvas.width, ch = canvas.height;
+  ctx.clearRect(0, 0, cw, ch);
+
+  const values = state.tiers.flatMap((t) => t.psnr);
+  const minV = Math.max(15, Math.floor(Math.min(...values) - 2));
+  const maxV = Math.min(PSNR_MAX, Math.ceil(Math.max(...values) + 2));
+  const colors = ["#f85149", "#d29922", "#3fb950"];
+  const xOf = (n) => padL + n / (FRAME_COUNT - 1) * (cw - padL - padR);
+  const yOf = (v) => padT + (1 - (v - minV) / (maxV - minV)) * (ch - padT - padB);
+
+  ctx.strokeStyle = "#2a313d";
+  ctx.fillStyle = "#9aa4b2";
+  ctx.font = "11px monospace";
+  ctx.lineWidth = 1;
+  for (let v = Math.ceil(minV / 5) * 5; v <= maxV; v += 5) {
+    ctx.beginPath();
+    ctx.moveTo(padL, yOf(v));
+    ctx.lineTo(cw - padR, yOf(v));
+    ctx.stroke();
+    ctx.fillText(`${v} dB`, 8, yOf(v) + 4);
+  }
+
+  // GOP 关键帧竖线
+  ctx.strokeStyle = "rgba(154,164,178,.35)";
+  ctx.setLineDash([4, 4]);
+  for (let n = 0; n < FRAME_COUNT; n += GOP) {
+    ctx.beginPath();
+    ctx.moveTo(xOf(n), padT);
+    ctx.lineTo(xOf(n), ch - padB);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  state.tiers.forEach((tier, idx) => {
+    ctx.strokeStyle = colors[idx];
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    tier.psnr.forEach((v, n) => {
+      const x = xOf(n), y = yOf(Math.min(v, maxV));
+      if (n === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  });
+
+  ctx.fillStyle = "#9aa4b2";
+  for (let n = 0; n < FRAME_COUNT; n += 20) {
+    ctx.fillText(`${n}`, xOf(n) - 6, ch - 10);
+  }
+  const legendX = cw - 260;
+  state.tiers.forEach((tier, idx) => {
+    const x = legendX + idx * 90;
+    ctx.fillStyle = colors[idx];
+    ctx.fillRect(x, 4, 14, 4);
+    ctx.fillStyle = "#e6e9ef";
+    ctx.fillText(`${TIER_NAMES[idx]} ${(tier.target / 1e3).toFixed(0)}k`, x + 18, 9);
+  });
+}
+
+/* ================= 逐帧查看器 ================= */
+const inspectCanvases = {
+  orig: $("cv-orig").getContext("2d", { colorSpace: "srgb" }),
+  comp: $("cv-comp").getContext("2d", { colorSpace: "srgb" }),
+  diff: $("cv-diff").getContext("2d", { colorSpace: "srgb" })
+};
+
+function buildInspector() {
+  $("card-inspector").hidden = false;
+  $("frame-total").textContent = FRAME_COUNT - 1;
+  $("frame-slider").max = FRAME_COUNT - 1;
+
+  const tabs = $("tier-tabs");
+  tabs.innerHTML = "";
+  state.tiers.forEach((tier, idx) => {
+    const btn = document.createElement("button");
+    btn.textContent = `${TIER_NAMES[idx]} ${(tier.target / 1e3).toFixed(0)}k`;
+    if (idx === state.selectedTier) btn.classList.add("active");
+    btn.addEventListener("click", () => {
+      state.selectedTier = idx;
+      tabs.querySelectorAll("button").forEach((b, i) =>
+        b.classList.toggle("active", i === idx));
+      renderFrame();
+    });
+    tabs.appendChild(btn);
+  });
+}
+
+function renderFrame() {
+  const n = state.selectedFrame;
+  const tier = state.tiers[state.selectedTier];
+  const orig = state.originals[n];
+  const comp = tier.decoded[n];
+
+  inspectCanvases.orig.putImageData(orig, 0, 0);
+  inspectCanvases.comp.putImageData(comp, 0, 0);
+
+  const prev = n > 0 ? state.originals[n - 1] : null;
+  const overlay = $("chk-overlay").checked
+    ? findBadMotionBlocks(prev, orig, comp)
+    : null;
+  const diff = buildDiffImageData(orig, comp, overlay);
+  inspectCanvases.diff.putImageData(diff, 0, 0);
+
+  $("frame-idx").textContent = n;
+  $("cap-comp").textContent =
+    `压缩帧（${TIER_NAMES[state.selectedTier]}，实际 ${(tier.actualBitrate / 1e3).toFixed(0)} kbps）`;
+  $("frame-info").innerHTML =
+    `帧 <b>${n}</b> · PSNR <b>${tier.psnr[n].toFixed(2)} dB</b> · ` +
+    `运动区误差块 <b>${tier.motionBad[n]}</b> · 静态区误差块 <b>${tier.staticBad[n]}</b>`;
+}
+
+function setFrame(n) {
+  state.selectedFrame = Math.max(0, Math.min(FRAME_COUNT - 1, n));
+  $("frame-slider").value = state.selectedFrame;
+  renderFrame();
+}
+
+/* ================= 初始化 ================= */
+$("p-frames").textContent = FRAME_COUNT;
+$("p-size").textContent = `${W}×${H}`;
+$("p-fps").textContent = FPS;
+$("btn-run").addEventListener("click", runBenchmark);
+$("frame-slider").addEventListener("input", (e) => setFrame(Number(e.target.value)));
+$("btn-prev").addEventListener("click", () => setFrame(state.selectedFrame - 1));
+$("btn-next").addEventListener("click", () => setFrame(state.selectedFrame + 1));
+$("chk-overlay").addEventListener("change", renderFrame);
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "SELECT") return;
+  if (e.key === "ArrowLeft") setFrame(state.selectedFrame - 1);
+  if (e.key === "ArrowRight") setFrame(state.selectedFrame + 1);
+});
+
+(async function init() {
+  try {
+    codecString = await detectCodec();
+    $("p-codec").textContent = codecString;
+  } catch (err) {
+    $("p-codec").textContent = "不支持";
+    log(err.message, "err");
+    $("btn-run").disabled = true;
+  }
+})();
+</script>
+</body>
+</html>
