@@ -1,0 +1,70 @@
+{
+  "mp4": {
+    "chapter_count": 4,
+    "count_match": true,
+    "checks": [
+      {
+        "index": 1,
+        "expected_start_sec": 0.0,
+        "imported_start_sec": 0.0,
+        "start_match": true,
+        "title": "开场介绍"
+      },
+      {
+        "index": 2,
+        "expected_start_sec": 10.333333,
+        "imported_start_sec": 10.333,
+        "start_match": true,
+        "title": "核心讲解 (P1)"
+      },
+      {
+        "index": 3,
+        "expected_start_sec": 15.333333,
+        "imported_start_sec": 15.333,
+        "start_match": true,
+        "title": "核心讲解 (P2)"
+      },
+      {
+        "index": 4,
+        "expected_start_sec": 19.833333,
+        "imported_start_sec": 19.833,
+        "start_match": true,
+        "title": "演示环节"
+      }
+    ]
+  },
+  "mkv": {
+    "chapter_count": 4,
+    "count_match": true,
+    "checks": [
+      {
+        "index": 1,
+        "expected_start_sec": 0.0,
+        "imported_start_sec": 0.0,
+        "start_match": true,
+        "title": "开场介绍"
+      },
+      {
+        "index": 2,
+        "expected_start_sec": 10.333333,
+        "imported_start_sec": 10.333,
+        "start_match": true,
+        "title": "核心讲解 (P1)"
+      },
+      {
+        "index": 3,
+        "expected_start_sec": 15.333333,
+        "imported_start_sec": 15.333,
+        "start_match": true,
+        "title": "核心讲解 (P2)"
+      },
+      {
+        "index": 4,
+        "expected_start_sec": 19.833333,
+        "imported_start_sec": 19.833,
+        "start_match": true,
+        "title": "演示环节"
+      }
+    ]
+  }
+}

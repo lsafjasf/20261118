@@ -1,0 +1,90 @@
+{
+  "fps": 30,
+  "jump_checks": [
+    {
+      "kind": "chapter-start",
+      "label": "#1 开场介绍",
+      "new_sec": 0.0,
+      "new_frame": 0,
+      "expected_source_frame": 0,
+      "keyframe_probe_pts_sec": 0.0,
+      "pts_frame_index_match": true,
+      "psnr_db": 60.507327,
+      "visual_match": true,
+      "edited_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/edited_0.000.png",
+      "source_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/source_0000.png"
+    },
+    {
+      "kind": "chapter-start",
+      "label": "#2 核心讲解",
+      "new_sec": 10.333333333333334,
+      "new_frame": 310,
+      "expected_source_frame": 600,
+      "keyframe_probe_pts_sec": 8.333,
+      "pts_frame_index_match": true,
+      "psnr_db": 54.777852,
+      "visual_match": true,
+      "edited_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/edited_10.333.png",
+      "source_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/source_0600.png"
+    },
+    {
+      "kind": "chapter-start",
+      "label": "#3 核心讲解",
+      "new_sec": 15.333333333333334,
+      "new_frame": 460,
+      "expected_source_frame": 915,
+      "keyframe_probe_pts_sec": 8.333,
+      "pts_frame_index_match": true,
+      "psnr_db": 57.644681,
+      "visual_match": true,
+      "edited_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/edited_15.333.png",
+      "source_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/source_0915.png"
+    },
+    {
+      "kind": "chapter-start",
+      "label": "#4 演示环节",
+      "new_sec": 19.833333333333332,
+      "new_frame": 595,
+      "expected_source_frame": 1050,
+      "keyframe_probe_pts_sec": 16.667,
+      "pts_frame_index_match": true,
+      "psnr_db": 56.071127,
+      "visual_match": true,
+      "edited_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/edited_19.833.png",
+      "source_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/source_1050.png"
+    },
+    {
+      "kind": "seam",
+      "label": "kept-range-1 seam",
+      "new_sec": 8.433333333333334,
+      "new_frame": 253,
+      "expected_source_frame": 318,
+      "keyframe_probe_pts_sec": 8.333,
+      "pts_frame_index_match": true,
+      "psnr_db": 55.350607,
+      "visual_match": true,
+      "edited_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/edited_8.433.png",
+      "source_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/source_0318.png"
+    },
+    {
+      "kind": "seam",
+      "label": "kept-range-2 seam",
+      "new_sec": 10.1,
+      "new_frame": 303,
+      "expected_source_frame": 593,
+      "keyframe_probe_pts_sec": 8.333,
+      "pts_frame_index_match": true,
+      "psnr_db": 55.424312,
+      "visual_match": true,
+      "edited_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/edited_10.100.png",
+      "source_png": "/home/hj/userfeedback/uid4-0048/verification/jumps/source_0593.png"
+    }
+  ],
+  "removed_content_audit": {
+    "deleted_frame_count": 806,
+    "edited_frame_count": 994,
+    "expected_edited_frame_count": 994,
+    "frame_count_match": true,
+    "pts_grid_complete": true
+  }
+}

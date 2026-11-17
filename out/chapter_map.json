@@ -1,0 +1,188 @@
+{
+  "format": "re-importable-chapter-map/v1",
+  "fps": 30,
+  "chapters": [
+    {
+      "index": 1,
+      "source_chapter_id": 1,
+      "part": null,
+      "old_time": {
+        "start_sec": 0.0,
+        "end_sec": 8.433333,
+        "start_frame": 0,
+        "end_frame_exclusive": 253
+      },
+      "new_time": {
+        "start_sec": 0.0,
+        "end_sec": 8.433333,
+        "start_frame": 0,
+        "end_frame_exclusive": 253
+      },
+      "titles": {
+        "zh": "开场介绍",
+        "en": "Opening Intro",
+        "ja": "オープニング"
+      },
+      "languages": [
+        "zh",
+        "en",
+        "ja"
+      ],
+      "status": "kept",
+      "change_reasons": [
+        "起点落在保留片段内，无需调整",
+        "原章节终点 00:00:12.000 之后的内容被删除，本段终点吸附到删除区间之前的最近合法帧 00:00:08.433（源帧 253，半开区间）",
+        "章节被剪辑点 C1(删除口误段落) 切割，仅单段存活"
+      ]
+    },
+    {
+      "index": 2,
+      "source_chapter_id": 3,
+      "part": 1,
+      "old_time": {
+        "start_sec": 20.0,
+        "end_sec": 25.0,
+        "start_frame": 600,
+        "end_frame_exclusive": 750
+      },
+      "new_time": {
+        "start_sec": 10.333333,
+        "end_sec": 15.333333,
+        "start_frame": 310,
+        "end_frame_exclusive": 460
+      },
+      "titles": {
+        "zh": "核心讲解",
+        "en": "Core Explanation",
+        "ja": "核心解説"
+      },
+      "languages": [
+        "zh",
+        "en",
+        "ja"
+      ],
+      "status": "split",
+      "change_reasons": [
+        "起点落在保留片段内，无需调整",
+        "原章节终点 00:00:35.000 之后的内容被删除，本段终点吸附到删除区间之前的最近合法帧 00:00:25.000（源帧 750，半开区间）",
+        "章节被剪辑点 C3(跳过重复示例) 切割，本片段为第 1/2 段"
+      ]
+    },
+    {
+      "index": 3,
+      "source_chapter_id": 3,
+      "part": 2,
+      "old_time": {
+        "start_sec": 30.5,
+        "end_sec": 35.0,
+        "start_frame": 915,
+        "end_frame_exclusive": 1050
+      },
+      "new_time": {
+        "start_sec": 15.333333,
+        "end_sec": 19.833333,
+        "start_frame": 460,
+        "end_frame_exclusive": 595
+      },
+      "titles": {
+        "zh": "核心讲解",
+        "en": "Core Explanation",
+        "ja": "核心解説"
+      },
+      "languages": [
+        "zh",
+        "en",
+        "ja"
+      ],
+      "status": "split",
+      "change_reasons": [
+        "原章节起点 00:00:20.000 之前的内容被删除，本段起点吸附到删除区间之后的最近合法帧 00:00:30.500（源帧 915）",
+        "终点落在保留片段内，无需调整",
+        "章节被剪辑点 C3(跳过重复示例) 切割，本片段为第 2/2 段"
+      ]
+    },
+    {
+      "index": 4,
+      "source_chapter_id": 4,
+      "part": null,
+      "old_time": {
+        "start_sec": 35.0,
+        "end_sec": 48.0,
+        "start_frame": 1050,
+        "end_frame_exclusive": 1440
+      },
+      "new_time": {
+        "start_sec": 19.833333,
+        "end_sec": 33.133333,
+        "start_frame": 595,
+        "end_frame_exclusive": 994
+      },
+      "titles": {
+        "zh": "演示环节",
+        "en": "Live Demo",
+        "ja": "デモ"
+      },
+      "languages": [
+        "zh",
+        "en",
+        "ja"
+      ],
+      "status": "kept",
+      "change_reasons": [
+        "起点落在保留片段内，无需调整",
+        "终点落在保留片段内，无需调整",
+        "后续章节被整体删除，最后一个存活章节延伸至成片结尾 00:00:33.133"
+      ]
+    }
+  ],
+  "removed_chapters_or_fragments": [
+    {
+      "source_id": 1,
+      "part": 1,
+      "titles": {
+        "zh": "开场介绍",
+        "en": "Opening Intro",
+        "ja": "オープニング"
+      },
+      "old_start": 10.6,
+      "old_end": 12.0,
+      "reason": "保留片段时长 1.400s 低于最小阈值 2.0s，删除该碎片"
+    },
+    {
+      "source_id": 2,
+      "part": 2,
+      "titles": {
+        "zh": "背景说明",
+        "en": "Background Context",
+        "ja": "背景説明"
+      },
+      "old_start": 12.0,
+      "old_end": 12.266666666666667,
+      "reason": "保留片段时长 0.267s 低于最小阈值 2.0s，删除该碎片"
+    },
+    {
+      "source_id": 2,
+      "part": 3,
+      "titles": {
+        "zh": "背景说明",
+        "en": "Background Context",
+        "ja": "背景説明"
+      },
+      "old_start": 19.766666666666666,
+      "old_end": 20.0,
+      "reason": "保留片段时长 0.233s 低于最小阈值 2.0s，删除该碎片（所有保留碎片均低于最小阈值）"
+    },
+    {
+      "source_id": 5,
+      "part": 4,
+      "titles": {
+        "zh": "总结收尾",
+        "en": "Summary & Wrap-up",
+        "ja": "まとめ"
+      },
+      "old_start": 48.0,
+      "old_end": 48.3,
+      "reason": "保留片段时长 0.300s 低于最小阈值 2.0s，删除该碎片（所有保留碎片均低于最小阈值）"
+    }
+  ]
+}

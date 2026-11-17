@@ -1,0 +1,10 @@
+{
+  "reference_edit_frames": 994,
+  "edited_frames": 994,
+  "frame_count_match": true,
+  "ssim_min": 0.999952,
+  "ssim_avg": 0.9999948138832998,
+  "removed_source_frames": 806,
+  "kept_source_frames": 994,
+  "all_frames_ssim_above_0_99": true
+}

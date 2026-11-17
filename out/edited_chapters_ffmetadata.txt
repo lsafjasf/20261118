@@ -1,0 +1,38 @@
+;FFMETADATA1
+; re-import with: ffmpeg -i video -i metadata.txt -map_metadata 1 -c copy out
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=8433
+title=开场介绍
+title-en=Opening Intro
+title-ja=オープニング
+languages=zh,en,ja
+source-chapter-id=1
+[CHAPTER]
+TIMEBASE=1/1000
+START=10333
+END=15333
+title=核心讲解 (P1)
+title-en=Core Explanation
+title-ja=核心解説
+languages=zh,en,ja
+source-chapter-id=3
+[CHAPTER]
+TIMEBASE=1/1000
+START=15333
+END=19833
+title=核心讲解 (P2)
+title-en=Core Explanation
+title-ja=核心解説
+languages=zh,en,ja
+source-chapter-id=3
+[CHAPTER]
+TIMEBASE=1/1000
+START=19833
+END=33133
+title=演示环节
+title-en=Live Demo
+title-ja=デモ
+languages=zh,en,ja
+source-chapter-id=4

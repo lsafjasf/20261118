@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Chapters>
+<EditionEntry>
+<ChapterAtom>
+  <ChapterTimeStart>00:00:00.000</ChapterTimeStart>
+  <ChapterTimeEnd>00:00:08.433</ChapterTimeEnd>
+  <ChapterFlagHidden>0</ChapterFlagHidden>
+  <ChapterFlagEnabled>1</ChapterFlagEnabled>
+  <ChapterDisplay>
+    <ChapterString>开场介绍</ChapterString>
+    <ChapterLanguage>zh</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>Opening Intro</ChapterString>
+    <ChapterLanguage>en</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>オープニング</ChapterString>
+    <ChapterLanguage>ja</ChapterLanguage>
+  </ChapterDisplay>
+</ChapterAtom>
+<ChapterAtom>
+  <ChapterTimeStart>00:00:10.333</ChapterTimeStart>
+  <ChapterTimeEnd>00:00:15.333</ChapterTimeEnd>
+  <ChapterFlagHidden>0</ChapterFlagHidden>
+  <ChapterFlagEnabled>1</ChapterFlagEnabled>
+  <ChapterDisplay>
+    <ChapterString>核心讲解 (P1)</ChapterString>
+    <ChapterLanguage>zh</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>Core Explanation (P1)</ChapterString>
+    <ChapterLanguage>en</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>核心解説 (P1)</ChapterString>
+    <ChapterLanguage>ja</ChapterLanguage>
+  </ChapterDisplay>
+</ChapterAtom>
+<ChapterAtom>
+  <ChapterTimeStart>00:00:15.333</ChapterTimeStart>
+  <ChapterTimeEnd>00:00:19.833</ChapterTimeEnd>
+  <ChapterFlagHidden>0</ChapterFlagHidden>
+  <ChapterFlagEnabled>1</ChapterFlagEnabled>
+  <ChapterDisplay>
+    <ChapterString>核心讲解 (P2)</ChapterString>
+    <ChapterLanguage>zh</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>Core Explanation (P2)</ChapterString>
+    <ChapterLanguage>en</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>核心解説 (P2)</ChapterString>
+    <ChapterLanguage>ja</ChapterLanguage>
+  </ChapterDisplay>
+</ChapterAtom>
+<ChapterAtom>
+  <ChapterTimeStart>00:00:19.833</ChapterTimeStart>
+  <ChapterTimeEnd>00:00:33.133</ChapterTimeEnd>
+  <ChapterFlagHidden>0</ChapterFlagHidden>
+  <ChapterFlagEnabled>1</ChapterFlagEnabled>
+  <ChapterDisplay>
+    <ChapterString>演示环节</ChapterString>
+    <ChapterLanguage>zh</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>Live Demo</ChapterString>
+    <ChapterLanguage>en</ChapterLanguage>
+  </ChapterDisplay>
+  <ChapterDisplay>
+    <ChapterString>デモ</ChapterString>
+    <ChapterLanguage>ja</ChapterLanguage>
+  </ChapterDisplay>
+</ChapterAtom>
+</EditionEntry>
+</Chapters>

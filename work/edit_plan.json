@@ -1,0 +1,96 @@
+{
+  "fps": 30,
+  "total_source_frames": 1800,
+  "total_output_frames": 994,
+  "output_duration_sec": 33.13333333333333,
+  "snapped_cuts": [
+    {
+      "id": "C1",
+      "start": 8.42,
+      "end": 10.61,
+      "reason": "删除口误段落",
+      "start_frame": 253,
+      "end_frame": 318,
+      "start_snapped": 8.433333333333334,
+      "end_snapped": 10.6,
+      "start_delta": 0.013333333333333641,
+      "end_delta": -0.009999999999999787
+    },
+    {
+      "id": "C2",
+      "start": 12.25,
+      "end": 19.78,
+      "reason": "整章删除：背景说明内容冗余",
+      "start_frame": 368,
+      "end_frame": 593,
+      "start_snapped": 12.266666666666667,
+      "end_snapped": 19.766666666666666,
+      "start_delta": 0.016666666666667496,
+      "end_delta": -0.013333333333335418
+    },
+    {
+      "id": "C3",
+      "start": 25.0,
+      "end": 30.5,
+      "reason": "跳过重复示例",
+      "start_frame": 750,
+      "end_frame": 915,
+      "start_snapped": 25.0,
+      "end_snapped": 30.5,
+      "start_delta": 0.0,
+      "end_delta": 0.0
+    },
+    {
+      "id": "C4",
+      "start": 48.3,
+      "end": 60.0,
+      "reason": "移除整段片尾与致谢",
+      "start_frame": 1449,
+      "end_frame": 1800,
+      "start_snapped": 48.3,
+      "end_snapped": 60.0,
+      "start_delta": 0.0,
+      "end_delta": 0.0
+    }
+  ],
+  "removed_ranges_frames": [
+    [
+      253,
+      318
+    ],
+    [
+      368,
+      593
+    ],
+    [
+      750,
+      915
+    ],
+    [
+      1449,
+      1800
+    ]
+  ],
+  "kept_ranges": [
+    {
+      "src_start_frame": 0,
+      "src_end_frame_exclusive": 253,
+      "new_start_frame": 0
+    },
+    {
+      "src_start_frame": 318,
+      "src_end_frame_exclusive": 368,
+      "new_start_frame": 253
+    },
+    {
+      "src_start_frame": 593,
+      "src_end_frame_exclusive": 750,
+      "new_start_frame": 303
+    },
+    {
+      "src_start_frame": 915,
+      "src_end_frame_exclusive": 1449,
+      "new_start_frame": 460
+    }
+  ]
+}

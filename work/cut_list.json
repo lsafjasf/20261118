@@ -1,0 +1,13 @@
+{
+  "policy": {
+    "min_kept_fragment_sec": 2.0,
+    "frame_snap": "nearest_legal_frame_round_half_up",
+    "tail_handling": "extend_last_surviving_chapter_to_eof"
+  },
+  "cuts": [
+    {"id": "C1", "start": 8.42,  "end": 10.61,  "reason": "删除口误段落"},
+    {"id": "C2", "start": 12.25, "end": 19.78,  "reason": "整章删除：背景说明内容冗余"},
+    {"id": "C3", "start": 25.0,  "end": 30.5,   "reason": "跳过重复示例"},
+    {"id": "C4", "start": 48.3,  "end": 60.0,   "reason": "移除整段片尾与致谢"}
+  ]
+}

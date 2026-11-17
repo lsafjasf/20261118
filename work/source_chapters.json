@@ -1,0 +1,11 @@
+{
+  "source_fps": 30,
+  "timebase_note": "chapter times in seconds (may be fractional); cut points are NOT assumed frame-aligned",
+  "chapters": [
+    {"id": 1, "start": 0.0,    "end": 12.0,  "titles": {"zh": "开场介绍",   "en": "Opening Intro",        "ja": "オープニング"}},
+    {"id": 2, "start": 12.0,   "end": 20.0,  "titles": {"zh": "背景说明",   "en": "Background Context",   "ja": "背景説明"}},
+    {"id": 3, "start": 20.0,   "end": 35.0,  "titles": {"zh": "核心讲解",   "en": "Core Explanation",    "ja": "核心解説"}},
+    {"id": 4, "start": 35.0,   "end": 48.0,  "titles": {"zh": "演示环节",   "en": "Live Demo",           "ja": "デモ"}},
+    {"id": 5, "start": 48.0,   "end": 60.0,  "titles": {"zh": "总结收尾",   "en": "Summary & Wrap-up",   "ja": "まとめ"}}
+  ]
+}
