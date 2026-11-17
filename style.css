@@ -1,0 +1,121 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f4f6f8;
+  color: #1f2933;
+}
+
+header h1 { margin: 0 0 8px; font-size: 22px; }
+header p { margin: 0 0 16px; color: #52606d; }
+
+.panel {
+  background: #fff;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.panel h2 { margin: 0 0 12px; font-size: 17px; }
+
+#drop-zone {
+  border: 2px dashed #9fb3c8;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  color: #52606d;
+}
+
+#drop-zone.dragover { border-color: #2680c2; background: #eaf4fb; }
+
+.chunk-list { list-style: none; margin: 12px 0 0; padding: 0; }
+
+.chunk-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: #f0f4f8;
+  border: 1px solid #d9e2ec;
+  border-radius: 6px;
+  cursor: grab;
+}
+
+.chunk-list li.dragging { opacity: 0.4; }
+.chunk-list li .handle { color: #9aa5b1; font-size: 14px; }
+.chunk-list li .name { font-family: monospace; }
+.chunk-list li .meta { color: #52606d; font-size: 13px; }
+.chunk-list li .badge {
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #d9e2ec;
+}
+.chunk-list li .badge.ok { background: #c6f6d5; color: #22543d; }
+.chunk-list li .badge.bad { background: #fed7d7; color: #822727; }
+
+.stats { margin: 8px 0; font-size: 14px; color: #334e68; }
+.stats b { color: #102a43; }
+
+.data-table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 13px; }
+.data-table th, .data-table td {
+  border: 1px solid #d9e2ec;
+  padding: 4px 10px;
+  text-align: left;
+  font-family: monospace;
+}
+.data-table th { background: #f0f4f8; }
+
+.issue-list { list-style: none; margin: 8px 0; padding: 0; font-size: 13px; }
+.issue-list li {
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  border-left: 4px solid;
+}
+.issue-list li.error { background: #fff5f5; border-color: #e53e3e; }
+.issue-list li.warn { background: #fffaf0; border-color: #dd6b20; }
+.issue-list li.info { background: #ebf5ff; border-color: #3182ce; }
+.issue-list code { font-family: monospace; }
+
+#structure-tree {
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre;
+  max-height: 360px;
+  overflow: auto;
+  background: #0f172a;
+  color: #cbd5e1;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.actions { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+
+button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #2680c2;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+button:disabled { background: #9fb3c8; cursor: not-allowed; }
+
+#download-link {
+  padding: 8px 18px;
+  border-radius: 6px;
+  background: #2f855a;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.hidden { display: none; }
+
+#player { width: 100%; max-width: 720px; background: #000; border-radius: 6px; }

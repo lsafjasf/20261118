@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebM 分片检查与修复工具</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>WebM 分片检查与修复工具</h1>
+    <p>读取 MediaRecorder 分片，解析 EBML 结构，诊断乱序 / 截断 / 重复 Cluster（含字节偏移），支持拖拽换序、重新拼接与修复导出。</p>
+  </header>
+
+  <section class="panel">
+    <h2>1. 加载分片</h2>
+    <div id="drop-zone">
+      <input type="file" id="file-input" multiple accept=".webm,.mkv,video/webm">
+      <p>选择多个分片文件，或把文件拖到这里。列表顺序 = 拼接顺序，可拖动调整。</p>
+    </div>
+    <ul id="chunk-list" class="chunk-list"></ul>
+  </section>
+
+  <section class="panel">
+    <h2>2. 结构诊断</h2>
+    <div id="stats" class="stats"></div>
+    <table id="cluster-table" class="data-table">
+      <thead>
+        <tr><th>#</th><th>分片</th><th>全局偏移</th><th>尺寸(字节)</th><th>时间码</th><th>块数</th><th>标记</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <ul id="issue-list" class="issue-list"></ul>
+    <details id="structure-details">
+      <summary>EBML 元素树（含偏移 / 尺寸 / 未知长度）</summary>
+      <div id="structure-tree"></div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <h2>3. 拼接 / 修复</h2>
+    <div class="actions">
+      <button id="btn-merge" disabled>按当前顺序拼接</button>
+      <button id="btn-repair" disabled>自动修复并拼接</button>
+      <button id="btn-export" disabled>导出诊断报告</button>
+      <a id="download-link" class="hidden" download="repaired.webm">下载结果</a>
+    </div>
+    <div id="repair-summary" class="stats"></div>
+    <video id="player" controls preload="metadata"></video>
+  </section>
+
+  <script src="webm-ebml.js"></script>
+  <script src="webm-repair.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
