@@ -1,0 +1,13 @@
+{
+  "name": "webgl2-yuv-color",
+  "version": "1.0.0",
+  "description": "WebGL2 YUV420 BT.601/BT.709 limited/full range color conversion tool",
+  "type": "module",
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "serve": "node server.js"
+  },
+  "dependencies": {
+    "puppeteer": "^25.18.1"
+  }
+}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebGL2 YUV420 色彩转换工具</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <h1>WebGL2 YUV420 帧色彩转换</h1>
+    <section class="controls">
+      <fieldset>
+        <legend>矩阵</legend>
+        <label><input type="radio" name="matrix" value="bt601" checked /> BT.601 (SD)</label>
+        <label><input type="radio" name="matrix" value="bt709" /> BT.709 (HD)</label>
+      </fieldset>
+      <fieldset>
+        <legend>范围</legend>
+        <label><input type="radio" name="range" value="limited" checked /> 有限范围 16–235</label>
+        <label><input type="radio" name="range" value="full" /> 全范围 0–255</label>
+      </fieldset>
+      <fieldset>
+        <legend>平面步长 (stride)</legend>
+        <label>Y 步长 <input id="strideY" type="number" min="320" step="2" value="320" /></label>
+        <label>UV 步长 <input id="strideC" type="number" min="160" step="2" value="160" /></label>
+        <button id="rebuild">重建帧</button>
+      </fieldset>
+      <fieldset>
+        <legend>超范围钳制演示</legend>
+        <label><input id="overshoot" type="checkbox" /> 注入 Y=250 / U=10 超范围码值</label>
+      </fieldset>
+    </section>
+
+    <main class="panels">
+      <section>
+        <h2>RGB 预览（点击画面采样）</h2>
+        <canvas id="view" width="320" height="240"></canvas>
+        <p class="hint">当前组合：<span id="combo"></span></p>
+      </section>
+      <section>
+        <h2>像素采样</h2>
+        <table id="sampler">
+          <thead>
+            <tr><th>x,y</th><th>YUV 码值</th><th>GPU RGB</th><th>CPU RGB</th><th>差</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+      <section>
+        <h2>色条误差（对比原始 RGB）</h2>
+        <table id="errors">
+          <thead>
+            <tr><th>色条</th><th>期望 RGB</th><th>最大绝对误差</th><th>平均绝对误差</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p id="clampNote" class="hint"></p>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
