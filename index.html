@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTP/RTCP 抖动缓冲分析器</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>RTP/RTCP 接收端抖动缓冲分析器</h1>
+  <p class="subtitle">模拟 RTP 包序列与 SR/RR 报告 · 分析到达间隔抖动 / 序列号空洞 / 重排 / 缓冲延迟 · 区分网络抖动与发送端不均匀打包</p>
+</header>
+
+<main>
+  <section class="panel" id="sim-panel">
+    <h2>1. 网络与发送端模拟</h2>
+    <div class="controls">
+      <label>流数量
+        <select id="cfg-streams">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+        </select>
+      </label>
+      <label>时长 (s) <input type="number" id="cfg-duration" value="10" min="2" max="60"></label>
+      <label>打包间隔 ptime (ms) <input type="number" id="cfg-ptime" value="20" min="5" max="120"></label>
+      <label>网络抖动 σ (ms) <input type="number" id="cfg-jitter" value="15" min="0" max="200"></label>
+      <label>丢包率 (%) <input type="number" id="cfg-loss" value="3" min="0" max="50"></label>
+      <label>重排概率 (%) <input type="number" id="cfg-reorder" value="2" min="0" max="30"></label>
+      <label>发送端不均匀打包
+        <select id="cfg-uneven">
+          <option value="none" selected>关闭</option>
+          <option value="burst">突发发送 (burst)</option>
+          <option value="vptime">可变 ptime</option>
+        </select>
+      </label>
+      <label>随机种子 <input type="number" id="cfg-seed" value="42" min="1"></label>
+      <button id="btn-generate" class="primary">生成包序列</button>
+    </div>
+  </section>
+
+  <section class="panel" id="buf-panel">
+    <h2>2. 抖动缓冲策略与重放</h2>
+    <div class="controls">
+      <label>缓冲策略
+        <select id="cfg-strategy">
+          <option value="fixed" selected>固定深度</option>
+          <option value="adaptive">自适应 (4×J)</option>
+        </select>
+      </label>
+      <label>最大缓冲深度 (ms)
+        <input type="range" id="cfg-bufdepth" min="0" max="500" step="10" value="120">
+        <span id="bufdepth-val" class="mono">120 ms</span>
+      </label>
+      <button id="btn-replay" class="primary">重放同一包序列</button>
+      <span class="hint">调整深度或策略后点击重放，对比过期帧与延迟变化</span>
+    </div>
+    <div id="replay-history"></div>
+  </section>
+
+  <section class="panel" id="metrics-panel">
+    <h2>3. 指标汇总</h2>
+    <table id="metrics-table">
+      <thead>
+        <tr>
+          <th>流 (SSRC)</th><th>收/发/丢</th><th>抖动 J (ms)</th><th>序列号空洞</th>
+          <th>重排次数</th><th>过期帧</th><th>平均缓冲延迟 (ms)</th><th>诊断</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="panel" id="timeline-panel">
+    <h2>4. 接收时间轴状态带</h2>
+    <div class="legend">
+      <span><i class="sw ok"></i>正常播放</span>
+      <span><i class="sw late"></i>过期丢弃 (迟到)</span>
+      <span><i class="sw reorder"></i>重排包</span>
+      <span><i class="sw lost"></i>丢失 / 序列号空洞</span>
+      <span><i class="sw rtcp"></i>RTCP SR/RR</span>
+      <span><i class="sw playout"></i>播放时刻线</span>
+    </div>
+    <div id="timelines"></div>
+  </section>
+
+  <section class="panel" id="rtcp-panel">
+    <h2>5. RTCP SR / RR 报告</h2>
+    <div id="rtcp-log" class="mono"></div>
+  </section>
+</main>
+
+<script src="js/rng.js"></script>
+<script src="js/simulator.js"></script>
+<script src="js/metrics.js"></script>
+<script src="js/jitterbuffer.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
