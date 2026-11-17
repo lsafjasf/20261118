@@ -1,0 +1,46 @@
+{
+  "name": "双字幕排版演示-高压矮画布",
+  "canvas": {
+    "width": 1280,
+    "height": 400,
+    "safe_margin": { "top": 40, "right": 40, "bottom": 40, "left": 40 },
+    "slot_gap": 24
+  },
+  "max_stagger_ms": 1500,
+  "lock_primary": false,
+  "primary_slot": "bottom",
+  "primary": {
+    "name": "主字幕-中文",
+    "language": "zh",
+    "srt": "primary.zh.srt",
+    "style": {
+      "font_size": 96,
+      "line_gap": 10,
+      "pad_x": 18,
+      "pad_y": 14,
+      "max_width_ratio": 0.9
+    }
+  },
+  "combinations": [
+    {
+      "name": "解锁-中英(可换位评估)",
+      "lock_primary": false,
+      "translation": {
+        "name": "翻译-英语",
+        "language": "en",
+        "srt": "translation.en.srt",
+        "style": { "font_size": 88, "max_width_ratio": 0.9 }
+      }
+    },
+    {
+      "name": "锁定-中英(仅允许错峰)",
+      "lock_primary": true,
+      "translation": {
+        "name": "翻译-英语",
+        "language": "en",
+        "srt": "translation.en.srt",
+        "style": { "font_size": 88, "max_width_ratio": 0.9 }
+      }
+    }
+  ]
+}

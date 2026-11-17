@@ -1,0 +1,36 @@
+{
+  "name": "双字幕排版演示-错峰成功",
+  "canvas": {
+    "width": 1280,
+    "height": 400,
+    "safe_margin": { "top": 40, "right": 40, "bottom": 40, "left": 40 },
+    "slot_gap": 24
+  },
+  "max_stagger_ms": 1500,
+  "lock_primary": true,
+  "primary_slot": "bottom",
+  "primary": {
+    "name": "主字幕-中文",
+    "language": "zh",
+    "style": { "font_size": 96, "max_width_ratio": 0.9 },
+    "cues": [
+      { "id": "1", "start_ms": 500, "end_ms": 1500, "text": "主字幕块第一行\n主字幕块第二行" },
+      { "id": "2", "start_ms": 5000, "end_ms": 6000, "text": "第二段主字幕甲\n第二段主字幕乙" }
+    ]
+  },
+  "combinations": [
+    {
+      "name": "锁定-中英(错峰在限内)",
+      "lock_primary": true,
+      "translation": {
+        "name": "翻译-英语",
+        "language": "en",
+        "style": { "font_size": 96, "max_width_ratio": 0.9 },
+        "cues": [
+          { "id": "1", "start_ms": 0, "end_ms": 2000, "text": "Subtitle block line one\nSubtitle block line two" },
+          { "id": "2", "start_ms": 4600, "end_ms": 6500, "text": "Second subtitle line one\nSecond subtitle line two" }
+        ]
+      }
+    }
+  ]
+}

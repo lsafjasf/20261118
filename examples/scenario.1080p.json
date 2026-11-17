@@ -1,0 +1,55 @@
+{
+  "name": "双字幕排版演示-1080p",
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "safe_margin": { "top": 80, "right": 96, "bottom": 120, "left": 96 },
+    "slot_gap": 24
+  },
+  "max_stagger_ms": 1500,
+  "lock_primary": false,
+  "primary_slot": "bottom",
+  "primary": {
+    "name": "主字幕-中文",
+    "language": "zh",
+    "srt": "primary.zh.srt",
+    "style": {
+      "font_size": 52,
+      "line_gap": 10,
+      "pad_x": 18,
+      "pad_y": 14,
+      "max_width_ratio": 0.82
+    }
+  },
+  "combinations": [
+    {
+      "name": "中文->英语(横排)",
+      "translation": {
+        "name": "翻译-英语",
+        "language": "en",
+        "srt": "translation.en.srt",
+        "style": { "font_size": 44, "max_width_ratio": 0.82 }
+      }
+    },
+    {
+      "name": "中文->阿拉伯语(RTL)",
+      "translation": {
+        "name": "翻译-阿拉伯语",
+        "language": "ar",
+        "srt": "translation.ar.srt",
+        "style": { "font_size": 44, "max_width_ratio": 0.82 }
+      }
+    },
+    {
+      "name": "中文->日语(竖排,锁定主字幕)",
+      "lock_primary": true,
+      "translation": {
+        "name": "翻译-日语",
+        "language": "ja",
+        "direction": "ttb",
+        "srt": "translation.ja.srt",
+        "style": { "font_size": 44, "max_width_ratio": 0.5 }
+      }
+    }
+  ]
+}
