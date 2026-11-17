@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Alpha 合成器 — 直通 / 预乘</title>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: system-ui, sans-serif; margin: 24px; color: #222; }
+    h1 { font-size: 20px; }
+    .row { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    fieldset { border: 1px solid #ccc; border-radius: 8px; padding: 12px 16px; }
+    legend { font-weight: 600; padding: 0 6px; }
+    label { display: block; margin: 6px 0; font-size: 14px; }
+    input[type="range"] { vertical-align: middle; }
+    #view { image-rendering: pixelated; border: 1px solid #999; cursor: crosshair;
+      background: repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 0 0 / 16px 16px; }
+    table { border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid #ccc; padding: 4px 10px; text-align: left;
+      font-variant-numeric: tabular-nums; }
+    th { background: #f3f3f3; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border: 1px solid #888;
+      vertical-align: -2px; margin-right: 4px; }
+    button { padding: 6px 14px; font-size: 14px; cursor: pointer; }
+    .hint { font-size: 12px; color: #666; margin-top: 8px; max-width: 460px; }
+    #probe { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>透明通道合成器（直通 Alpha / 预乘 Alpha）</h1>
+  <div class="row">
+    <div>
+      <canvas id="view" width="96" height="64" style="width: 480px; height: 320px"></canvas>
+      <div class="hint">点击画布查看该像素在每一步的 RGBA 数值。棋盘格表示透明区域。</div>
+      <p id="probe">未选择像素</p>
+    </div>
+    <div>
+      <fieldset>
+        <legend>输入表示方式</legend>
+        <label><input type="radio" name="mode" value="straight" checked /> 直通 Alpha（straight）</label>
+        <label><input type="radio" name="mode" value="premultiplied" /> 预乘 Alpha（premultiplied）</label>
+        <div class="hint">两种表示承载同一张图，切换后合成结果完全一致：无黑边、无亮度翻倍。</div>
+      </fieldset>
+      <fieldset>
+        <legend>图层（50% Alpha 彩色色块）</legend>
+        <div id="layers"></div>
+      </fieldset>
+      <fieldset>
+        <legend>背景混合</legend>
+        <label>背景色 <input type="color" id="bg" value="#ffffff" /></label>
+      </fieldset>
+      <p><button id="exportPng">导出 PNG（带透明通道）</button></p>
+      <div class="hint">视频导出与像素一致性验证：<code>node src/verify.mjs</code>
+        （生成 out/result.png 与 out/result.mov 并逐像素比对）。</div>
+    </div>
+  </div>
+  <div id="inspector"></div>
+  <script type="module" src="src/ui.mjs"></script>
+</body>
+</html>
