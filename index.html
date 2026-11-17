@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自适应码率控制器 (ABR) 仿真</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+         background: #0f1420; color: #dfe6f0; padding: 20px; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: #8a94a8; font-size: 13px; margin-bottom: 16px; }
+  .panel { background: #171e2e; border: 1px solid #262f45; border-radius: 10px;
+           padding: 14px 16px; margin-bottom: 14px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #9aa5bb; }
+  select, input { background: #0f1420; color: #dfe6f0; border: 1px solid #33405e;
+                  border-radius: 6px; padding: 6px 8px; font-size: 13px; width: 130px; }
+  button { background: #2f6fed; color: #fff; border: none; border-radius: 6px;
+           padding: 8px 22px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #4a82f5; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; }
+  .metric { flex: 1; min-width: 150px; background: #101827; border-radius: 8px;
+            padding: 10px 14px; border: 1px solid #22304a; }
+  .metric .k { font-size: 12px; color: #8a94a8; }
+  .metric .v { font-size: 22px; font-weight: 600; margin-top: 2px; }
+  canvas { width: 100%; height: 220px; display: block; }
+  .chart-title { font-size: 13px; color: #9aa5bb; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #22304a;
+           white-space: nowrap; }
+  th { color: #8a94a8; font-weight: 500; position: sticky; top: 0; background: #171e2e; }
+  td.l, th.l { text-align: left; }
+  .table-wrap { max-height: 320px; overflow-y: auto; }
+  .up { color: #3ecf8e; font-weight: 600; }
+  .down { color: #f66; font-weight: 600; }
+  .hold { color: #8a94a8; }
+  .cd { color: #f0b429; }
+</style>
+</head>
+<body>
+<h1>自适应码率控制器 (ABR) 仿真</h1>
+<div class="sub">基于缓冲时长、下载速率与播放抖动的 升级 / 保持 / 降级 决策 · 升级需连续满足余量 · 降级快速响应 · 冷却防抖动</div>
+
+<div class="panel">
+  <div class="controls">
+    <div class="field">场景
+      <select id="scenario">
+        <option value="traceA">轨迹 A: 宽带突降</option>
+        <option value="traceB">轨迹 B: 移动网络波动</option>
+        <option value="fixed">固定带宽</option>
+        <option value="drop">带宽突降(自定义)</option>
+      </select>
+    </div>
+    <div class="field" data-for="fixed drop">基准带宽 (kbps)
+      <input id="baseBw" type="number" value="6000" min="100" step="100">
+    </div>
+    <div class="field" data-for="drop">突降至 (kbps)
+      <input id="dropBw" type="number" value="700" min="50" step="50">
+    </div>
+    <div class="field" data-for="drop">突降开始 (s)
+      <input id="dropStart" type="number" value="80" min="0" step="5">
+    </div>
+    <div class="field" data-for="drop">持续 (s)
+      <input id="dropDur" type="number" value="30" min="5" step="5">
+    </div>
+    <button id="run">运行仿真</button>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="metrics" id="metrics"></div>
+</div>
+
+<div class="panel">
+  <div class="chart-title">网络带宽 vs 实际码率档位 (kbps)</div>
+  <canvas id="chartBw"></canvas>
+</div>
+<div class="panel">
+  <div class="chart-title">缓冲时长 (s) 与播放状态</div>
+  <canvas id="chartBuf"></canvas>
+</div>
+
+<div class="panel">
+  <div class="chart-title">每次决策使用的指标与冷却时间</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th class="l">时间(s)</th><th class="l">决策</th><th>码率(kbps)</th>
+        <th>吞吐(kbps)</th><th>缓冲(s)</th><th>抖动</th>
+        <th>冷却剩余(s)</th><th class="l">原因</th>
+      </tr></thead>
+      <tbody id="decisions"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="abr.js"></script>
+<script src="traces.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
