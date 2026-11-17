@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音频指纹索引器 (WASM)</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0f1420; color: #dbe4f0;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { color: #7f8ca3; font-size: 13px; margin-bottom: 20px; }
+    .panel {
+      background: #171e2e; border: 1px solid #26304a; border-radius: 10px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button {
+      background: #2b3a58; color: #dbe4f0; border: 1px solid #3a4a6e;
+      border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+    }
+    button:hover:not(:disabled) { background: #354a78; }
+    button:disabled { opacity: 0.4; cursor: default; }
+    button.primary { background: #2f6fdd; border-color: #2f6fdd; color: #fff; }
+    button.primary:hover:not(:disabled) { background: #3d7ef0; }
+    #status { font-size: 13px; color: #9fb4d8; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #26304a; }
+    th { color: #8fa0c0; font-weight: 600; }
+    .rank { font-size: 16px; font-weight: 700; color: #ffd166; }
+    .conf-bar {
+      position: relative; height: 14px; width: 220px;
+      background: #0f1420; border-radius: 7px; overflow: hidden;
+      display: inline-block; vertical-align: middle;
+    }
+    .conf-fill { position: absolute; inset: 0 auto 0 0; background: #3fb950; border-radius: 7px; }
+    .conf-fill.low { background: #8b93a5; }
+    .conf-threshold {
+      position: absolute; top: -2px; bottom: -2px; width: 2px; background: #ff6b6b;
+    }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge.hit { background: #14351f; color: #3fb950; }
+    .badge.miss { background: #3a2327; color: #ff7b72; }
+    .mono { font-family: ui-monospace, Consolas, monospace; }
+    #log { font-size: 12px; color: #7f8ca3; white-space: pre-wrap; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>音频指纹索引器（WASM 倒排索引）</h1>
+  <div class="sub">短时频谱峰值 → 时间/频率哈希 → 倒排索引 → 偏移直方图匹配，展示前三名候选及对齐结果</div>
+
+  <div class="panel">
+    <div class="row">
+      <button id="btn-index" class="primary">1. 生成并索引 3 首合成歌曲</button>
+      <span id="status">正在加载 WASM…</span>
+    </div>
+    <div id="log"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row" id="query-buttons">
+      <span style="font-size:13px;color:#8fa0c0">2. 查询：</span>
+      <button data-case="clean" disabled>原始剪辑</button>
+      <button data-case="noisy" disabled>加噪剪辑 (SNR 5dB)</button>
+      <button data-case="fast" disabled>加速剪辑 (1.06x)</button>
+      <button data-case="pitch" disabled>变调剪辑 (+2 半音)</button>
+      <button data-case="unrelated" disabled>无关音频</button>
+    </div>
+  </div>
+
+  <div class="panel" id="results-panel" hidden>
+    <div id="results-title" style="font-size:14px;font-weight:600"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>歌曲</th><th>对齐偏移</th><th>匹配哈希</th>
+          <th>置信分数</th><th>判定</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+  </div>
+
+  <script type="module" src="./ui.js"></script>
+</body>
+</html>

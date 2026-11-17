@@ -1,0 +1,27 @@
+{
+  "name": "uid4-0018",
+  "version": "1.0.0",
+  "description": "WASM audio fingerprinting indexer (spectral-peak hashes + inverted index)",
+  "scripts": {
+    "build": "asc assembly/index.ts --outFile build/fingerprint.wasm --optimize",
+    "test": "node test/run-tests.js",
+    "serve": "python3 -m http.server 8080",
+    "test:ui": "node test/ui-smoke.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsafjasf/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lsafjasf/20261118/issues"
+  },
+  "homepage": "https://github.com/lsafjasf/20261118#readme",
+  "devDependencies": {
+    "assemblyscript": "^0.28.20",
+    "playwright": "^1.65.1"
+  }
+}
