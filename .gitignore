@@ -1,0 +1,5 @@
+node_modules/
+*.log
+reports/*.csv
+reports/*.json
+!reports/.gitkeep

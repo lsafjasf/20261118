@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>代理媒体一致性检查器</title>
+  <link rel="stylesheet" href="/web/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <div>
+        <h1>代理媒体一致性检查器</h1>
+        <p>原始素材 ↔ 转码代理 · 时间线映射 · 标记点交叉验证</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-export-csv" class="btn">导出映射表 CSV</button>
+      <button id="btn-export-json" class="btn">导出映射表 JSON</button>
+      <button id="btn-rerun" class="btn btn-primary">重新检查</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <h2>故障注入</h2>
+        <p class="hint">勾选要模拟的转码/导入错误，必选项对应题目演示场景。</p>
+        <div id="fault-list" class="fault-list"></div>
+        <div class="sidebar-actions">
+          <button id="btn-select-required" class="btn btn-small">仅必选</button>
+          <button id="btn-select-all" class="btn btn-small">全部</button>
+          <button id="btn-select-none" class="btn btn-small">清空</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>容差设置</h2>
+        <label class="field">
+          <span>起始帧容差（帧）</span>
+          <input id="tol-start" type="number" min="0" value="0" />
+        </label>
+        <label class="field">
+          <span>时长容差（帧）</span>
+          <input id="tol-duration" type="number" min="0" value="1" />
+        </label>
+        <label class="field">
+          <span>音频偏移容差（ms）</span>
+          <input id="tol-audio" type="number" min="0" value="5" />
+        </label>
+      </section>
+    </aside>
+
+    <section class="content">
+      <div id="summary-cards" class="summary-cards"></div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>问题清单（点击可定位具体片段）</h2>
+          <div class="filters" id="filters"></div>
+        </div>
+        <input id="search" class="search" type="search" placeholder="搜索代理 ID / 片段名 / 卷轴名…" />
+        <div id="issue-list" class="issue-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>片段映射明细</h2>
+        <div class="table-wrap">
+          <table id="clip-table">
+            <thead>
+              <tr>
+                <th>状态</th>
+                <th>代理</th>
+                <th>卷轴 / 原片</th>
+                <th>帧率</th>
+                <th>起始帧 / TC</th>
+                <th>总帧数</th>
+                <th>音频偏移</th>
+                <th>标记点</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>剪辑时间线映射</h2>
+        <div id="timeline-view" class="timeline-view"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="detail-overlay" class="overlay hidden">
+    <div class="overlay-card">
+      <button id="detail-close" class="overlay-close">×</button>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="/web/app.js"></script>
+</body>
+</html>
