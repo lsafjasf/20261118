@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>离线镜头边界检测</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>离线镜头边界检测 <span class="tag">WebCodecs + Web Worker</span></h1>
+  </header>
+
+  <section class="controls">
+    <label class="file-btn">
+      选择视频文件
+      <input type="file" id="fileInput" accept="video/mp4,video/*,.mp4" hidden />
+    </label>
+    <button id="demoBtn">加载示例视频</button>
+    <button id="runBtn" disabled>开始检测</button>
+    <label>采样间隔
+      <select id="intervalSel">
+        <option value="0.05">0.05s</option>
+        <option value="0.1" selected>0.1s</option>
+        <option value="0.2">0.2s</option>
+        <option value="0.5">0.5s</option>
+      </select>
+    </label>
+    <label>最短镜头
+      <select id="minShotSel">
+        <option value="0.3">0.3s</option>
+        <option value="0.5" selected>0.5s</option>
+        <option value="1">1.0s</option>
+        <option value="2">2.0s</option>
+      </select>
+    </label>
+    <span id="status" class="status">未加载视频</span>
+  </section>
+
+  <section class="preview-row">
+    <video id="video" controls muted></video>
+    <div id="editPanel" class="edit-panel hidden">
+      <h3>边界修正</h3>
+      <div id="editInfo"></div>
+      <div class="edit-actions">
+        <button id="toggleTypeBtn">切换 硬切/渐变</button>
+        <button id="deleteBtn" class="danger">删除该边界</button>
+        <button id="closeEditBtn">关闭</button>
+      </div>
+      <p class="hint">提示：点击时间线空白处可新增边界；点击标记可选中。</p>
+    </div>
+  </section>
+
+  <section class="timeline-section">
+    <h2>时间线</h2>
+    <canvas id="timeline" height="150"></canvas>
+    <div class="legend">
+      <span><i class="sw score"></i>帧间差异</span>
+      <span><i class="sw hard"></i>硬切</span>
+      <span><i class="sw gradual"></i>渐变转场</span>
+      <span><i class="sw selected"></i>选中</span>
+    </div>
+  </section>
+
+  <section class="shots-section">
+    <h2>镜头列表 <span id="shotStats"></span></h2>
+    <div id="shotList" class="shot-list"></div>
+  </section>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
