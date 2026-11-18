@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AudioWorklet 齿音动态抑制器 (De-Esser)</title>
+  <style>
+  :root {
+    --bg: #0f1420;
+    --panel: #181f30;
+    --panel2: #202a40;
+    --text: #e6ebf5;
+    --muted: #8b97ad;
+    --accent: #57d9a3;
+    --accent2: #6aa7ff;
+    --warn: #ffce6a;
+    --border: #2a3550;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  header { padding: 20px 28px 8px; }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; color: var(--muted); }
+  main {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+    padding: 16px 28px 40px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .panel h2 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .control { margin-bottom: 14px; }
+  .control label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .control label output { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button, select {
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent2); }
+  button.primary { background: var(--accent); color: #08130e; border-color: transparent; font-weight: 600; }
+  button.toggle.on { background: var(--accent2); border-color: transparent; color: #07101f; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  canvas { width: 100%; height: 220px; display: block; background: var(--panel2); border-radius: 8px; }
+  .full { grid-column: 1 / -1; }
+  .meter-wrap { margin: 10px 0 4px; }
+  .meter-label { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+  .meter { height: 10px; background: var(--panel2); border-radius: 6px; overflow: hidden; margin-top: 4px; }
+  .meter > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--warn)); transition: width 0.05s linear; }
+  .status { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 18px; }
+  .seg-buttons button { padding: 5px 9px; font-size: 12px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; }
+  .filebox { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; color: var(--muted); font-size: 12px; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+  <h1>AudioWorklet 齿音动态抑制器</h1>
+  <p>仅对频段起点以上的高频带做短时向下增益，低频与元音完全旁路，避免整体低通发闷。</p>
+  </header>
+  <main>
+  <section class="panel" id="controls">
+    <h2>参数与音源</h2>
+    <div class="filebox">
+    <div class="row" style="margin-bottom:8px">
+      <button id="loadSample">加载测试录音</button>
+      <label class="row" style="align-items:center;gap:6px">
+      <input type="file" id="fileInput" accept="audio/*" style="display:none" />
+      <button id="chooseFile">选择本地音频</button>
+      </label>
+    </div>
+    <div id="fileName">尚未加载音频</div>
+    </div>
+
+    <div class="control">
+    <label>频段起点 crossoverFreq <output id="v-crossover">5000 Hz</output></label>
+    <input type="range" id="crossoverFreq" min="500" max="16000" step="50" value="5000" />
+    </div>
+    <div class="control">
+    <label>触发阈值 thresholdDb <output id="v-threshold">-20 dB</output></label>
+    <input type="range" id="thresholdDb" min="-80" max="0" step="0.5" value="-20" />
+    </div>
+    <div class="control">
+    <label>最大衰减 maxReductionDb <output id="v-maxReduction">10 dB</output></label>
+    <input type="range" id="maxReductionDb" min="0" max="24" step="0.5" value="10" />
+    </div>
+    <div class="control">
+    <label>恢复速度 releaseMs <output id="v-release">80 ms</output></label>
+    <input type="range" id="releaseMs" min="10" max="2000" step="5" value="80" />
+    </div>
+
+    <div class="row" style="margin: 6px 0 12px">
+    <button class="primary" id="play">播放</button>
+    <button id="stop">停止</button>
+    <button class="toggle on" id="bypass">处理中 (A/B)</button>
+    </div>
+
+    <div class="meter-wrap">
+    <div class="meter-label"><span>实时增益衰减</span><span id="grValue">0.0 dB</span></div>
+    <div class="meter"><div id="grMeter"></div></div>
+    </div>
+    <div class="status" id="status">AudioWorklet 未初始化。</div>
+  </section>
+
+  <section class="panel full">
+    <h2>静态分析（Node 测试结果：处理前 / 处理后频谱）</h2>
+    <div class="row seg-buttons" id="segButtons" style="margin-bottom:8px"></div>
+    <canvas id="spectrumCanvas" height="240"></canvas>
+    <div class="legend">
+    <span><i style="background:#6aa7ff"></i>原始频谱</span>
+    <span><i style="background:#57d9a3"></i>处理后频谱</span>
+    <span><i style="background:#ffce6a"></i>频段起点</span>
+    </div>
+  </section>
+
+  <section class="panel full">
+    <h2>衰减曲线 gain reduction 与分段标注</h2>
+    <canvas id="curveCanvas" height="220"></canvas>
+    <div class="legend">
+    <span><i style="background:#ffce6a"></i>增益衰减 (dB)</span>
+    <span><i style="background:#ff7a7a"></i>齿音 sibilant 段</span>
+    <span><i style="background:#6aa7ff"></i>普通辅音 t/f/k</span>
+    </div>
+  </section>
+
+  <section class="panel full">
+    <h2>实时高频带电平（检测器输入）</h2>
+    <canvas id="liveCanvas" height="160"></canvas>
+  </section>
+  </main>
+  <script type="module" src="./src/demo.js"></script>
+</body>
+</html>

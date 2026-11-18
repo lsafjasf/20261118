@@ -1,0 +1,18 @@
+{
+  "name": "audioworklet-deesser",
+  "version": "1.0.0",
+  "description": "Dynamic sibilance de-esser implemented in AudioWorklet, with Node test harness and demo UI",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+  "test": "node --test test/unit-test.js",
+  "worklet": "node test/worklet-harness.js",
+  "calibrate": "node test/calibrate.js",
+  "sweep": "node test/sweep.js",
+  "run-test": "node test/run-test.js",
+  "compare-ref": "node test/compare-ref.js",
+  "charts": "node test/make-charts.js",
+  "all": "npm run test && npm run worklet && npm run run-test && npm run sweep && npm run compare-ref && npm run charts",
+  "serve": "node test/server.js"
+  }
+}
