@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebTransport 媒体帧 · 有界重排缓冲</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f141b;
+        --panel: #18202b;
+        --line: #2a3646;
+        --text: #e6edf3;
+        --muted: #8b98a8;
+        --accent: #4ea1ff;
+        --warn: #ffb454;
+        --bad: #ff6b6b;
+        --good: #54d18c;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 14px/1.5 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 24px;
+      }
+      h1 { font-size: 18px; margin: 0 0 16px; }
+      .grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 16px;
+        max-width: 1100px;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px;
+      }
+      .panel h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 12px;
+      }
+      .tier-row { display: flex; gap: 8px; margin-bottom: 14px; }
+      button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #111823;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 14px;
+      }
+      button.active {
+        border-color: var(--accent);
+        background: rgba(78, 161, 255, 0.16);
+        color: var(--accent);
+      }
+      button:disabled { opacity: 0.5; cursor: default; }
+      .metric {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        border-bottom: 1px dashed var(--line);
+      }
+      .metric:last-child { border-bottom: none; }
+      .metric .label { color: var(--muted); }
+      .metric .value { font-variant-numeric: tabular-nums; }
+      .status { font-size: 12px; color: var(--muted); margin-top: 10px; }
+      .stage {
+        height: 220px;
+        border-radius: 8px;
+        background: #0a0f16;
+        border: 1px solid var(--line);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 14px;
+      }
+      .frame-tile {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        background: rgba(78, 161, 255, 0.25);
+        border: 1px solid var(--accent);
+      }
+      .event-log {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        max-height: 200px;
+        overflow: auto;
+        color: var(--muted);
+      }
+      .event-log .bad { color: var(--bad); }
+      .event-log .warn { color: var(--warn); }
+      .event-log .good { color: var(--good); }
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: rgba(84, 209, 140, 0.15);
+        color: var(--good);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WebTransport 媒体帧演示 · 有界重排缓冲 / 过期丢弃 / 播放截止时间</h1>
+    <div class="grid">
+      <div class="panel">
+        <h2>缓冲档位</h2>
+        <div class="tier-row">
+          <button id="tier-low" class="active">低缓冲（保时效）</button>
+          <button id="tier-high">高缓冲（少断帧）</button>
+        </div>
+        <h2>实时指标</h2>
+        <div class="metric"><span class="label">端到端延迟（均值）</span><span class="value" id="m-latency-mean">–</span></div>
+        <div class="metric"><span class="label">端到端延迟（P95）</span><span class="value" id="m-latency-p95">–</span></div>
+        <div class="metric"><span class="label">乱序率</span><span class="value" id="m-reorder">–</span></div>
+        <div class="metric"><span class="label">过期帧数</span><span class="value" id="m-expired">–</span></div>
+        <div class="metric"><span class="label">断帧（缺口跳过）</span><span class="value" id="m-gap">–</span></div>
+        <div class="metric"><span class="label">缓冲占用 / 上限</span><span class="value" id="m-buffer">–</span></div>
+        <div class="metric"><span class="label">已播放 / 已接收</span><span class="value" id="m-played">–</span></div>
+        <div class="metric"><span class="label">时钟偏移</span><span class="value" id="m-offset">–</span></div>
+        <div class="status" id="status">正在连接…</div>
+      </div>
+      <div class="panel">
+        <h2>播放画面（序号为帧号）</h2>
+        <div class="stage" id="stage"></div>
+        <h2>事件日志</h2>
+        <div class="event-log" id="log"></div>
+      </div>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
