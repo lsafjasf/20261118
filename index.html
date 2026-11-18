@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AV1 三组参数编码对比 · 质量预设 / 关键帧间隔 / 量化参数</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>AV1 编码参数对比实验</h1>
+    <p class="sub">
+      同一段程序化运动画面（640×360 · 30fps · 150 帧 · BT.709 有限范围）分别用三组 AV1 参数编码，
+      解码回三份结果并排播放，对比文件大小、编码耗时与局部细节差异。
+    </p>
+  </header>
+
+  <section id="controls">
+    <button id="btn-start">开始编码对比</button>
+    <button id="btn-play" disabled>播放 / 暂停</button>
+    <label class="diff-amp">差异放大
+      <select id="diff-amp">
+        <option value="2">×2</option>
+        <option value="4" selected>×4</option>
+        <option value="8">×8</option>
+      </select>
+    </label>
+    <span id="status">就绪。需要支持 WebCodecs AV1 编码的浏览器（Chrome / Edge 94+，量化模式建议 119+）。</span>
+  </section>
+
+  <section id="reference">
+    <h2>参考源画面（未压缩）</h2>
+    <div class="ref-wrap">
+      <canvas id="ref-canvas" width="640" height="360"></canvas>
+      <canvas id="ref-overlay" width="640" height="360"></canvas>
+    </div>
+    <ul class="legend">
+      <li><span class="sw sw-flat"></span>平坦区域（纯色天空）</li>
+      <li><span class="sw sw-motion"></span>运动区域（高速运动物体）</li>
+      <li><span class="sw sw-hf"></span>高频细节（细密条纹）</li>
+    </ul>
+  </section>
+
+  <section id="streams"></section>
+
+  <section id="notes">
+    <h2>实时编码 vs 离线输出</h2>
+    <div id="notes-body">
+      <p>
+        本页面中 C 组使用 <code>latencyMode: "realtime"</code>（实时档），A / B 组使用
+        <code>latencyMode: "quality"</code>（离线质量档），其余条件（帧率 30fps、色彩范围
+        BT.709 limited、分辨率、帧内容）完全一致。两者的差异体现在：
+      </p>
+      <ul>
+        <li><b>速度/延迟：</b>实时档以帧级延迟为目标，运动搜索范围小、参考帧少、不做多遍分析，
+          编码耗时显著更低（本页会实测并展示每组的毫秒数与等效 fps）。</li>
+        <li><b>压缩效率：</b>离线质量档会做更彻底的运动估计、模式决策与（部分实现中的）前向参考/
+          ARF 类优化，同等量化参数下码率更低或同码率下画质更好；实时档在相同 QP 下通常文件更大、
+          运动区域更容易出现块效应与拖影。</li>
+        <li><b>码率控制：</b>实时档的码控逐帧反应、不允许大的前瞻缓冲，场景切换处质量波动更明显；
+          离线档可以在 GOP 内更平滑地分配比特。</li>
+        <li><b>适用场景：</b>实时档面向视频会议/直播连麦等交互场景；离线档面向点播转码，
+          用时间换体积与画质。</li>
+      </ul>
+      <p>
+        公平性说明：三组使用同一确定性场景函数逐帧渲染，帧率固定 30fps，VideoFrame 统一指定
+        BT.709 / limited range（页面内将画布 RGB 按 BT.709 系数转换为 I420 有限范围后再送编码器），
+        因此文件大小与 PSNR 的差异只来自编码参数本身。
+        文件大小为 WebCodecs 输出的 AV1 裸码流（OBU 低开销格式）字节数，未加容器封装。
+      </p>
+    </div>
+  </section>
+
+  <template id="tpl-stream">
+    <article class="stream">
+      <h3 class="st-title"></h3>
+      <p class="st-params"></p>
+      <div class="st-canvases">
+        <figure><canvas class="cv-play" width="320" height="180"></canvas><figcaption>解码回放</figcaption></figure>
+        <figure><canvas class="cv-diff" width="320" height="180"></canvas><figcaption>与源画面差异（放大）</figcaption></figure>
+      </div>
+      <table class="st-stats">
+        <tbody>
+          <tr><th>文件大小</th><td class="s-size">—</td><th>编码耗时</th><td class="s-time">—</td></tr>
+          <tr><th>整体 PSNR</th><td class="s-psnr">—</td><th>编码速度</th><td class="s-fps">—</td></tr>
+          <tr><th>平坦区 PSNR</th><td class="s-flat">—</td><th>运动区 PSNR</th><td class="s-motion">—</td></tr>
+          <tr><th>高频区 PSNR</th><td class="s-hf">—</td><th>色彩范围</th><td class="s-color">—</td></tr>
+        </tbody>
+      </table>
+      <div class="st-progress"><div class="bar"></div></div>
+    </article>
+  </template>
+
+  <script src="scene.js"></script>
+  <script src="codec.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
