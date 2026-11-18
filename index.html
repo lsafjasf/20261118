@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>频域噪声门 · AudioWorklet</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #2d333b;
+    --text: #e6edf3;
+    --dim: #8b949e;
+    --accent: #4cc38a;
+    --accent2: #58a6ff;
+    --warn: #f0883e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 20px 12px 40px;
+  }
+  main { width: 100%; max-width: 860px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13px; margin-bottom: 16px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  button {
+    background: var(--accent);
+    color: #06130c;
+    border: 0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 26px;
+    cursor: pointer;
+  }
+  button.stop { background: var(--warn); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .status { font-size: 13px; color: var(--dim); }
+  .meters { display: grid; grid-template-columns: 90px 1fr 64px; gap: 6px 10px; align-items: center; }
+  .meters label { font-size: 13px; color: var(--dim); }
+  .bar {
+    height: 16px;
+    background: #0a0d12;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar > div { height: 100%; width: 0%; transition: width 60ms linear; }
+  #inBar > div { background: var(--accent2); }
+  #outBar > div { background: var(--accent); }
+  .db { font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
+  .atten {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .atten .value { font-size: 34px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .atten .unit { color: var(--dim); font-size: 13px; }
+  canvas#spectrum { width: 100%; height: 240px; display: block; background: #0a0d12; border-radius: 6px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--dim); margin-top: 6px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 3px; margin-right: 5px; vertical-align: middle; }
+  .legend .l-in::before { background: var(--accent2); }
+  .legend .l-out::before { background: var(--accent); }
+  .legend .l-gain::before { background: var(--warn); }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px 20px; }
+  .ctl label { display: flex; justify-content: space-between; font-size: 13px; color: var(--dim); margin-bottom: 4px; }
+  .ctl output { color: var(--text); font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 20px; font-size: 13px; }
+  .stats .k { color: var(--dim); }
+  .stats .v { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <h1>频域噪声门 <span style="font-weight:400;color:var(--dim)">AudioWorklet · FFT 频谱处理</span></h1>
+  <div class="sub">合成风机底噪 + 短促脉冲 → 分帧 / Hann 窗 / FFT / 频带门限 / 平滑增益 / 重叠相加，全部在音频渲染线程执行。</div>
+
+  <div class="panel">
+    <div class="row">
+      <button id="toggle">开始处理</button>
+      <span class="status" id="status">未启动 — 点击开始，播放合成风机噪声与短脉冲</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="meters">
+      <label>原始电平</label>
+      <div class="bar" id="inBar"><div></div></div>
+      <div class="db" id="inDb">-∞ dB</div>
+      <label>处理后电平</label>
+      <div class="bar" id="outBar"><div></div></div>
+      <div class="db" id="outDb">-∞ dB</div>
+    </div>
+    <div class="atten">
+      <span class="value" id="atten">0.0</span>
+      <span class="unit">dB 当前衰减量（各频带平均）</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <canvas id="spectrum"></canvas>
+    <div class="legend">
+      <span class="l-in">原始频谱</span>
+      <span class="l-out">处理后频谱</span>
+      <span class="l-gain">增益曲线</span>
+    </div>
+  </div>
+
+  <div class="panel controls">
+    <div class="ctl">
+      <label>阈值（相对噪声底）<output id="thVal">11 dB</output></label>
+      <input type="range" id="threshold" min="0" max="24" step="0.5" value="11">
+    </div>
+    <div class="ctl">
+      <label>启动时间<output id="atVal">3 ms</output></label>
+      <input type="range" id="attack" min="0.5" max="50" step="0.5" value="3">
+    </div>
+    <div class="ctl">
+      <label>释放时间<output id="relVal">150 ms</output></label>
+      <input type="range" id="release" min="10" max="500" step="5" value="150">
+    </div>
+    <div class="ctl">
+      <label>低频保留量<output id="lkVal">0.20</output></label>
+      <input type="range" id="lowKeep" min="0" max="1" step="0.05" value="0.2">
+    </div>
+  </div>
+
+  <div class="panel stats">
+    <div><span class="k">运行时间 </span><span class="v" id="runtime">00:00</span></div>
+    <div><span class="k">已处理帧 </span><span class="v" id="frames">0</span></div>
+    <div><span class="k">结构延迟 </span><span class="v" id="latency">–</span></div>
+    <div><span class="k">FIFO 深度 </span><span class="v" id="fifo">–</span></div>
+    <div><span class="k">累计漂移 </span><span class="v" id="drift">0.0 ms</span></div>
+    <div><span class="k">采样计数 </span><span class="v" id="continuity">–</span></div>
+  </div>
+</main>
+<script type="module" src="main.js"></script>
+</body>
+</html>
