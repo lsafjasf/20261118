@@ -1,0 +1,95 @@
+[
+  {
+    "scene": "constant",
+    "confidence": 0.9933,
+    "mean_grid_error_ms": 0.74,
+    "median_grid_error_ms": 0.73,
+    "truth_vs_grid_ms": {
+      "mean": 1.25,
+      "median": 1.25,
+      "p95": 1.25,
+      "max": 1.25
+    },
+    "grid_points": 33,
+    "bpm_curve": {
+      "points": 2,
+      "start_bpm": 100.0,
+      "end_bpm": 100.0,
+      "min_bpm": 100.0,
+      "max_bpm": 100.0
+    },
+    "diagnostics": {
+      "tempo_clarity": 0.9999,
+      "histogram_clarity": 0.9677,
+      "period_predict_residual": 2e-05,
+      "onset_count": 63,
+      "beat_onset_count": 32,
+      "constant_mae_ms": 0.74,
+      "ramp_mae_ms": 0.01,
+      "ramp_improvement": 0.9884,
+      "dominant_period_s": 0.6
+    }
+  },
+  {
+    "scene": "ramp",
+    "confidence": 0.7192,
+    "mean_grid_error_ms": 5.08,
+    "median_grid_error_ms": 5.26,
+    "truth_vs_grid_ms": {
+      "mean": 4.63,
+      "median": 4.75,
+      "p95": 6.55,
+      "max": 6.79
+    },
+    "grid_points": 34,
+    "bpm_curve": {
+      "points": 32,
+      "start_bpm": 80.64,
+      "end_bpm": 136.38,
+      "min_bpm": 80.64,
+      "max_bpm": 136.38
+    },
+    "diagnostics": {
+      "tempo_clarity": 0.5399,
+      "histogram_clarity": 0.0312,
+      "period_predict_residual": 0.00084,
+      "onset_count": 63,
+      "beat_onset_count": 32,
+      "constant_mae_ms": 99.83,
+      "ramp_mae_ms": 5.08,
+      "ramp_improvement": 0.9492,
+      "dominant_period_s": 0.435
+    }
+  },
+  {
+    "scene": "free",
+    "confidence": 0.3307,
+    "mean_grid_error_ms": 0.0,
+    "median_grid_error_ms": 0.0,
+    "truth_vs_grid_ms": {
+      "mean": 0.51,
+      "median": 0.5,
+      "p95": 0.54,
+      "max": 0.54
+    },
+    "grid_points": 24,
+    "bpm_curve": {
+      "points": 24,
+      "start_bpm": 87.25,
+      "end_bpm": 81.58,
+      "min_bpm": 73.39,
+      "max_bpm": 132.41
+    },
+    "diagnostics": {
+      "tempo_clarity": 0.5511,
+      "histogram_clarity": 0.087,
+      "period_predict_residual": 0.08395,
+      "onset_count": 24,
+      "beat_onset_count": 24,
+      "constant_mae_ms": 121.82,
+      "ramp_mae_ms": 27.15,
+      "ramp_improvement": 0.7771,
+      "dominant_period_s": 0.535
+    }
+  }
+]

@@ -1,0 +1,95 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #14181f;
+  color: #d8dee9;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: #1b212b;
+  border-bottom: 1px solid #2a323f;
+}
+h1 { font-size: 18px; margin: 0; }
+h2 { font-size: 14px; margin: 0 0 8px; color: #8fb4ff; }
+.track-picker { display: flex; align-items: center; gap: 12px; }
+select, button {
+  background: #232b38;
+  color: #d8dee9;
+  border: 1px solid #35405200;
+  border: 1px solid #3a4557;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+button { cursor: pointer; }
+button:hover { background: #2d3748; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #2c3e57;
+}
+.badge.constant { background: #1f5135; }
+.badge.ramp { background: #5a4218; }
+.badge.free { background: #57233a; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: #2a323f;
+}
+.metric {
+  background: #1b212b;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric .label { font-size: 11px; color: #7d8899; }
+.metric .value { font-size: 15px; font-weight: 600; }
+main { padding: 16px 22px; }
+.canvas-wrap, .bpm-wrap { position: relative; margin-bottom: 12px; }
+canvas {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+  background: #0f131a;
+}
+#wave-canvas { height: 220px; }
+#overlay-canvas {
+  height: 220px;
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+}
+#bpm-canvas { height: 140px; }
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 22px;
+  background: #1b212b;
+  border-top: 1px solid #2a323f;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.transport, .edit-tools { display: flex; align-items: center; gap: 10px; }
+.hint { font-size: 12px; color: #7d8899; }
+.bpm-table { padding: 14px 22px 30px; }
+#bpm-table {
+  max-height: 220px;
+  overflow: auto;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+#bpm-table table { border-collapse: collapse; width: 100%; }
+#bpm-table td, #bpm-table th {
+  padding: 4px 10px;
+  border-bottom: 1px solid #242c38;
+  text-align: right;
+}
+#bpm-table th { color: #7d8899; position: sticky; top: 0; background: #1b212b; }

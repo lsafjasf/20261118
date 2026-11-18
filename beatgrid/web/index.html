@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>节拍网格编辑器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>节拍网格编辑器</h1>
+  <div class="track-picker">
+    <label>素材
+      <select id="track-select"></select>
+    </label>
+    <span id="mode-badge" class="badge">—</span>
+  </div>
+</header>
+
+<section class="metrics" id="metrics">
+  <div class="metric"><span class="label">模式</span><span id="m-mode" class="value">—</span></div>
+  <div class="metric"><span class="label">置信度</span><span id="m-confidence" class="value">—</span></div>
+  <div class="metric"><span class="label">平均格点误差</span><span id="m-mae" class="value">—</span></div>
+  <div class="metric"><span class="label">中位误差</span><span id="m-median" class="value">—</span></div>
+  <div class="metric"><span class="label">BPM 范围</span><span id="m-bpm" class="value">—</span></div>
+  <div class="metric"><span class="label">网格点数</span><span id="m-points" class="value">—</span></div>
+</section>
+
+<main>
+  <div class="canvas-wrap">
+    <canvas id="wave-canvas"></canvas>
+    <canvas id="overlay-canvas"></canvas>
+  </div>
+  <div class="bpm-wrap">
+    <canvas id="bpm-canvas"></canvas>
+  </div>
+</main>
+
+<section class="controls">
+  <div class="transport">
+    <button id="play-btn">播放</button>
+    <button id="stop-btn">停止</button>
+    <span id="time-readout">0.000 s</span>
+  </div>
+  <div class="edit-tools">
+    <label>修正单位
+      <select id="nudge-unit">
+        <option value="half">半拍</option>
+        <option value="bar">一小节</option>
+      </select>
+    </label>
+    <button id="nudge-left" title="向左偏移">◀ 偏移</button>
+    <button id="nudge-right">偏移 ▶</button>
+    <button id="reset-btn">还原分析结果</button>
+    <span class="hint">先在网格上点击选中一个拍点，再做偏移</span>
+  </div>
+</section>
+
+<section class="bpm-table">
+  <h2>BPM 曲线（最终确定）</h2>
+  <div id="bpm-table"></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
