@@ -1,0 +1,5 @@
+﻿轨道,名称,角色,类型,音频文件,视频参考,时长(ms),场记板本地(ms),自动偏移(ms),手动微调(ms),最终偏移(ms),相关系数,置信度(%),共同段入(ms),共同段出(ms),状态
+recorder,RECORDER,独立录音 / 主音轨,audio,media/recorder.wav,,27400,7997.0,0.0,0.0,0.0,1.0,100.0,7100,23100,master
+cam_a,CAM A,广角机位,camera,media/cam_a.wav,media/cam_a.mp4,18000,1347.0,6650.0,0.0,6650.0,0.99996,100.0,7100,23100,auto
+cam_b,CAM B,左侧中景,camera,media/cam_b.wav,media/cam_b.mp4,19500,897.0,7100.0,0.0,7100.0,0.99996,100.0,7100,23100,auto
+cam_c,CAM C,右侧特写,camera,media/cam_c.wav,media/cam_c.mp4,17200,2097.0,5900.0,0.0,5900.0,0.99997,100.0,7100,23100,auto

@@ -1,0 +1,17 @@
+{
+  "name": "slate-sync-0067",
+  "version": "1.0.0",
+  "description": "场记板脉冲多机位同步工作站（ffmpeg/ffprobe 静态二进制依赖）",
+  "scripts": {
+    "postinstall": "chmod u+x node_modules/@ffmpeg-installer/linux-x64/ffmpeg node_modules/@ffprobe-installer/linux-x64/ffprobe || true",
+    "selftest": "python3 -m slate_sync.selftest",
+    "serve": "python3 -m slate_sync.cli serve"
+  },
+  "keywords": ["multicam", "sync", "clapperboard", "onset", "ffmpeg"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2"
+  }
+}

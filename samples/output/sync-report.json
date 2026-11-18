@@ -1,0 +1,462 @@
+{
+  "project": "SLATE PULSE / DEMO 0067",
+  "masterTrackId": "recorder",
+  "generatedAt": "2026-11-18T02:22:37.702420+00:00",
+  "sampleRate": 48000,
+  "thresholdMs": 5.0,
+  "commonInSec": 7.1,
+  "commonOutSec": 23.1,
+  "commonDurationSec": 16.0,
+  "programCuts": [
+    {
+      "at": 7.1,
+      "cameraId": "cam_b"
+    },
+    {
+      "at": 10.75,
+      "cameraId": "cam_a"
+    },
+    {
+      "at": 13.65,
+      "cameraId": "cam_c"
+    },
+    {
+      "at": 16.35,
+      "cameraId": "cam_b"
+    },
+    {
+      "at": 19.85,
+      "cameraId": "cam_a"
+    }
+  ],
+  "programSegments": [
+    {
+      "index": 1,
+      "cameraId": "cam_b",
+      "timelineInSec": 7.1,
+      "timelineOutSec": 10.75,
+      "durationSec": 3.65
+    },
+    {
+      "index": 2,
+      "cameraId": "cam_a",
+      "timelineInSec": 10.75,
+      "timelineOutSec": 13.65,
+      "durationSec": 2.9
+    },
+    {
+      "index": 3,
+      "cameraId": "cam_c",
+      "timelineInSec": 13.65,
+      "timelineOutSec": 16.35,
+      "durationSec": 2.7
+    },
+    {
+      "index": 4,
+      "cameraId": "cam_b",
+      "timelineInSec": 16.35,
+      "timelineOutSec": 19.85,
+      "durationSec": 3.5
+    },
+    {
+      "index": 5,
+      "cameraId": "cam_a",
+      "timelineInSec": 19.85,
+      "timelineOutSec": 23.1,
+      "durationSec": 3.25
+    }
+  ],
+  "timelinePolicy": "统一主音轨时钟；切换机位仅替换画面参考，音频不重置、不重放",
+  "tracks": [
+    {
+      "id": "recorder",
+      "name": "RECORDER",
+      "role": "独立录音 / 主音轨",
+      "kind": "audio",
+      "duration": 27.4,
+      "sampleRate": 48000,
+      "audioPath": "media/recorder.wav",
+      "videoPath": null,
+      "finalOffsetSec": 0.0,
+      "autoOffsetSec": 0.0,
+      "manualNudgeMs": 0.0,
+      "correlation": 1.0,
+      "confidence": 1.0,
+      "analysis": {
+        "slateLocalSec": 7.995,
+        "slatePeakSec": 7.997,
+        "slateStrength": 69.11102,
+        "onsetEventCount": 17,
+        "onsetEvents": [
+          {
+            "time": 7.995,
+            "strength": 69.11102
+          },
+          {
+            "time": 9.18,
+            "strength": 12.06729
+          },
+          {
+            "time": 9.3,
+            "strength": 5.10861
+          },
+          {
+            "time": 10.51,
+            "strength": 12.69517
+          },
+          {
+            "time": 10.63,
+            "strength": 5.09422
+          },
+          {
+            "time": 11.89,
+            "strength": 14.10057
+          },
+          {
+            "time": 12.01,
+            "strength": 5.25109
+          },
+          {
+            "time": 13.23,
+            "strength": 11.72989
+          },
+          {
+            "time": 13.35,
+            "strength": 5.29425
+          },
+          {
+            "time": 14.59,
+            "strength": 12.63498
+          },
+          {
+            "time": 14.71,
+            "strength": 5.38913
+          },
+          {
+            "time": 15.95,
+            "strength": 14.3568
+          },
+          {
+            "time": 16.07,
+            "strength": 5.30445
+          },
+          {
+            "time": 17.31,
+            "strength": 10.99142
+          },
+          {
+            "time": 17.43,
+            "strength": 5.30785
+          },
+          {
+            "time": 18.11,
+            "strength": 12.83438
+          },
+          {
+            "time": 18.23,
+            "strength": 5.21205
+          }
+        ]
+      }
+    },
+    {
+      "id": "cam_a",
+      "name": "CAM A",
+      "role": "广角机位",
+      "kind": "camera",
+      "duration": 18.0,
+      "sampleRate": 48000,
+      "audioPath": "media/cam_a.wav",
+      "videoPath": "media/cam_a.mp4",
+      "finalOffsetSec": 6.65,
+      "autoOffsetSec": 6.65,
+      "manualNudgeMs": 0.0,
+      "correlation": 0.999964,
+      "confidence": 0.999998,
+      "analysis": {
+        "slateLocalSec": 1.345,
+        "slatePeakSec": 1.347,
+        "slateStrength": 59.00625,
+        "onsetEventCount": 9,
+        "onsetEvents": [
+          {
+            "time": 1.345,
+            "strength": 59.00625
+          },
+          {
+            "time": 2.53,
+            "strength": 10.25383
+          },
+          {
+            "time": 3.86,
+            "strength": 10.73172
+          },
+          {
+            "time": 5.24,
+            "strength": 11.93724
+          },
+          {
+            "time": 6.58,
+            "strength": 9.93251
+          },
+          {
+            "time": 7.94,
+            "strength": 10.65698
+          },
+          {
+            "time": 9.3,
+            "strength": 12.15377
+          },
+          {
+            "time": 10.66,
+            "strength": 9.2706
+          },
+          {
+            "time": 11.46,
+            "strength": 10.90309
+          }
+        ],
+        "peakOffsetSec": 6.65
+      }
+    },
+    {
+      "id": "cam_b",
+      "name": "CAM B",
+      "role": "左侧中景",
+      "kind": "camera",
+      "duration": 19.5,
+      "sampleRate": 48000,
+      "audioPath": "media/cam_b.wav",
+      "videoPath": "media/cam_b.mp4",
+      "finalOffsetSec": 7.1,
+      "autoOffsetSec": 7.1,
+      "manualNudgeMs": 0.0,
+      "correlation": 0.999959,
+      "confidence": 0.999998,
+      "analysis": {
+        "slateLocalSec": 0.895,
+        "slatePeakSec": 0.897,
+        "slateStrength": 58.44074,
+        "onsetEventCount": 9,
+        "onsetEvents": [
+          {
+            "time": 0.895,
+            "strength": 58.44074
+          },
+          {
+            "time": 2.08,
+            "strength": 10.0395
+          },
+          {
+            "time": 3.41,
+            "strength": 10.60861
+          },
+          {
+            "time": 4.79,
+            "strength": 11.83121
+          },
+          {
+            "time": 6.13,
+            "strength": 9.77824
+          },
+          {
+            "time": 7.49,
+            "strength": 10.54472
+          },
+          {
+            "time": 8.85,
+            "strength": 12.05267
+          },
+          {
+            "time": 10.21,
+            "strength": 9.21862
+          },
+          {
+            "time": 11.01,
+            "strength": 10.67377
+          }
+        ],
+        "peakOffsetSec": 7.1
+      }
+    },
+    {
+      "id": "cam_c",
+      "name": "CAM C",
+      "role": "右侧特写",
+      "kind": "camera",
+      "duration": 17.2,
+      "sampleRate": 48000,
+      "audioPath": "media/cam_c.wav",
+      "videoPath": "media/cam_c.mp4",
+      "finalOffsetSec": 5.9,
+      "autoOffsetSec": 5.9,
+      "manualNudgeMs": 0.0,
+      "correlation": 0.999969,
+      "confidence": 0.999998,
+      "analysis": {
+        "slateLocalSec": 2.095,
+        "slatePeakSec": 2.097,
+        "slateStrength": 59.55989,
+        "onsetEventCount": 9,
+        "onsetEvents": [
+          {
+            "time": 2.095,
+            "strength": 59.55989
+          },
+          {
+            "time": 3.28,
+            "strength": 10.32639
+          },
+          {
+            "time": 4.61,
+            "strength": 10.83782
+          },
+          {
+            "time": 5.99,
+            "strength": 12.06502
+          },
+          {
+            "time": 7.33,
+            "strength": 9.96258
+          },
+          {
+            "time": 8.69,
+            "strength": 10.80695
+          },
+          {
+            "time": 10.05,
+            "strength": 12.23423
+          },
+          {
+            "time": 11.41,
+            "strength": 9.43111
+          },
+          {
+            "time": 12.21,
+            "strength": 10.9504
+          }
+        ],
+        "peakOffsetSec": 5.9
+      }
+    }
+  ],
+  "verification": {
+    "longestTrackId": "recorder",
+    "longestTrackName": "RECORDER",
+    "longestDurationSec": 27.4,
+    "commonInSec": 7.1,
+    "commonOutSec": 23.1,
+    "commonDurationSec": 16.0,
+    "comparedWindows": 9,
+    "meanErrorMs": 0.0,
+    "p95ErrorMs": 0.0,
+    "maxErrorMs": 0.0,
+    "thresholdMs": 5.0,
+    "passed": true,
+    "perTrack": [
+      {
+        "trackId": "cam_a",
+        "name": "CAM A",
+        "comparedWindows": 3,
+        "meanErrorMs": 0.0,
+        "maxErrorMs": 0.0,
+        "status": "pass"
+      },
+      {
+        "trackId": "cam_b",
+        "name": "CAM B",
+        "comparedWindows": 3,
+        "meanErrorMs": 0.0,
+        "maxErrorMs": 0.0,
+        "status": "pass"
+      },
+      {
+        "trackId": "cam_c",
+        "name": "CAM C",
+        "comparedWindows": 3,
+        "meanErrorMs": 0.0,
+        "maxErrorMs": 0.0,
+        "status": "pass"
+      }
+    ]
+  },
+  "matrix": [
+    {
+      "trackId": "recorder",
+      "name": "RECORDER",
+      "role": "独立录音 / 主音轨",
+      "type": "audio",
+      "file": "media/recorder.wav",
+      "videoReference": "",
+      "durationMs": 27400,
+      "sampleRateHz": 48000,
+      "slateLocalMs": 7997.0,
+      "autoOffsetMs": 0.0,
+      "manualNudgeMs": 0.0,
+      "finalOffsetMs": 0.0,
+      "correlation": 1.0,
+      "confidencePct": 100.0,
+      "commonInMs": 7100,
+      "commonOutMs": 23100,
+      "status": "master"
+    },
+    {
+      "trackId": "cam_a",
+      "name": "CAM A",
+      "role": "广角机位",
+      "type": "camera",
+      "file": "media/cam_a.wav",
+      "videoReference": "media/cam_a.mp4",
+      "durationMs": 18000,
+      "sampleRateHz": 48000,
+      "slateLocalMs": 1347.0,
+      "autoOffsetMs": 6650.0,
+      "manualNudgeMs": 0.0,
+      "finalOffsetMs": 6650.0,
+      "correlation": 0.99996,
+      "confidencePct": 100.0,
+      "commonInMs": 7100,
+      "commonOutMs": 23100,
+      "status": "auto"
+    },
+    {
+      "trackId": "cam_b",
+      "name": "CAM B",
+      "role": "左侧中景",
+      "type": "camera",
+      "file": "media/cam_b.wav",
+      "videoReference": "media/cam_b.mp4",
+      "durationMs": 19500,
+      "sampleRateHz": 48000,
+      "slateLocalMs": 897.0,
+      "autoOffsetMs": 7100.0,
+      "manualNudgeMs": 0.0,
+      "finalOffsetMs": 7100.0,
+      "correlation": 0.99996,
+      "confidencePct": 100.0,
+      "commonInMs": 7100,
+      "commonOutMs": 23100,
+      "status": "auto"
+    },
+    {
+      "trackId": "cam_c",
+      "name": "CAM C",
+      "role": "右侧特写",
+      "type": "camera",
+      "file": "media/cam_c.wav",
+      "videoReference": "media/cam_c.mp4",
+      "durationMs": 17200,
+      "sampleRateHz": 48000,
+      "slateLocalMs": 2097.0,
+      "autoOffsetMs": 5900.0,
+      "manualNudgeMs": 0.0,
+      "finalOffsetMs": 5900.0,
+      "correlation": 0.99997,
+      "confidencePct": 100.0,
+      "commonInMs": 7100,
+      "commonOutMs": 23100,
+      "status": "auto"
+    }
+  ],
+  "timelineProblems": []
+}

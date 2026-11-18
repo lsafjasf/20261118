@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SLATE/SYNC · 场记板脉冲多机位工作站</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">▦</div>
+      <div>
+        <h1>SLATE/SYNC</h1>
+        <p>MULTICAM WORKSTATION</p>
+      </div>
+    </div>
+    <div class="project-meta">
+      <span>PROJECT 0067</span>
+      <span class="divider">|</span>
+      <strong>场记板脉冲同步 / TAKE 04</strong>
+      <span class="lock-badge"><i></i>AUDIO LOCKED</span>
+    </div>
+    <div class="top-actions">
+      <button id="btn-reanalyze" class="btn ghost">↻ 重新检测</button>
+      <button id="btn-export" class="btn primary">⬇ 导出同步矩阵</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel sources">
+      <h2>素材箱 <span id="source-count" class="count">0</span></h2>
+      <div id="source-list"></div>
+      <div class="notice">
+        <span class="notice-icon">▦</span>
+        <p><b>只信任声学脉冲</b><br />机位视频仅作画面参考，不假定首帧对齐；所有偏移相对独立录音的主时间线计算。</p>
+      </div>
+      <div class="detect-status">
+        <div class="detect-row"><span>场记板检测</span><b id="detect-pct">--</b></div>
+        <div class="bar"><i id="detect-bar"></i></div>
+        <p class="hint">TRANSIENT · 48 KHZ · MONO MIX</p>
+      </div>
+    </aside>
+
+    <section class="panel stage">
+      <div class="stage-head">
+        <span class="dot live"></span>
+        <span>PROGRAM</span>
+        <b id="program-camera">—</b>
+        <span class="spacer"></span>
+        <span class="hint">24 FPS · 1920 × 1080 · 统一主时钟</span>
+      </div>
+      <div class="viewer">
+        <video id="program-video" muted playsinline></video>
+        <div id="viewer-placeholder" class="viewer-placeholder">
+          <span class="clap-text">CLAP · SYNC</span>
+        </div>
+        <span class="sync-tag">◈ SYNC VIEW</span>
+        <span class="audio-tag">主音频 / RECORDER（跨镜头连续）</span>
+        <span id="viewer-tc" class="tc-burn">00:00:00:00</span>
+      </div>
+      <audio id="master-audio" preload="auto"></audio>
+      <div class="transport">
+        <button class="step" data-step="-5">⏮</button>
+        <button id="btn-play" class="play">▶</button>
+        <button class="step" data-step="5">⏭</button>
+        <div class="clock">
+          <b id="clock-main">00:00:00.000</b>
+          <span>MASTER TC / AUDIO CLOCK · 镜头切换不重置</span>
+        </div>
+      </div>
+      <div id="camera-cards" class="camera-cards"></div>
+    </section>
+
+    <aside class="panel matrix-panel">
+      <h2>同步矩阵 <span class="hint">声学对齐</span></h2>
+      <div class="matrix-head">
+        <span>轨道</span><span>自动</span><span>微调</span><span>最终</span>
+      </div>
+      <div id="matrix-rows"></div>
+
+      <div class="fine-tune">
+        <div class="fine-head">
+          <span>FINE TUNE</span><b id="fine-target">未选择</b>
+          <button id="btn-reset-nudge" class="mini">归零</button>
+        </div>
+        <div class="nudge-value"><span>−</span><b id="nudge-num">0</b><span>ms +</span></div>
+        <input id="nudge-slider" type="range" min="-50" max="50" step="1" value="0" />
+        <div class="nudge-presets">
+          <button data-nudge="-10">−10</button>
+          <button data-nudge="-1">−1</button>
+          <button data-nudge="1">+1</button>
+          <button data-nudge="10">+10</button>
+        </div>
+      </div>
+
+      <div class="verify">
+        <div class="verify-head">
+          <span id="verify-badge" class="pass-badge">● PASS</span>
+          <b>共同段落校验</b>
+          <span class="spacer"></span>
+          <b id="common-duration">-- s</b>
+        </div>
+        <div class="segment-bar">
+          <i id="seg-fill"></i>
+          <span id="seg-in" class="seg-label">--</span>
+          <span id="seg-out" class="seg-label out">--</span>
+        </div>
+        <div class="verify-grid">
+          <div><span>最长录音</span><b id="v-longest">--</b></div>
+          <div><span>比对窗口</span><b id="v-windows">--</b></div>
+          <div><span>最大残差</span><b id="v-max">--</b></div>
+          <div><span>平均误差</span><b id="v-mean">--</b></div>
+        </div>
+        <div id="verify-tracks"></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="panel timeline-panel">
+    <div class="timeline-head">
+      <h2>TIMELINE · 统一声音时间线</h2>
+      <span class="spacer"></span>
+      <span class="legend"><i class="lg-audio"></i>音频</span>
+      <span class="legend"><i class="lg-video"></i>画面参考</span>
+      <span class="legend"><i class="lg-common"></i>共同段落</span>
+    </div>
+    <div id="timeline" class="timeline"></div>
+  </section>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

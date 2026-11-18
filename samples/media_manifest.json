@@ -1,0 +1,38 @@
+{
+  "sampleRate": 48000,
+  "slateMasterSec": 7.997,
+  "tracks": [
+    {
+      "id": "recorder",
+      "durationSec": 27.4,
+      "masterStartSec": 0.0,
+      "trueOffsetMs": 0,
+      "audio": "media/recorder.wav",
+      "video": null
+    },
+    {
+      "id": "cam_a",
+      "durationSec": 18.0,
+      "masterStartSec": 6.65,
+      "trueOffsetMs": 6650,
+      "audio": "media/cam_a.wav",
+      "video": "media/cam_a.mp4"
+    },
+    {
+      "id": "cam_b",
+      "durationSec": 19.5,
+      "masterStartSec": 7.1,
+      "trueOffsetMs": 7100,
+      "audio": "media/cam_b.wav",
+      "video": "media/cam_b.mp4"
+    },
+    {
+      "id": "cam_c",
+      "durationSec": 17.2,
+      "masterStartSec": 5.9,
+      "trueOffsetMs": 5900,
+      "audio": "media/cam_c.wav",
+      "video": "media/cam_c.mp4"
+    }
+  ]
+}
