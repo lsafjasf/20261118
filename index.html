@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>双镜头白平衡与曝光匹配</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>双镜头色彩匹配工具</h1>
+    <p>从肤色、色温与中性区域提取统计量，在暖光 / 冷光镜头之间做白平衡与曝光匹配。</p>
+  </header>
+
+  <main>
+    <section class="panel" id="load-panel">
+      <h2>1. 载入镜头</h2>
+      <div class="loaders">
+        <div class="loader">
+          <label>镜头 A（待调整）</label>
+          <input type="file" id="fileA" accept="image/*">
+          <canvas id="thumbA" width="160" height="100"></canvas>
+        </div>
+        <div class="loader">
+          <label>镜头 B（参照）</label>
+          <input type="file" id="fileB" accept="image/*">
+          <canvas id="thumbB" width="160" height="100"></canvas>
+        </div>
+      </div>
+      <div class="load-actions">
+        <button id="btnDemo">生成暖/冷测试镜头</button>
+        <label class="ref-select">参照方向：
+          <select id="refDir">
+            <option value="AtoB" selected>A → 匹配到 B</option>
+            <option value="BtoA">B → 匹配到 A</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel" id="stats-panel">
+      <h2>2. 统计量</h2>
+      <div class="stats-grid">
+        <table id="statsTable">
+          <thead>
+            <tr><th>指标</th><th>镜头 A</th><th>镜头 B</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="hint">肤色区域基于 YCbCr 肤色模型自动提取；中性区域取低色度、中间调像素；色温由中性区域色度经 McCamy 公式估计。</p>
+    </section>
+
+    <section class="panel" id="adjust-panel">
+      <h2>3. 匹配与微调</h2>
+      <div class="controls">
+        <label class="check">
+          <input type="checkbox" id="lockSkin" checked>
+          锁定肤色作为参照（以参照镜头肤色色度为准修正白平衡）
+        </label>
+        <div class="slider">
+          <label>色温 <span id="valTemp">0</span></label>
+          <input type="range" id="adjTemp" min="-100" max="100" value="0">
+        </div>
+        <div class="slider">
+          <label>色调（品红-绿）<span id="valTint">0</span></label>
+          <input type="range" id="adjTint" min="-100" max="100" value="0">
+        </div>
+        <div class="slider">
+          <label>曝光 (EV) <span id="valExp">0.00</span></label>
+          <input type="range" id="adjExp" min="-200" max="200" value="0">
+        </div>
+        <button id="btnReset">重置微调</button>
+      </div>
+      <div class="preview-modes">
+        <label><input type="radio" name="mode" value="original" > 原片</label>
+        <label><input type="radio" name="mode" value="auto" checked> 自动匹配</label>
+        <label><input type="radio" name="mode" value="manual"> 手动微调</label>
+      </div>
+      <canvas id="preview" width="640" height="360"></canvas>
+      <div class="export-row">
+        <button id="btnExport">导出 PNG（高光保护）</button>
+        <span class="hint">导出使用软肩压缩保留合法高光，不做通道硬裁剪。</span>
+      </div>
+    </section>
+
+    <section class="panel" id="report-panel">
+      <h2>4. 匹配报告</h2>
+      <table id="reportTable">
+        <thead>
+          <tr><th>指标</th><th>调整前</th><th>调整后</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="hint">色差为 CIE76 ΔE，分别在肤色区域与中性区域上计算；亮度为中位数亮度（非全图平均 RGB）。</p>
+    </section>
+  </main>
+
+  <script src="color.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
