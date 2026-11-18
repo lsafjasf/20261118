@@ -1,0 +1,336 @@
+{
+  "scene": "hline",
+  "field_order": "tff",
+  "source_fps": 25.0,
+  "output_fps": 50.0,
+  "input_interlaced_frames": 12,
+  "field_count": 24,
+  "output_frames_per_method": 24,
+  "frame_size": [
+    240,
+    320,
+    3
+  ],
+  "timing": {
+    "bob": {
+      "method": "bob",
+      "elapsed_seconds": 0.0013791560049867257,
+      "frame_count": 24,
+      "per_frame_ms": 0.05746483354111357
+    },
+    "weave": {
+      "method": "weave",
+      "elapsed_seconds": 0.004125869993004017,
+      "frame_count": 24,
+      "per_frame_ms": 0.1719112497085007
+    },
+    "adaptive": {
+      "method": "adaptive",
+      "elapsed_seconds": 0.06918218400096521,
+      "frame_count": 24,
+      "per_frame_ms": 2.882591000040217
+    }
+  },
+  "vertical_resolution_score": {
+    "bob": 24.37796401977539,
+    "weave": 53.40725326538086,
+    "adaptive": 51.1875007947286
+  },
+  "combing_artifact": {
+    "bob": 100.98319244384766,
+    "weave": 0.0,
+    "adaptive": 7.777223269144694
+  },
+  "selection": {
+    "scene": "hline",
+    "field_order": "tff",
+    "moving_row_ratio": 0.0146,
+    "mean_global_motion": 0.0,
+    "psnr_db": {
+      "bob": 10.909,
+      "weave": Infinity,
+      "adaptive": 11.588
+    },
+    "mae": {
+      "bob": 25.6313,
+      "weave": 0.0,
+      "adaptive": 1.9669
+    },
+    "combing_artifact": {
+      "bob": 100.9832,
+      "weave": 0.0,
+      "adaptive": 7.7772
+    },
+    "recommended": "weave",
+    "reason": "运动行占比 0.015 ≤ 0.03，素材近似静止，两场融合保留完整垂直分辨率且不产生运动梳齿；PSNR weave=infdB、bob=10.91dB"
+  },
+  "adaptive_motion_diag": [
+    {
+      "field_index": 0,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 1,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.175
+    },
+    {
+      "field_index": 2,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 3,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 4,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 5,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 6,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 7,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 8,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 9,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 10,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 11,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 12,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 13,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 14,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 15,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 16,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 17,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 18,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 19,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 20,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 21,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 22,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.175
+    },
+    {
+      "field_index": 23,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    }
+  ],
+  "exported_sequences": {
+    "input_interlaced": {
+      "dir": [
+        "exports/demo/hline_tff/input/interlaced_000.png",
+        "exports/demo/hline_tff/input/interlaced_001.png",
+        "exports/demo/hline_tff/input/interlaced_002.png",
+        "exports/demo/hline_tff/input/interlaced_003.png",
+        "exports/demo/hline_tff/input/interlaced_004.png",
+        "exports/demo/hline_tff/input/interlaced_005.png",
+        "exports/demo/hline_tff/input/interlaced_006.png",
+        "exports/demo/hline_tff/input/interlaced_007.png",
+        "exports/demo/hline_tff/input/interlaced_008.png",
+        "exports/demo/hline_tff/input/interlaced_009.png",
+        "exports/demo/hline_tff/input/interlaced_010.png",
+        "exports/demo/hline_tff/input/interlaced_011.png"
+      ]
+    },
+    "bob": {
+      "dir": [
+        "exports/demo/hline_tff/bob/bob_000.png",
+        "exports/demo/hline_tff/bob/bob_001.png",
+        "exports/demo/hline_tff/bob/bob_002.png",
+        "exports/demo/hline_tff/bob/bob_003.png",
+        "exports/demo/hline_tff/bob/bob_004.png",
+        "exports/demo/hline_tff/bob/bob_005.png",
+        "exports/demo/hline_tff/bob/bob_006.png",
+        "exports/demo/hline_tff/bob/bob_007.png",
+        "exports/demo/hline_tff/bob/bob_008.png",
+        "exports/demo/hline_tff/bob/bob_009.png",
+        "exports/demo/hline_tff/bob/bob_010.png",
+        "exports/demo/hline_tff/bob/bob_011.png",
+        "exports/demo/hline_tff/bob/bob_012.png",
+        "exports/demo/hline_tff/bob/bob_013.png",
+        "exports/demo/hline_tff/bob/bob_014.png",
+        "exports/demo/hline_tff/bob/bob_015.png",
+        "exports/demo/hline_tff/bob/bob_016.png",
+        "exports/demo/hline_tff/bob/bob_017.png",
+        "exports/demo/hline_tff/bob/bob_018.png",
+        "exports/demo/hline_tff/bob/bob_019.png",
+        "exports/demo/hline_tff/bob/bob_020.png",
+        "exports/demo/hline_tff/bob/bob_021.png",
+        "exports/demo/hline_tff/bob/bob_022.png",
+        "exports/demo/hline_tff/bob/bob_023.png"
+      ]
+    },
+    "weave": {
+      "dir": [
+        "exports/demo/hline_tff/weave/weave_000.png",
+        "exports/demo/hline_tff/weave/weave_001.png",
+        "exports/demo/hline_tff/weave/weave_002.png",
+        "exports/demo/hline_tff/weave/weave_003.png",
+        "exports/demo/hline_tff/weave/weave_004.png",
+        "exports/demo/hline_tff/weave/weave_005.png",
+        "exports/demo/hline_tff/weave/weave_006.png",
+        "exports/demo/hline_tff/weave/weave_007.png",
+        "exports/demo/hline_tff/weave/weave_008.png",
+        "exports/demo/hline_tff/weave/weave_009.png",
+        "exports/demo/hline_tff/weave/weave_010.png",
+        "exports/demo/hline_tff/weave/weave_011.png",
+        "exports/demo/hline_tff/weave/weave_012.png",
+        "exports/demo/hline_tff/weave/weave_013.png",
+        "exports/demo/hline_tff/weave/weave_014.png",
+        "exports/demo/hline_tff/weave/weave_015.png",
+        "exports/demo/hline_tff/weave/weave_016.png",
+        "exports/demo/hline_tff/weave/weave_017.png",
+        "exports/demo/hline_tff/weave/weave_018.png",
+        "exports/demo/hline_tff/weave/weave_019.png",
+        "exports/demo/hline_tff/weave/weave_020.png",
+        "exports/demo/hline_tff/weave/weave_021.png",
+        "exports/demo/hline_tff/weave/weave_022.png",
+        "exports/demo/hline_tff/weave/weave_023.png"
+      ]
+    },
+    "adaptive": {
+      "dir": [
+        "exports/demo/hline_tff/adaptive/adaptive_000.png",
+        "exports/demo/hline_tff/adaptive/adaptive_001.png",
+        "exports/demo/hline_tff/adaptive/adaptive_002.png",
+        "exports/demo/hline_tff/adaptive/adaptive_003.png",
+        "exports/demo/hline_tff/adaptive/adaptive_004.png",
+        "exports/demo/hline_tff/adaptive/adaptive_005.png",
+        "exports/demo/hline_tff/adaptive/adaptive_006.png",
+        "exports/demo/hline_tff/adaptive/adaptive_007.png",
+        "exports/demo/hline_tff/adaptive/adaptive_008.png",
+        "exports/demo/hline_tff/adaptive/adaptive_009.png",
+        "exports/demo/hline_tff/adaptive/adaptive_010.png",
+        "exports/demo/hline_tff/adaptive/adaptive_011.png",
+        "exports/demo/hline_tff/adaptive/adaptive_012.png",
+        "exports/demo/hline_tff/adaptive/adaptive_013.png",
+        "exports/demo/hline_tff/adaptive/adaptive_014.png",
+        "exports/demo/hline_tff/adaptive/adaptive_015.png",
+        "exports/demo/hline_tff/adaptive/adaptive_016.png",
+        "exports/demo/hline_tff/adaptive/adaptive_017.png",
+        "exports/demo/hline_tff/adaptive/adaptive_018.png",
+        "exports/demo/hline_tff/adaptive/adaptive_019.png",
+        "exports/demo/hline_tff/adaptive/adaptive_020.png",
+        "exports/demo/hline_tff/adaptive/adaptive_021.png",
+        "exports/demo/hline_tff/adaptive/adaptive_022.png",
+        "exports/demo/hline_tff/adaptive/adaptive_023.png"
+      ]
+    },
+    "reference": {
+      "dir": [
+        "exports/demo/hline_tff/reference/ref_000.png",
+        "exports/demo/hline_tff/reference/ref_001.png",
+        "exports/demo/hline_tff/reference/ref_002.png",
+        "exports/demo/hline_tff/reference/ref_003.png",
+        "exports/demo/hline_tff/reference/ref_004.png",
+        "exports/demo/hline_tff/reference/ref_005.png",
+        "exports/demo/hline_tff/reference/ref_006.png",
+        "exports/demo/hline_tff/reference/ref_007.png",
+        "exports/demo/hline_tff/reference/ref_008.png",
+        "exports/demo/hline_tff/reference/ref_009.png",
+        "exports/demo/hline_tff/reference/ref_010.png",
+        "exports/demo/hline_tff/reference/ref_011.png"
+      ]
+    }
+  },
+  "method_labels": {
+    "bob": "简单行复制",
+    "weave": "两场融合",
+    "adaptive": "运动自适应"
+  }
+}

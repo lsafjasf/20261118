@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>去隔行策略逐帧对比</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; font-family: system-ui, "Noto Sans CJK SC", sans-serif;
+         background:#15171c; color:#e6e8ec; }
+  header { padding:12px 18px; background:#1d2027; border-bottom:1px solid #2c303a; }
+  h1 { font-size:17px; margin:0 0 8px; }
+  .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  select, button, input { font:inherit; }
+  select, button { background:#262a33; color:#e6e8ec; border:1px solid #3a3f4b;
+                   border-radius:6px; padding:5px 10px; }
+  button:hover { background:#313642; }
+  .panel { padding:14px 18px; }
+  .meta { display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px;
+          font-size:13px; color:#b8bdc7; }
+  .recommend { background:#20303f; border:1px solid #3d6f9e; border-radius:8px;
+               padding:10px 12px; margin-bottom:12px; font-size:13px; line-height:1.5; }
+  .recommend b { color:#8fd0ff; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+          gap:12px; }
+  .cell { background:#1d2027; border:1px solid #2c303a; border-radius:8px;
+          padding:8px; }
+  .cell h3 { margin:0 0 6px; font-size:13px; display:flex;
+             justify-content:space-between; align-items:center; }
+  .tag { font-size:11px; padding:1px 7px; border-radius:10px; background:#333a46; }
+  .tag.odd { background:#3a4a2e; color:#c8f0a0; }
+  .tag.even { background:#43352c; color:#f0c8a0; }
+  .tag.pick { background:#28527a; color:#bfe2ff; }
+  .framewrap { position:relative; line-height:0; }
+  .framewrap img { width:100%; border-radius:4px; image-rendering:auto; }
+  .scanlines { position:absolute; inset:0; pointer-events:none; opacity:0;
+               background:repeating-linear-gradient(
+                 to bottom, rgba(255,60,60,.55) 0 1px, transparent 1px 4px); }
+  .scanlines.on { opacity:1; }
+  .metrics { font-size:12px; color:#9aa1ad; margin-top:6px; line-height:1.5; }
+  .scrub { width:100%; max-width:520px; }
+  .frame-num { min-width:110px; font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; margin-top:8px; }
+  th, td { border:1px solid #333844; padding:5px 8px; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  thead { background:#22262f; }
+  .note { font-size:12px; color:#8a909c; margin-top:8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>去隔行策略逐帧对比：简单行复制 / 运动自适应 / 两场融合</h1>
+  <div class="controls">
+    <label>测试片 <select id="sceneSelect"></select></label>
+    <button id="prevBtn">◀ 上一帧</button>
+    <button id="nextBtn">下一帧 ▶</button>
+    <input class="scrub" id="scrub" type="range" min="0" step="1">
+    <button id="playBtn">▶ 自动播放</button>
+    <label><input type="checkbox" id="scanToggle"> 隔行扫描线高亮</label>
+    <span class="frame-num" id="frameNum"></span>
+  </div>
+</header>
+<div class="panel" id="panel"></div>
+<script>
+const SCENES = __SCENE_DATA__;
+const LABELS = {top_field:"奇数场(顶场,行复制放大)", bottom_field:"偶数场(底场,行复制放大)",
+  input:"隔行输入(编织帧)", reference:"逐行真值",
+  bob:"简单行复制 Bob", weave:"两场融合 Weave", adaptive:"运动自适应"};
+const ORDER_KEYS = ["bob","weave","adaptive"];
+let sceneIdx = 0, frameIdx = 0, timer = null;
+
+const sceneSelect = document.getElementById("sceneSelect");
+SCENES.forEach((s, i) => {
+  const opt = document.createElement("option");
+  opt.textContent = `${s.id}（场序 ${s.meta.field_order.toUpperCase()}）`;
+  sceneSelect.add(opt);
+});
+
+function cur() { return SCENES[sceneIdx]; }
+function parityLabel(i) {
+  const tff = cur().meta.field_order === "tff";
+  const firstTop = tff ? (i % 2 === 0) : (i % 2 === 1);
+  return firstTop ? ["奇数场/顶场", "odd"] : ["偶数场/底场", "even"];
+}
+
+function render() {
+  const s = cur(), seq = s.sequences;
+  const maxLen = Math.min(...ORDER_KEYS.map(k => seq[k].length));
+  frameIdx = Math.max(0, Math.min(frameIdx, maxLen - 1));
+  document.getElementById("scrub").max = maxLen - 1;
+  document.getElementById("scrub").value = frameIdx;
+  const [pText, pClass] = parityLabel(frameIdx);
+  const inputIdx = Math.min(Math.floor(frameIdx / 2), seq.input.length - 1);
+  document.getElementById("frameNum").textContent =
+    `输出帧 ${frameIdx + 1}/${maxLen} · ${pText}`;
+
+  const sel = s.selection, tim = s.timing;
+  let html = `
+   <div class="meta">
+     <span>输入场序：<b>${s.meta.field_order.toUpperCase()}</b></span>
+     <span>输入帧率：${s.meta.source_fps} fps</span>
+     <span>输出帧率：<b>${s.meta.output_fps} fps</b>（每场出一帧）</span>
+     <span>帧尺寸：${s.meta.size[1]}×${s.meta.size[0]}</span>
+   </div>
+   <div class="recommend">
+     实测推荐策略：<b>${LABELS[sel.recommended]}</b><br>${sel.reason}<br>
+     运动行占比 ${sel.moving_row_ratio}，平均运动强度 ${sel.mean_global_motion}
+   </div>
+   <div class="grid">`;
+
+  const order = [["top_field", null], ["bottom_field", null],
+    ["input", null], ["reference", null],
+    ["bob", "bob"], ["weave", "weave"], ["adaptive", "adaptive"]];
+  for (const [key, metricKey] of order) {
+    const isFieldView = key === "top_field" || key === "bottom_field";
+    const srcIdx = isFieldView ? inputIdx
+      : (key === "input" || key === "reference"
+        ? inputIdx : frameIdx);
+    const src = seq[key][Math.min(srcIdx, seq[key].length - 1)];
+    const picked = key === sel.recommended;
+    let tag = "";
+    if (key === "input" || isFieldView)
+      tag = `<span class="tag ${pClass}">${pText}</span>`;
+    else if (picked) tag = `<span class="tag pick">实测推荐</span>`;
+    let metric = "";
+    if (metricKey) {
+      metric = `<div class="metrics">PSNR ${sel.psnr_db[metricKey]} dB ·
+        MAE ${sel.mae[metricKey]} ·
+        耗时 ${tim[metricKey].per_frame_ms.toFixed(3)} ms/帧</div>`;
+    } else if (isFieldView) {
+      metric = `<div class="metrics">从隔行输入第 ${inputIdx + 1} 帧提取的单场，
+        仅含一半垂直采样行</div>`;
+    } else if (key === "reference") {
+      metric = `<div class="metrics">用于客观评分的逐行参考帧</div>`;
+    } else {
+      metric = `<div class="metrics">两时刻异极性场编织，运动处可见梳齿</div>`;
+    }
+    html += `<div class="cell"><h3><span>${LABELS[key]}</span>${tag}</h3>
+      <div class="framewrap"><img src="${src}">
+      <div class="scanlines" id="scan-${key}"></div></div>${metric}</div>`;
+  }
+  html += `</div>
+   <table><thead><tr><th>策略</th><th>PSNR(dB)</th><th>MAE</th>
+     <th>总耗时(ms)</th><th>每帧(ms)</th></tr></thead><tbody>`;
+  for (const k of ORDER_KEYS) {
+    html += `<tr><td>${LABELS[k]}${k === sel.recommended ? " ★" : ""}</td>
+      <td>${sel.psnr_db[k]}</td><td>${sel.mae[k]}</td>
+      <td>${(tim[k].elapsed_seconds * 1000).toFixed(2)}</td>
+      <td>${tim[k].per_frame_ms.toFixed(3)}</td></tr>`;
+  }
+  html += `</tbody></table>
+   <div class="note">键盘 ←/→ 逐帧，空格播放；红色扫描线用于核对奇偶场行位置。
+   完整分辨率 PNG 序列与 report.json 见 exports 目录。</div>`;
+  document.getElementById("panel").innerHTML = html;
+  syncScanOverlay();
+}
+
+function syncScanOverlay() {
+  const on = document.getElementById("scanToggle").checked;
+  document.querySelectorAll(".scanlines").forEach(el =>
+    el.classList.toggle("on", on));
+}
+
+function step(delta) { frameIdx += delta; render(); }
+document.getElementById("prevBtn").onclick = () => step(-1);
+document.getElementById("nextBtn").onclick = () => step(1);
+document.getElementById("scrub").oninput = e => {
+  frameIdx = Number(e.target.value); render();
+};
+document.getElementById("scanToggle").onchange = syncScanOverlay;
+sceneSelect.onchange = e => { sceneIdx = Number(e.target.value); frameIdx = 0; render(); };
+document.getElementById("playBtn").onclick = e => {
+  if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶ 自动播放"; }
+  else { timer = setInterval(() => step(1), 450);
+         e.target.textContent = "⏸ 暂停"; }
+};
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+  if (e.key === " ") { e.preventDefault();
+    document.getElementById("playBtn").click(); }
+});
+render();
+</script>
+</body>
+</html>

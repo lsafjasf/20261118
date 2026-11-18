@@ -1,0 +1,336 @@
+{
+  "scene": "mixed",
+  "field_order": "tff",
+  "source_fps": 25.0,
+  "output_fps": 50.0,
+  "input_interlaced_frames": 12,
+  "field_count": 24,
+  "output_frames_per_method": 24,
+  "frame_size": [
+    240,
+    320,
+    3
+  ],
+  "timing": {
+    "bob": {
+      "method": "bob",
+      "elapsed_seconds": 0.001811472000554204,
+      "frame_count": 24,
+      "per_frame_ms": 0.07547800002309184
+    },
+    "weave": {
+      "method": "weave",
+      "elapsed_seconds": 0.0077557390031870455,
+      "frame_count": 24,
+      "per_frame_ms": 0.32315579179946025
+    },
+    "adaptive": {
+      "method": "adaptive",
+      "elapsed_seconds": 0.10189869200985413,
+      "frame_count": 24,
+      "per_frame_ms": 4.245778833743922
+    }
+  },
+  "vertical_resolution_score": {
+    "bob": 21.21526225407918,
+    "weave": 54.939090728759766,
+    "adaptive": 41.32557988166809
+  },
+  "combing_artifact": {
+    "bob": 63.557520707448326,
+    "weave": 25.713235060373943,
+    "adaptive": 7.3136550063888235
+  },
+  "selection": {
+    "scene": "mixed",
+    "field_order": "tff",
+    "moving_row_ratio": 0.4167,
+    "mean_global_motion": 0.0851,
+    "psnr_db": {
+      "bob": 11.248,
+      "weave": 16.097,
+      "adaptive": 13.623
+    },
+    "mae": {
+      "bob": 32.8226,
+      "weave": 6.4057,
+      "adaptive": 13.651
+    },
+    "combing_artifact": {
+      "bob": 63.5575,
+      "weave": 25.7132,
+      "adaptive": 7.3137
+    },
+    "recommended": "adaptive",
+    "reason": "运动行占比 0.417 位于 0.03~0.45 混合区间，静态区需融合保分辨率、运动区需行复制防梳齿，运动自适应按逐行运动强度切换；梳齿指标 adaptive=7.31 低于 weave=25.71，PSNR=13.62dB；全局 PSNR 最高者为 weave（16.10dB），两种证据均保留供复核"
+  },
+  "adaptive_motion_diag": [
+    {
+      "field_index": 0,
+      "parity": "top",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    },
+    {
+      "field_index": 1,
+      "parity": "bottom",
+      "global_motion": 0.0913,
+      "moving_row_ratio": 0.7333
+    },
+    {
+      "field_index": 2,
+      "parity": "top",
+      "global_motion": 0.086,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 3,
+      "parity": "bottom",
+      "global_motion": 0.0913,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 4,
+      "parity": "top",
+      "global_motion": 0.0913,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 5,
+      "parity": "bottom",
+      "global_motion": 0.094,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 6,
+      "parity": "top",
+      "global_motion": 0.094,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 7,
+      "parity": "bottom",
+      "global_motion": 0.0984,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 8,
+      "parity": "top",
+      "global_motion": 0.0984,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 9,
+      "parity": "bottom",
+      "global_motion": 0.0984,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 10,
+      "parity": "top",
+      "global_motion": 0.0984,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 11,
+      "parity": "bottom",
+      "global_motion": 0.0984,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 12,
+      "parity": "top",
+      "global_motion": 0.0984,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 13,
+      "parity": "bottom",
+      "global_motion": 0.0973,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 14,
+      "parity": "top",
+      "global_motion": 0.0973,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 15,
+      "parity": "bottom",
+      "global_motion": 0.0941,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 16,
+      "parity": "top",
+      "global_motion": 0.0941,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 17,
+      "parity": "bottom",
+      "global_motion": 0.0898,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 18,
+      "parity": "top",
+      "global_motion": 0.0898,
+      "moving_row_ratio": 0.45
+    },
+    {
+      "field_index": 19,
+      "parity": "bottom",
+      "global_motion": 0.0854,
+      "moving_row_ratio": 0.3333
+    },
+    {
+      "field_index": 20,
+      "parity": "top",
+      "global_motion": 0.0854,
+      "moving_row_ratio": 0.3333
+    },
+    {
+      "field_index": 21,
+      "parity": "bottom",
+      "global_motion": 0.0844,
+      "moving_row_ratio": 0.3333
+    },
+    {
+      "field_index": 22,
+      "parity": "top",
+      "global_motion": 0.0854,
+      "moving_row_ratio": 0.6167
+    },
+    {
+      "field_index": 23,
+      "parity": "bottom",
+      "global_motion": 0.0,
+      "moving_row_ratio": 0.0
+    }
+  ],
+  "exported_sequences": {
+    "input_interlaced": {
+      "dir": [
+        "exports/demo/mixed_tff/input/interlaced_000.png",
+        "exports/demo/mixed_tff/input/interlaced_001.png",
+        "exports/demo/mixed_tff/input/interlaced_002.png",
+        "exports/demo/mixed_tff/input/interlaced_003.png",
+        "exports/demo/mixed_tff/input/interlaced_004.png",
+        "exports/demo/mixed_tff/input/interlaced_005.png",
+        "exports/demo/mixed_tff/input/interlaced_006.png",
+        "exports/demo/mixed_tff/input/interlaced_007.png",
+        "exports/demo/mixed_tff/input/interlaced_008.png",
+        "exports/demo/mixed_tff/input/interlaced_009.png",
+        "exports/demo/mixed_tff/input/interlaced_010.png",
+        "exports/demo/mixed_tff/input/interlaced_011.png"
+      ]
+    },
+    "bob": {
+      "dir": [
+        "exports/demo/mixed_tff/bob/bob_000.png",
+        "exports/demo/mixed_tff/bob/bob_001.png",
+        "exports/demo/mixed_tff/bob/bob_002.png",
+        "exports/demo/mixed_tff/bob/bob_003.png",
+        "exports/demo/mixed_tff/bob/bob_004.png",
+        "exports/demo/mixed_tff/bob/bob_005.png",
+        "exports/demo/mixed_tff/bob/bob_006.png",
+        "exports/demo/mixed_tff/bob/bob_007.png",
+        "exports/demo/mixed_tff/bob/bob_008.png",
+        "exports/demo/mixed_tff/bob/bob_009.png",
+        "exports/demo/mixed_tff/bob/bob_010.png",
+        "exports/demo/mixed_tff/bob/bob_011.png",
+        "exports/demo/mixed_tff/bob/bob_012.png",
+        "exports/demo/mixed_tff/bob/bob_013.png",
+        "exports/demo/mixed_tff/bob/bob_014.png",
+        "exports/demo/mixed_tff/bob/bob_015.png",
+        "exports/demo/mixed_tff/bob/bob_016.png",
+        "exports/demo/mixed_tff/bob/bob_017.png",
+        "exports/demo/mixed_tff/bob/bob_018.png",
+        "exports/demo/mixed_tff/bob/bob_019.png",
+        "exports/demo/mixed_tff/bob/bob_020.png",
+        "exports/demo/mixed_tff/bob/bob_021.png",
+        "exports/demo/mixed_tff/bob/bob_022.png",
+        "exports/demo/mixed_tff/bob/bob_023.png"
+      ]
+    },
+    "weave": {
+      "dir": [
+        "exports/demo/mixed_tff/weave/weave_000.png",
+        "exports/demo/mixed_tff/weave/weave_001.png",
+        "exports/demo/mixed_tff/weave/weave_002.png",
+        "exports/demo/mixed_tff/weave/weave_003.png",
+        "exports/demo/mixed_tff/weave/weave_004.png",
+        "exports/demo/mixed_tff/weave/weave_005.png",
+        "exports/demo/mixed_tff/weave/weave_006.png",
+        "exports/demo/mixed_tff/weave/weave_007.png",
+        "exports/demo/mixed_tff/weave/weave_008.png",
+        "exports/demo/mixed_tff/weave/weave_009.png",
+        "exports/demo/mixed_tff/weave/weave_010.png",
+        "exports/demo/mixed_tff/weave/weave_011.png",
+        "exports/demo/mixed_tff/weave/weave_012.png",
+        "exports/demo/mixed_tff/weave/weave_013.png",
+        "exports/demo/mixed_tff/weave/weave_014.png",
+        "exports/demo/mixed_tff/weave/weave_015.png",
+        "exports/demo/mixed_tff/weave/weave_016.png",
+        "exports/demo/mixed_tff/weave/weave_017.png",
+        "exports/demo/mixed_tff/weave/weave_018.png",
+        "exports/demo/mixed_tff/weave/weave_019.png",
+        "exports/demo/mixed_tff/weave/weave_020.png",
+        "exports/demo/mixed_tff/weave/weave_021.png",
+        "exports/demo/mixed_tff/weave/weave_022.png",
+        "exports/demo/mixed_tff/weave/weave_023.png"
+      ]
+    },
+    "adaptive": {
+      "dir": [
+        "exports/demo/mixed_tff/adaptive/adaptive_000.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_001.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_002.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_003.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_004.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_005.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_006.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_007.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_008.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_009.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_010.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_011.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_012.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_013.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_014.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_015.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_016.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_017.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_018.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_019.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_020.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_021.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_022.png",
+        "exports/demo/mixed_tff/adaptive/adaptive_023.png"
+      ]
+    },
+    "reference": {
+      "dir": [
+        "exports/demo/mixed_tff/reference/ref_000.png",
+        "exports/demo/mixed_tff/reference/ref_001.png",
+        "exports/demo/mixed_tff/reference/ref_002.png",
+        "exports/demo/mixed_tff/reference/ref_003.png",
+        "exports/demo/mixed_tff/reference/ref_004.png",
+        "exports/demo/mixed_tff/reference/ref_005.png",
+        "exports/demo/mixed_tff/reference/ref_006.png",
+        "exports/demo/mixed_tff/reference/ref_007.png",
+        "exports/demo/mixed_tff/reference/ref_008.png",
+        "exports/demo/mixed_tff/reference/ref_009.png",
+        "exports/demo/mixed_tff/reference/ref_010.png",
+        "exports/demo/mixed_tff/reference/ref_011.png"
+      ]
+    }
+  },
+  "method_labels": {
+    "bob": "简单行复制",
+    "weave": "两场融合",
+    "adaptive": "运动自适应"
+  }
+}
