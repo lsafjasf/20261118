@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%234f9cf9'/%3E%3C/svg%3E">
+  <title>视频帧完整性校验与损坏定位</title>
+  <style>
+    :root {
+      --bg: #0f1620;
+      --panel: #18222f;
+      --panel-2: #1f2c3b;
+      --line: #2c3d50;
+      --text: #e6edf4;
+      --muted: #8da2b6;
+      --accent: #4f9cf9;
+      --ok: #3fb96b;
+      --bad: #f2604d;
+      --warn: #e8b34a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    header { padding: 18px 24px; border-bottom: 1px solid var(--line); }
+    header h1 { margin: 0 0 4px; font-size: 18px; }
+    header p { margin: 0; color: var(--muted); font-size: 13px; }
+    main { padding: 20px 24px; display: grid; gap: 16px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .panel h2 { margin: 0 0 12px; font-size: 14px; color: var(--accent); }
+    .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: var(--muted); font-size: 12px; }
+    select, button, input[type="file"] {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font: inherit;
+    }
+    button { cursor: pointer; }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #08131f; font-weight: 700; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .summary { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      min-width: 110px;
+    }
+    .stat .num { font-size: 20px; font-weight: 700; }
+    .stat .label { color: var(--muted); font-size: 12px; }
+    .verdict-badge { padding: 6px 12px; border-radius: 999px; font-weight: 700; display: inline-block; }
+    .verdict-pixel-damage { background: rgba(242,96,77,.18); color: var(--bad); }
+    .verdict-metadata-only { background: rgba(232,179,74,.18); color: var(--warn); }
+    .verdict-identical { background: rgba(63,185,107,.18); color: var(--ok); }
+    .timeline-wrap { overflow-x: auto; padding-bottom: 8px; }
+    .timeline { display: flex; gap: 2px; min-width: max-content; }
+    .tick {
+      width: 14px; height: 34px; border-radius: 4px;
+      background: #274060;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .tick.match { background: #234d36; }
+    .tick.pixels-differ { background: var(--bad); }
+    .tick.missing { background: #555; }
+    .tick.selected { outline: 2px solid var(--text); }
+    .tick.anchored { border-color: var(--warn); }
+    .legend { display: flex; gap: 14px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .legend span::before {
+      content: ""; display: inline-block; width: 10px; height: 10px;
+      border-radius: 2px; margin-right: 5px; vertical-align: -1px;
+    }
+    .legend .l-match::before { background: #234d36; }
+    .legend .l-diff::before { background: var(--bad); }
+    .legend .l-missing::before { background: #555; }
+    .detail { display: grid; grid-template-columns: 360px 1fr; gap: 16px; }
+    canvas {
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      image-rendering: pixelated;
+    }
+    table { border-collapse: collapse; width: 100%; font-size: 12px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+    th { color: var(--muted); font-weight: 600; }
+    .scroll { max-height: 280px; overflow: auto; }
+    .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .runs .kind-sample { color: var(--bad); }
+    .runs .kind-metadata, .runs .kind-container { color: var(--warn); }
+    .hint { color: var(--muted); font-size: 12px; }
+    .error { color: var(--bad); white-space: pre-wrap; }
+    .progress { height: 6px; background: var(--panel-2); border-radius: 3px; overflow: hidden; }
+    .progress > div { height: 100%; background: var(--accent); width: 0; transition: width .15s; }
+    @media (max-width: 900px) { .detail { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>视频帧完整性校验与损坏定位</h1>
+    <p>WebCodecs 解码 → Y/U/V 平面分块 xxHash32 → 时间线对比 → 变化块与源文件字节区间定位。报告不含任何原始画面。</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>1. 输入与场景</h2>
+      <div class="controls">
+        <div class="field">
+          <label for="sourceFile">源文件（参考帧）</label>
+          <input type="file" id="sourceFile" accept="video/mp4">
+        </div>
+        <div class="field">
+          <label for="candidateFile">转存文件（留空则模拟损坏）</label>
+          <input type="file" id="candidateFile" accept="video/mp4">
+        </div>
+        <div class="field">
+          <label for="scenario">模拟损坏场景</label>
+          <select id="scenario">
+            <option value="keyframe">关键帧（IDR）损坏</option>
+            <option value="pframe">P/B 帧损坏</option>
+            <option value="gentlePframe">温和 P 帧（浏览器可解码·块级定位）</option>
+            <option value="metadata">容器元数据（free 盒）损坏</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="blockSize">分块尺寸（像素）</label>
+          <select id="blockSize">
+            <option>8</option>
+            <option selected>16</option>
+            <option>32</option>
+          </select>
+        </div>
+        <button class="primary" id="runBtn">开始校验</button>
+        <button id="loadFixtureBtn">载入内置测试夹具</button>
+        <button id="exportJsonBtn" disabled>导出 JSON 报告</button>
+        <button id="exportHtmlBtn" disabled>导出 HTML 报告</button>
+      </div>
+      <p class="hint">不上传转存文件时，工具会在浏览器内对源文件做等长原地损坏，不修改你磁盘上的文件。</p>
+      <div class="progress" style="margin-top:10px"><div id="progressBar"></div></div>
+      <p class="error" id="errorBox"></p>
+    </section>
+
+    <section class="panel" id="resultPanel" hidden>
+      <h2>2. 校验结论</h2>
+      <div class="summary" id="summary"></div>
+    </section>
+
+    <section class="panel" id="timelinePanel" hidden>
+      <h2>3. 时间线（点击帧查看变化块）</h2>
+      <div class="timeline-wrap"><div class="timeline" id="timeline"></div></div>
+      <div class="legend">
+        <span class="l-match">哈希一致</span>
+        <span class="l-diff">像素差异</span>
+        <span class="l-missing">解码缺失</span>
+      </div>
+    </section>
+
+    <section class="panel" id="detailPanel" hidden>
+      <h2>4. 帧详情与字节区间</h2>
+      <div class="detail">
+        <div>
+          <canvas id="frameCanvas" width="320" height="240"></canvas>
+          <p class="hint" id="frameCaption"></p>
+        </div>
+        <div>
+          <h3 style="margin:0 0 8px;font-size:13px">变化块（Y/U/V）</h3>
+          <div class="scroll"><table id="blockTable">
+            <thead><tr><th>平面</th><th>块坐标 (行,列)</th><th>像素矩形</th><th>源哈希</th><th>转存哈希</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <h3 style="margin:14px 0 8px;font-size:13px">关联源文件字节区间</h3>
+          <div class="scroll runs"><table id="runTable">
+            <thead><tr><th>类型</th><th>字节区间</th><th>采样/帧</th><th>采样整段范围</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

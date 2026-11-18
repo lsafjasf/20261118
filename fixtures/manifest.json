@@ -1,0 +1,42 @@
+{
+  "source": "source.mp4",
+  "variants": {
+    "corrupt-keyframe.mp4": {
+      "kind": "keyframe",
+      "sampleIndex": 30,
+      "containerBox": null,
+      "byteRuns": [
+        {
+          "start": 63046,
+          "end": 63047
+        }
+      ]
+    },
+    "corrupt-pframe.mp4": {
+      "kind": "pframe",
+      "sampleIndex": 31,
+      "containerBox": null,
+      "byteRuns": [
+        {
+          "start": 66792,
+          "end": 66793
+        }
+      ]
+    },
+    "corrupt-metadata.mp4": {
+      "kind": "metadata",
+      "sampleIndex": null,
+      "containerBox": "free",
+      "byteRuns": [
+        {
+          "start": 1929,
+          "end": 1930
+        },
+        {
+          "start": 1930,
+          "end": 1931
+        }
+      ]
+    }
+  }
+}

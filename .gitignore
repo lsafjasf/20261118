@@ -1,0 +1,5 @@
+node_modules/
+.browsers/
+artifacts/e2e-tmp/
+*.log
+.DS_Store
