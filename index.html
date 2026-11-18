@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音频分段标注器 · 能量/过零率/频谱平坦度 VAD</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>音频分段标注器</h1>
+    <p class="subtitle">短时能量 + 过零率 + 频谱平坦度 · 纯 Web Audio 计算，不使用浏览器语音识别</p>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <div class="toolbar">
+        <button id="btn-fixture" class="primary">加载固定测试素材</button>
+        <label class="file-btn">
+          上传 WAV
+          <input type="file" id="file-input" accept=".wav,audio/wav" hidden />
+        </label>
+        <button id="btn-export">导出区间 JSON</button>
+        <label class="tol">边界容忍
+          <select id="tolerance">
+            <option value="0.05">50 ms</option>
+            <option value="0.1" selected>100 ms</option>
+            <option value="0.2">200 ms</option>
+          </select>
+        </label>
+      </div>
+      <p id="fixture-info" class="muted"></p>
+      <p id="thresholds" class="thresholds"></p>
+
+      <div class="timeline-wrap">
+        <canvas id="timeline"></canvas>
+      </div>
+      <div class="legend">
+        <span><i class="dot dot-speech"></i>语音 speech</span>
+        <span><i class="dot dot-noise"></i>背景噪声 noise</span>
+        <span><i class="dot dot-silence"></i>静音 silence</span>
+        <span class="muted">拖动竖线调整边界，相邻区间自动联动</span>
+      </div>
+      <audio id="player" controls class="player"></audio>
+    </section>
+
+    <section class="card">
+      <h2>总时长（编辑后实时重算）</h2>
+      <div class="totals">
+        <div><span>语音</span><strong id="total-speech">0</strong><em>s</em></div>
+        <div><span>噪声</span><strong id="total-noise">0</strong><em>s</em></div>
+        <div><span>静音</span><strong id="total-silence">0</strong><em>s</em></div>
+        <div class="grand"><span>合计</span><strong id="total-all">0</strong><em>s</em></div>
+      </div>
+
+      <h2>检测指标（对比固定真值）</h2>
+      <div id="metrics-body" class="metrics"></div>
+
+      <h2>可编辑区间</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>标签</th><th>开始 (s)</th><th>结束 (s)</th><th>时长 (s)</th></tr>
+          </thead>
+          <tbody id="segment-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="src/fft.js"></script>
+  <script src="src/features.js"></script>
+  <script src="src/vad.js"></script>
+  <script src="src/metrics.js"></script>
+  <script src="src/test-signal.js"></script>
+  <script src="src/wav-codec.js"></script>
+  <script src="src/timeline.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

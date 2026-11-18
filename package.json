@@ -1,0 +1,12 @@
+{
+  "name": "audio-segment-annotator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Energy/ZCR/flatness VAD with editable segments and detection metrics (no browser speech recognition)",
+  "scripts": {
+    "test": "node test/run-tests.js && node test/dom-test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
+}
