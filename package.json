@@ -1,0 +1,21 @@
+{
+  "name": "scte35-hls-cue-timeline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local HLS SCTE-35 ad cue parser, validator and player timeline",
+  "scripts": {
+    "start": "node server.mjs",
+    "generate:media": "node scripts/generate-media.mjs",
+    "export": "node scripts/capture.mjs",
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/timeline.js && node --check src/player.js && node --check src/app.js && node --check scripts/capture.mjs"
+  },
+  "dependencies": {
+    "hls.js": "^1.7.4"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "playwright-core": "^1.65.1"
+  }
+}
