@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MSE 本地多码率播放实验</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; padding: 24px; font-family: system-ui, "PingFang SC", sans-serif;
+      background: #11141a; color: #e6e9ef;
+    }
+    h1 { font-size: 18px; margin: 0 0 16px; }
+    .layout { display: grid; grid-template-columns: minmax(360px, 1fr) 380px; gap: 20px; }
+    video { width: 100%; background: #000; border-radius: 8px; }
+    .panel {
+      background: #1a1f29; border: 1px solid #2a3140; border-radius: 8px;
+      padding: 14px 16px; margin-bottom: 14px;
+    }
+    .panel h2 { font-size: 13px; margin: 0 0 10px; color: #9fb0c8; text-transform: uppercase; letter-spacing: .08em; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { background: #11141a; border-radius: 6px; padding: 10px; }
+    .metric .label { font-size: 11px; color: #8a97ab; }
+    .metric .value { font-size: 20px; font-weight: 600; margin-top: 2px; }
+    .metric .sub { font-size: 11px; color: #8a97ab; margin-top: 2px; }
+    button {
+      background: #2563eb; color: #fff; border: 0; border-radius: 6px;
+      padding: 8px 12px; font-size: 13px; cursor: pointer; margin: 0 6px 6px 0;
+    }
+    button.secondary { background: #374151; }
+    button.active { background: #059669; }
+    .reason { font-family: ui-monospace, monospace; font-size: 12px; color: #fbbf24; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: ui-monospace, monospace; }
+    th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #2a3140; }
+    th { color: #8a97ab; font-weight: 500; }
+    .log-wrap { max-height: 260px; overflow-y: auto; }
+    .pill { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; background: #374151; }
+    .pill.locked { background: #b45309; }
+  </style>
+</head>
+<body>
+  <h1>MSE 本地多码率播放实验（分片边界切换）</h1>
+  <div class="layout">
+    <div>
+      <video id="video" muted controls playsinline></video>
+      <div class="panel">
+        <h2>网络条件</h2>
+        <button data-profile="none" class="active">不限速</button>
+        <button data-profile="slow" class="secondary">慢速网络</button>
+        <button data-profile="jitter" class="secondary">瞬时抖动</button>
+        <button id="burst" class="secondary">注入 5 秒 200kbps 抖动</button>
+      </div>
+      <div class="panel">
+        <h2>切换记录</h2>
+        <div class="log-wrap">
+          <table>
+            <thead><tr><th>#</th><th>分片</th><th>码率</th><th>原因</th><th>缓冲(s)</th><th>吞吐(kbps)</th></tr></thead>
+            <tbody id="log-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2>实时状态</h2>
+        <div class="metrics">
+          <div class="metric"><div class="label">当前码率</div><div class="value" id="m-bitrate">-</div><div class="sub" id="m-rendition">-</div></div>
+          <div class="metric"><div class="label">缓冲时长</div><div class="value" id="m-buffer">-</div><div class="sub">秒（前方未播放）</div></div>
+          <div class="metric"><div class="label">最近切换原因</div><div class="value reason" id="m-reason">-</div><div class="sub" id="m-reason-sub">无模糊状态</div></div>
+          <div class="metric"><div class="label">累计卡顿次数</div><div class="value" id="m-stalls">0</div><div class="sub" id="m-lock-state">自动策略运行中</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>手动锁档（自动策略暂停，播放不中断）</h2>
+        <div id="lock-buttons"></div>
+        <button id="unlock" class="secondary">恢复自动策略</button>
+      </div>
+      <div class="panel">
+        <h2>最近下载吞吐（EWMA）</h2>
+        <div class="value" id="m-throughput">-</div>
+      </div>
+    </div>
+  </div>
+  <script src="abr.js"></script>
+  <script src="network.js"></script>
+  <script src="player.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
