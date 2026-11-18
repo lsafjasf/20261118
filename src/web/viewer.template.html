@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>音频响度地图 · 分段响度 / 峰值 / 静音</title>
+<style>
+  :root {
+    --bg: #0f1420; --panel: #171e2e; --grid: #24304a; --text: #dce4f2;
+    --muted: #8794ad; --accent: #5aa7ff; --loud: #ff6b6b; --quiet: #7c5cff;
+    --silence: #2c3650; --peak: #ffd166; --window: #22d3a5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 13px/1.5 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  header { padding: 14px 20px 6px; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 12px; }
+  .wrap { padding: 10px 20px 30px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 10px 0 14px; }
+  .card { background: var(--panel); border: 1px solid var(--grid); border-radius: 10px; padding: 10px 12px; }
+  .card .k { color: var(--muted); font-size: 11px; }
+  .card .v { font-size: 18px; font-weight: 650; margin-top: 2px; }
+  .card .h { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .panel { background: var(--panel); border: 1px solid var(--grid); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+  .panel h2 { font-size: 13px; margin: 0 0 8px; color: var(--accent); }
+  canvas { width: 100%; display: block; border-radius: 8px; cursor: crosshair; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 10px 0; }
+  button { background: #1f2a40; color: var(--text); border: 1px solid var(--grid);
+    border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 12px; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #06101f; font-weight: 650; }
+  input[type=range] { width: 180px; }
+  label { color: var(--muted); }
+  .readout { background: #10182a; border: 1px solid var(--grid); border-radius: 8px;
+    padding: 8px 10px; font-variant-numeric: tabular-nums; min-width: 230px; }
+  .readout b { color: var(--text); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  th { color: var(--muted); font-weight: 500; }
+  tr.region { cursor: pointer; }
+  tr.region:hover { background: #1d2740; }
+  .tag { padding: 1px 7px; border-radius: 999px; font-size: 11px; }
+  .tag.loud { background: rgba(255,107,107,.18); color: var(--loud); }
+  .tag.low { background: rgba(124,92,255,.18); color: var(--quiet); }
+  .tag.sil { background: rgba(120,140,180,.18); color: var(--muted); }
+  .note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .axislabel { fill: var(--muted); font-size: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>音频响度地图（10 分钟合成动态范围素材）</h1>
+  <div class="sub">K 加权 LUFS · 采样级峰值 dBFS · 单元 RMS 静音判定 · 全程绝对时间坐标，拖动窗口不改变时间编号</div>
+</header>
+<div class="wrap">
+  <div class="cards" id="cards"></div>
+
+  <div class="panel">
+    <h2>全轨地图（点击曲线试听该片段；红色=突然变响，紫色=持续低电平，灰色=静音）</h2>
+    <canvas id="map" height="240"></canvas>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--accent)"></i>响度 LUFS</span>
+      <span><i class="swatch" style="background:var(--peak)"></i>峰值 dBFS</span>
+      <span><i class="swatch" style="background:var(--loud)"></i>突然变响</span>
+      <span><i class="swatch" style="background:var(--quiet)"></i>持续低电平</span>
+      <span><i class="swatch" style="background:var(--silence)"></i>静音</span>
+      <span><i class="swatch" style="background:var(--window)"></i>分析窗口</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>可拖拽局部分析窗口（边界只裁剪范围，不重置时间轴）</h2>
+    <div class="controls">
+      <label>窗口起点 <input type="range" id="winStart" min="0" max="600" step="0.5"></label>
+      <label>窗口长度 <input type="range" id="winLen" min="5" max="120" step="1"></label>
+      <button class="primary" id="reanalyze">重新分析局部窗口</button>
+      <button id="resetWin">重置为全轨</button>
+      <div class="readout" id="winReadout"></div>
+    </div>
+    <canvas id="zoom" height="200"></canvas>
+    <div class="note" id="reanalyzeNote"></div>
+  </div>
+
+  <div class="panel">
+    <h2>试听控制</h2>
+    <div class="controls">
+      <button id="play">▶ 播放指针处</button>
+      <button id="stop">■ 停止</button>
+      <label>试听片段长度 <input type="range" id="clipLen" min="1" max="10" step="0.5"></label>
+      <div class="readout" id="playReadout"></div>
+    </div>
+    <div class="note">点击任意图表的曲线会把播放指针移动到该绝对时间点并试听；再次点击可重新定位。</div>
+  </div>
+
+  <div class="panel">
+    <h2>检测到的异常区域（点击行可跳转并试听）</h2>
+    <table id="regionTable">
+      <thead><tr><th>类型</th><th>起点 (s)</th><th>终点 (s)</th><th>时长 (s)</th><th>关键值</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>分析窗口与重叠策略</h2>
+    <div class="note" id="strategy"></div>
+  </div>
+</div>
+
+<script>/*__AUDIO_METRICS_JS__*/</script>
+<script>
+const METRICS = "__METRICS_JSON__";
+const WAV_BASE64 = "__WAV_BASE64__";
+/*__VIEWER_APP_JS__*/
+</script>
+</body>
+</html>
