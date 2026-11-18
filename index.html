@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>屏幕录制器 · Screen Capture + MediaRecorder</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="panel">
+    <h1>屏幕录制器</h1>
+    <p class="subtitle">getDisplayMedia + 麦克风 → MediaRecorder 分块写入 IndexedDB</p>
+
+    <div id="recovery-banner" class="banner hidden">
+      <span id="recovery-text"></span>
+      <button id="btn-recover" type="button">继续录制</button>
+      <button id="btn-discard" type="button" class="secondary">丢弃数据</button>
+    </div>
+
+    <section class="stats">
+      <div class="stat"><span class="label">状态</span><span id="stat-state" class="value">空闲</span></div>
+      <div class="stat"><span class="label">已录时长</span><span id="stat-duration" class="value">0.0 s</span></div>
+      <div class="stat"><span class="label">视频块数</span><span id="stat-video-blocks" class="value">0</span></div>
+      <div class="stat"><span class="label">音频块数</span><span id="stat-audio-blocks" class="value">0</span></div>
+      <div class="stat"><span class="label">分片数</span><span id="stat-chunks" class="value">0</span></div>
+      <div class="stat"><span class="label">录制段</span><span id="stat-segments" class="value">0</span></div>
+      <div class="stat"><span class="label">预计文件大小</span><span id="stat-size" class="value">0 KB</span></div>
+    </section>
+
+    <section class="controls">
+      <button id="btn-start" type="button">开始录制</button>
+      <button id="btn-pause" type="button" disabled>暂停</button>
+      <button id="btn-resume" type="button" disabled>继续</button>
+      <button id="btn-stop" type="button" disabled>停止</button>
+      <button id="btn-download" type="button" disabled>下载 WebM</button>
+      <button id="btn-clear" type="button" class="secondary">清除数据</button>
+    </section>
+
+    <pre id="log" class="log"></pre>
+  </main>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
