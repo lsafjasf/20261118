@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sender · WebRTC Quality Lab</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark"></span>WebRTC Quality Lab</div>
+        <div class="top-statuses">
+          <span class="pill" id="signalPill">信令等待中</span>
+          <span class="pill" id="senderPill">发送端待机</span>
+        </div>
+        <nav class="top-links">
+          <a class="ghost-link" href="/receiver.html" target="_blank" rel="noreferrer">打开接收端 ↗</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Sender / Synthetic media source</div>
+          <h1>合成一条可测量的<br />音视频链路</h1>
+        </div>
+        <p>
+          画面和时间戳在浏览器内实时生成，音频由 Web Audio 合成。发送前可立即把带宽压到
+          32 kbps，接收端会基于 getStats 独立判断视频与音频质量。
+        </p>
+      </section>
+
+      <main class="sender-layout">
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <div class="panel-label">Local stream</div>
+              <div class="panel-title">发送预览</div>
+            </div>
+            <div class="panel-aside">CANVAS 1280×720<br />CAPTURE 640×360 · 30 FPS</div>
+          </div>
+          <div class="sender-preview">
+            <canvas id="previewCanvas" width="1280" height="720"></canvas>
+          </div>
+          <div class="audio-meter">
+            <span class="audio-meter-label">AUDIO BEACON</span>
+            <div class="meter-track"><div class="meter-fill" id="audioMeter"></div></div>
+            <span class="audio-meter-label" id="audioMeterValue">−∞ dB</span>
+          </div>
+          <div class="sender-stats" aria-label="发送端 getStats">
+            <div class="sender-stat"><div class="name">Send bitrate</div><div class="value" id="sendBitrate">—</div></div>
+            <div class="sender-stat"><div class="name">Encode FPS</div><div class="value" id="sendFps">—</div></div>
+            <div class="sender-stat"><div class="name">Quality limitation</div><div class="value" id="qualityReason">—</div></div>
+            <div class="sender-stat"><div class="name">Capture size</div><div class="value" id="sendResolution">640×360</div></div>
+            <div class="sender-stat"><div class="name">RTP packets sent</div><div class="value" id="packetsSent">—</div></div>
+            <div class="sender-stat"><div class="name">Frames encoded</div><div class="value" id="framesEncoded">—</div></div>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <div class="panel-heading">
+            <div>
+              <div class="panel-label">Controls</div>
+              <div class="panel-title">链路控制</div>
+            </div>
+            <div class="panel-aside" id="clock">00:00:00.000</div>
+          </div>
+
+          <div class="control-card">
+            <h3>01 · 建立传输</h3>
+            <p class="control-copy">
+              先在新标签页打开接收端，再启动传输。合成画面包含毫秒时间戳，音频每秒发出一次节拍。
+            </p>
+            <button class="button" id="startBtn">开始传输</button>
+            <div class="control-status" id="connectionStatus">等待启动</div>
+          </div>
+
+          <div class="control-card">
+            <h3>02 · 带宽故障注入</h3>
+            <p class="control-copy">
+              限速直接写入 RTCRtpSender 的 maxBitrate，并保持分辨率优先。受限时应有持续 3
+              个采样周期的帧间隔异常告警。
+            </p>
+            <div class="profile-readout">
+              <span>当前发送上限</span>
+              <strong id="profileValue">2000 kbps</strong>
+            </div>
+            <button class="button danger" id="capBtn" disabled>注入 32 kbps 限速</button>
+            <button class="button recover" id="restoreBtn" disabled style="margin-top: 8px">
+              恢复 2000 kbps
+            </button>
+            <div class="control-status" id="capStatus">尚未启动发送</div>
+          </div>
+
+          <div class="receiver-link">
+            <a href="/receiver.html" target="_blank" rel="noreferrer">接收端 / Receiver →</a>
+            <br />
+            两页需保持在同一房间（default）。
+          </div>
+        </aside>
+      </main>
+    </div>
+    <script type="module" src="/sender.js"></script>
+  </body>
+</html>

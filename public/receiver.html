@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receiver · WebRTC Quality Lab</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark"></span>WebRTC Quality Lab</div>
+        <div class="top-statuses">
+          <span class="pill" id="signalPill">信令连接中</span>
+          <span class="pill" id="mediaPill">媒体等待中</span>
+        </div>
+        <nav class="top-links">
+          <a class="ghost-link" href="/sender.html" target="_blank" rel="noreferrer">打开发送端 ↗</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Receiver / getStats observatory</div>
+          <h1>让每一秒质量变化<br />可解释</h1>
+        </div>
+        <div class="panel-aside" style="text-align: right">
+          原始累计计数每秒采样一次。音视频分别维护趋势、丢包连续性与恢复窗口，首次异常时间在本次故障内保持不变。
+        </div>
+      </section>
+
+      <main class="receiver-grid">
+        <section class="panel stage-panel">
+          <div class="panel-heading">
+            <div>
+              <div class="panel-label">Remote stream</div>
+              <div class="panel-title">接收画面</div>
+            </div>
+            <span class="pill" id="receivePill">WAITING</span>
+          </div>
+          <div class="stage-wrap">
+            <video id="remoteVideo" autoplay playsinline muted></video>
+            <div class="stage-empty" id="stageEmpty">
+              <strong>等待发送端</strong>
+              <span>打开 /sender.html 并点击“开始传输”</span>
+            </div>
+            <span class="stage-badge">LIVE</span>
+          </div>
+          <div class="stage-footer">
+            <span id="streamMeta">SYNTHETIC A/V · NO REMOTE STREAM</span>
+            <strong id="frameClock">FRAME —</strong>
+          </div>
+        </section>
+
+        <aside class="quality-stack">
+          <article class="quality-card" id="videoQuality" data-kind="video" data-testid="video-quality">
+            <div class="quality-head">
+              <div class="quality-kind">VIDEO</div>
+              <div class="quality-state" id="videoQualityState">WAITING</div>
+            </div>
+            <div class="quality-summary" id="videoQualitySummary">等待视频轨道</div>
+            <div class="quality-subline" id="videoQualitySubline">—</div>
+            <div class="quality-trigger">
+              <span>首次异常</span>
+              <strong id="videoFirstAnomaly">—</strong>
+            </div>
+            <div class="quality-detail" id="videoQualityDetail">当前尚未触发视频链路质量问题</div>
+          </article>
+
+          <article class="quality-card" id="audioQuality" data-kind="audio" data-testid="audio-quality">
+            <div class="quality-head">
+              <div class="quality-kind">AUDIO</div>
+              <div class="quality-state" id="audioQualityState">WAITING</div>
+            </div>
+            <div class="quality-summary" id="audioQualitySummary">等待音频轨道</div>
+            <div class="quality-subline" id="audioQualitySubline">—</div>
+            <div class="quality-trigger">
+              <span>首次异常</span>
+              <strong id="audioFirstAnomaly">—</strong>
+            </div>
+            <div class="quality-detail" id="audioQualityDetail">当前尚未触发音频链路质量问题</div>
+          </article>
+
+          <div class="recovery-note">
+            <h3>Recovery window</h3>
+            <p>
+              告警后需连续 3 个健康样本才会解除红色状态。恢复后保留本次首次异常时刻，下一次新故障会重新计时。
+            </p>
+          </div>
+        </aside>
+      </main>
+
+      <section class="panel trend-section">
+        <div class="panel-heading">
+          <div>
+            <div class="panel-label">Last 10 seconds</div>
+            <div class="panel-title">独立指标趋势</div>
+          </div>
+          <div class="trend-legend">
+            <span><i></i>视频</span>
+            <span><i class="audio-line"></i>音频</span>
+            <span><i class="alert-line"></i>首次异常</span>
+            <span class="recovered-note" id="trendRecovered"></span>
+          </div>
+        </div>
+        <div class="trend-groups">
+          <div class="trend-group" data-kind="video">
+            <div class="trend-head">
+              <h3>VIDEO · 视频链路</h3>
+              <span class="sample-count" id="videoSampleCount">0 / 10 样本</span>
+            </div>
+            <div class="metric-grid" id="videoMetrics"></div>
+          </div>
+          <div class="trend-group" data-kind="audio">
+            <div class="trend-head">
+              <h3>AUDIO · 音频链路</h3>
+              <span class="sample-count" id="audioSampleCount">0 / 10 样本</span>
+            </div>
+            <div class="metric-grid" id="audioMetrics"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <div class="panel-label">Original counters</div>
+              <div class="panel-title">视频原始 getStats</div>
+            </div>
+            <div class="panel-aside" id="videoStatsTime">—</div>
+          </div>
+          <div class="stats-table" id="videoRawStats">
+            <div class="raw-empty">等待第一个统计样本</div>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <div class="panel-label">Original counters</div>
+              <div class="panel-title">音频原始 getStats</div>
+            </div>
+            <div class="panel-aside" id="audioStatsTime">—</div>
+          </div>
+          <div class="stats-table" id="audioRawStats">
+            <div class="raw-empty">等待第一个统计样本</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel timeline-panel">
+        <div class="panel-heading">
+          <div>
+            <div class="panel-label">Incident timeline</div>
+            <div class="panel-title">告警与恢复记录</div>
+          </div>
+          <div class="panel-aside" id="timelineClock">LOCAL TIME</div>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="timeline-entry">
+            <span class="timeline-dot"></span>
+            <span class="timeline-time">—</span>
+            <div class="timeline-body"><strong>等待接入</strong>接收端已就绪，等待发送端建立 WebRTC 会话。</div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/receiver.js"></script>
+  </body>
+</html>
